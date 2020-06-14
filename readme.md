@@ -1,6 +1,6 @@
 # StructMapping
 
-![Release version](https://img.shields.io/badge/release-v0.1.0-blue.svg)
+![Release version](https://img.shields.io/badge/release-v0.2.0-blue.svg)
 
 [документация на русском](/readme_ru.md)
 
@@ -238,6 +238,64 @@ array dimension can be increased
 
 ```cpp
 MANAGED_FIELD_ARRAY(MANAGED_ARRAY(MANAGED_ARRAY(std::string)), planet_groups)
+```
+
+#### Reverse mapping of c ++ structure on json data
+
+[example/struct_to_json](/example/struct_to_json/struct_to_json.cpp)
+
+pass an instance of the managed structure to the mapping method along with the output json data stream
+
+```cpp
+std::ostringstream json_data;
+struct_mapping::mapper::map_struct_to_json(earth, json_data);
+```
+
+as a result, data of the form
+
+```cpp
+{"giant":false,"surface_area":510072000,"mass":5.97237e+24,"volume":1.08321e+12,"orbital_period":31536000,"name":"Terra","terrestrial":true,"shape":"nearly spherical","ocean":{"water_volume":1.332e+09,"surface_area":361132000,"liquid":true,"name":"World Ocean","color":{"name":"blue"},"parts":[{"name":"Pacific Ocean","average_depth":4.28011},{"name":"Atlantic Ocean","average_depth":3.646}]}}
+```
+
+the output format can be made more readable using the third parameter `map_struct_to_json`, which sets the indent. When indenting (parameter takes a string)
+
+```cpp
+std::ostringstream json_data;
+struct_mapping::mapper::map_struct_to_json(earth, json_data, "  ");
+```
+
+as a result, data of the form
+
+```cpp
+{
+  "giant": false,
+  "surface_area": 510072000,
+  "mass": 5.97237e+24,
+  "volume": 1.08321e+12,
+  "orbital_period": 31536000,
+  "name": "Terra",
+  "terrestrial": true,
+  "shape": "nearly spherical",
+  "ocean": {
+    "water_volume": 1.332e+09,
+    "surface_area": 361132000,
+    "liquid": true,
+    "name": "World Ocean",
+    "color": {
+      "name": "blue"
+    },
+    "parts": [
+      {
+        "name": "Pacific Ocean",
+        "average_depth": 4.28011
+      },
+      {
+        "name": "Atlantic Ocean",
+        "average_depth": 3.646
+      }
+    ]
+  }
+}
 ```
 
 ## How it works

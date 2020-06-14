@@ -29,7 +29,8 @@ set(TEST_SOURCES
 	parser_json.cpp
 	managed_array.cpp
 	managed_struct.cpp
-	mapper_json.cpp
+	mapper_map_json_to_struct.cpp
+	mapper_map_struct_to_json.cpp
 )
 
 add_executable(${TARGET} ${TEST_SOURCES})

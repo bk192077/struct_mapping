@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.5)
-
+ 
 project(struct_mapping LANGUAGES CXX)
 
 set(LIB_MAJOR_VERSION "0")
-set(LIB_MINOR_VERSION "1")
+set(LIB_MINOR_VERSION "2")
 set(LIB_PATCH_VERSION "0")
 set(LIB_VERSION "${LIB_MAJOR_VERSION}.${LIB_MINOR_VERSION}.${LIB_PATCH_VERSION}")
 
@@ -21,6 +21,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 	set(WARNINGS "${WARNINGS} -Wno-unused-member-function")
 	set(WARNINGS "${WARNINGS} -Wno-ctad-maybe-unsupported")
 	set(WARNINGS "${WARNINGS} -Wno-undef")
+	set(WARNINGS "${WARNINGS} -Wno-double-promotion")
 
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 
@@ -36,7 +37,6 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 	set(WARNINGS "${WARNINGS} -Wconversion")
 	set(WARNINGS "${WARNINGS} -Wsign-conversion")
 	set(WARNINGS "${WARNINGS} -Wnull-dereference")
-	set(WARNINGS "${WARNINGS} -Wdouble-promotion")
 	set(WARNINGS "${WARNINGS} -Wformat=2")
 	set(WARNINGS "${WARNINGS} -Wduplicated-cond")
 	set(WARNINGS "${WARNINGS} -Wduplicated-branches")

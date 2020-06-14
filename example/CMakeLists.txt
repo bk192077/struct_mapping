@@ -6,6 +6,7 @@ set(EXAMPLES
 	person
 	simple
 	struct
+	struct_to_json
 )
 
 include_directories("../include")

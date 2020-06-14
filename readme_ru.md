@@ -1,6 +1,6 @@
 # StructMapping
 
-![Release version](https://img.shields.io/badge/release-v0.1.0-blue.svg)
+![Release version](https://img.shields.io/badge/release-v0.2.0-blue.svg)
 
 [english documentation](/readme.md)
 
@@ -236,6 +236,64 @@ mib.alien_groups.get_data()[13].get_data()[42] // элемент массива 
 
 ```cpp
 MANAGED_FIELD_ARRAY(MANAGED_ARRAY(MANAGED_ARRAY(std::string)), planet_groups)
+```
+
+#### Обратное отображение структуры c++ на данные в формате json
+
+[example/struct_to_json](/example/struct_to_json/struct_to_json.cpp)
+
+передаем экземпляр управляемой структуры в метод отображения вместе с выходным потоком данных json
+
+```cpp
+std::ostringstream json_data;
+struct_mapping::mapper::map_struct_to_json(earth, json_data);
+```
+
+в результате получаются данные вида
+
+```cpp
+{"giant":false,"surface_area":510072000,"mass":5.97237e+24,"volume":1.08321e+12,"orbital_period":31536000,"name":"Terra","terrestrial":true,"shape":"nearly spherical","ocean":{"water_volume":1.332e+09,"surface_area":361132000,"liquid":true,"name":"World Ocean","color":{"name":"blue"},"parts":[{"name":"Pacific Ocean","average_depth":4.28011},{"name":"Atlantic Ocean","average_depth":3.646}]}}
+```
+
+выходной формат можно сделать более читаемым, используя третий параметр `map_struct_to_json`, который задает отступ. При задании отступа (параметр принимает строку)
+
+```cpp
+std::ostringstream json_data;
+struct_mapping::mapper::map_struct_to_json(earth, json_data, "  ");
+```
+
+в результате получаются данные вида
+
+```cpp
+{
+  "giant": false,
+  "surface_area": 510072000,
+  "mass": 5.97237e+24,
+  "volume": 1.08321e+12,
+  "orbital_period": 31536000,
+  "name": "Terra",
+  "terrestrial": true,
+  "shape": "nearly spherical",
+  "ocean": {
+    "water_volume": 1.332e+09,
+    "surface_area": 361132000,
+    "liquid": true,
+    "name": "World Ocean",
+    "color": {
+      "name": "blue"
+    },
+    "parts": [
+      {
+        "name": "Pacific Ocean",
+        "average_depth": 4.28011
+      },
+      {
+        "name": "Atlantic Ocean",
+        "average_depth": 3.646
+      }
+    ]
+  }
+}
 ```
 
 ## Как это работает

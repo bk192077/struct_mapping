@@ -7,6 +7,7 @@
 #include <type_traits>
 #include <vector>
 
+#include "fs.h"
 #include "../debug.h"
 #include "../exception.h"
 
@@ -17,6 +18,19 @@ class ManagedArray {
 public:
 	std::vector<T> & get_data() {
 		return data;
+	}
+
+	void iterate_over(std::string const & name) {
+		if constexpr (struct_mapping::debug_Q5w6E7r8) std::cout << "struct_mapping: ManagedArray::iterate_over: " << name << std::endl;
+		struct_mapping::managed::Fs_iterate_over::start_array(name);
+		for (auto v : data) {
+			if constexpr (std::is_same_v<bool, T>) {struct_mapping::managed::Fs_iterate_over::set_bool("", v);}
+			else if constexpr (std::is_same_v<std::string, T>) {struct_mapping::managed::Fs_iterate_over::set_string("", v);}
+			else if constexpr (std::is_floating_point_v<T>) {struct_mapping::managed::Fs_iterate_over::set_floating_point("", v);}
+			else if constexpr (std::is_integral_v<T>){struct_mapping::managed::Fs_iterate_over::set_integral("", v);}
+			else v.iterate_over("");
+		}
+		struct_mapping::managed::Fs_iterate_over::end_array();
 	}
 
 	bool release() {

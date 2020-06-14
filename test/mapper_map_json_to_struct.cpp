@@ -19,7 +19,7 @@ BEGIN_MANAGED_STRUCT
 END_MANAGED_STRUCT
 #undef MANAGED_STRUCT_NAME
 
-TEST(struct_mapping_mapper_json, empty_struct) {
+TEST(struct_mapping_mapper_map_json_to_struct, empty_struct) {
 	ManagedStruct_empty result_struct;
 	std::istringstream json_data(R"json(
 	{
@@ -41,7 +41,7 @@ MANAGED_FIELD(long long, name_5)
 END_MANAGED_STRUCT
 #undef MANAGED_STRUCT_NAME
 
-TEST(struct_mapping_mapper_json, struct_field_number_long_long) {
+TEST(struct_mapping_mapper_map_json_to_struct, struct_field_number_long_long) {
 	ManagedStruct_field_number_long_long result_struct;
 	std::istringstream json_data(R"json(
 	{
@@ -74,7 +74,7 @@ MANAGED_FIELD(int, name_5)
 END_MANAGED_STRUCT
 #undef MANAGED_STRUCT_NAME	
 
-TEST(struct_mapping_mapper_json, struct_field_number_int) {
+TEST(struct_mapping_mapper_map_json_to_struct, struct_field_number_int) {
 	ManagedStruct_field_number_int result_struct;
 	std::istringstream json_data(R"json(
 	{
@@ -107,7 +107,7 @@ MANAGED_FIELD(short, name_5)
 END_MANAGED_STRUCT
 #undef MANAGED_STRUCT_NAME
 
-TEST(struct_mapping_mapper_json, struct_field_number_short) {
+TEST(struct_mapping_mapper_map_json_to_struct, struct_field_number_short) {
 	ManagedStruct_field_number_short result_struct;
 	std::istringstream json_data(R"json(
 	{
@@ -140,7 +140,7 @@ MANAGED_FIELD(char, name_5)
 END_MANAGED_STRUCT
 #undef MANAGED_STRUCT_NAME
 
-TEST(struct_mapping_mapper_json, struct_field_number_char) {
+TEST(struct_mapping_mapper_map_json_to_struct, struct_field_number_char) {
 	ManagedStruct_field_number_char result_struct;
 	std::istringstream json_data(R"json(
 	{
@@ -171,7 +171,7 @@ MANAGED_FIELD(unsigned int, name_3)
 END_MANAGED_STRUCT
 #undef MANAGED_STRUCT_NAME
 
-TEST(struct_mapping_mapper_json, struct_field_number_unsigned_int) {
+TEST(struct_mapping_mapper_map_json_to_struct, struct_field_number_unsigned_int) {
 	ManagedStruct_field_number_unsigned_int result_struct;
 	std::istringstream json_data(R"json(
 	{
@@ -198,7 +198,7 @@ MANAGED_FIELD(unsigned short, name_3)
 END_MANAGED_STRUCT
 #undef MANAGED_STRUCT_NAME
 
-TEST(struct_mapping_mapper_json, struct_field_number_unsigned_short) {
+TEST(struct_mapping_mapper_map_json_to_struct, struct_field_number_unsigned_short) {
 	ManagedStruct_field_number_unsigned_short result_struct;
 	std::istringstream json_data(R"json(
 	{
@@ -225,7 +225,7 @@ MANAGED_FIELD(unsigned char, name_3)
 END_MANAGED_STRUCT
 #undef MANAGED_STRUCT_NAME
 
-TEST(struct_mapping_mapper_json, struct_field_number_unsigned_char) {
+TEST(struct_mapping_mapper_map_json_to_struct, struct_field_number_unsigned_char) {
 	ManagedStruct_field_number_unsigned_char result_struct;
 	std::istringstream json_data(R"json(
 	{
@@ -258,7 +258,7 @@ MANAGED_FIELD(double, name_9)
 END_MANAGED_STRUCT
 #undef MANAGED_STRUCT_NAME
 
-TEST(struct_mapping_mapper_json, struct_field_number_float) {
+TEST(struct_mapping_mapper_map_json_to_struct, struct_field_number_float) {
 	ManagedStruct_field_number_float result_struct;
 	std::istringstream json_data(R"json(
 	{
@@ -296,7 +296,7 @@ MANAGED_FIELD(std::string, name_2)
 END_MANAGED_STRUCT
 #undef MANAGED_STRUCT_NAME
 
-TEST(struct_mapping_mapper_json, struct_field_string) {
+TEST(struct_mapping_mapper_map_json_to_struct, struct_field_string) {
 	ManagedStruct_field_string result_struct;
 	std::istringstream json_data(R"json(
 	{
@@ -319,7 +319,7 @@ MANAGED_FIELD_ARRAY(bool, name_1)
 END_MANAGED_STRUCT
 #undef MANAGED_STRUCT_NAME
 
-TEST(struct_mapping_mapper_json, struct_field_array_of_bool) {
+TEST(struct_mapping_mapper_map_json_to_struct, struct_field_array_of_bool) {
 	ManagedStruct_field_array_of_bool result_struct;
 	std::istringstream json_data(R"json(
 	{
@@ -352,7 +352,7 @@ MANAGED_FIELD_ARRAY(long long, name_1)
 END_MANAGED_STRUCT
 #undef MANAGED_STRUCT_NAME
 
-TEST(struct_mapping_mapper_json, struct_field_array_of_number_long_long) {
+TEST(struct_mapping_mapper_map_json_to_struct, struct_field_array_of_number_long_long) {
 	ManagedStruct_field_array_of_number_long_long result_struct;
 	std::istringstream json_data(R"json(
 	{
@@ -393,7 +393,7 @@ MANAGED_FIELD_ARRAY(int, name_1)
 END_MANAGED_STRUCT
 #undef MANAGED_STRUCT_NAME
 
-TEST(struct_mapping_mapper_json, struct_field_array_of_number_int) {
+TEST(struct_mapping_mapper_map_json_to_struct, struct_field_array_of_number_int) {
 	ManagedStruct_field_array_of_number_int result_struct;
 	std::istringstream json_data(R"json(
 	{
@@ -434,7 +434,7 @@ MANAGED_FIELD_ARRAY(short, name_1)
 END_MANAGED_STRUCT
 #undef MANAGED_STRUCT_NAME
 
-TEST(struct_mapping_mapper_json, struct_field_array_of_number_short) {
+TEST(struct_mapping_mapper_map_json_to_struct, struct_field_array_of_number_short) {
 	ManagedStruct_field_array_of_number_short result_struct;
 	std::istringstream json_data(R"json(
 	{
@@ -475,7 +475,7 @@ MANAGED_FIELD_ARRAY(char, name_1)
 END_MANAGED_STRUCT
 #undef MANAGED_STRUCT_NAME
 
-TEST(struct_mapping_mapper_json, struct_field_array_of_number_char) {
+TEST(struct_mapping_mapper_map_json_to_struct, struct_field_array_of_number_char) {
 	ManagedStruct_field_array_of_number_char result_struct;
 	std::istringstream json_data(R"json(
 	{
@@ -516,7 +516,7 @@ MANAGED_FIELD_ARRAY(float, name_1)
 END_MANAGED_STRUCT
 #undef MANAGED_STRUCT_NAME
 
-TEST(struct_mapping_mapper_json, struct_field_array_of_number_float) {
+TEST(struct_mapping_mapper_map_json_to_struct, struct_field_array_of_number_float) {
 	ManagedStruct_field_array_of_number_float result_struct;
 	std::istringstream json_data(R"json(
 	{
@@ -557,7 +557,7 @@ MANAGED_FIELD_ARRAY(double, name_1)
 END_MANAGED_STRUCT
 #undef MANAGED_STRUCT_NAME
 
-TEST(struct_mapping_mapper_json, struct_field_array_of_number_double) {
+TEST(struct_mapping_mapper_map_json_to_struct, struct_field_array_of_number_double) {
 	ManagedStruct_field_array_of_number_double result_struct;
 	std::istringstream json_data(R"json(
 	{
@@ -598,7 +598,7 @@ MANAGED_FIELD_ARRAY(std::string, name_1)
 END_MANAGED_STRUCT
 #undef MANAGED_STRUCT_NAME
 
-TEST(struct_mapping_mapper_json, struct_field_array_of_string) {
+TEST(struct_mapping_mapper_map_json_to_struct, struct_field_array_of_string) {
 	ManagedStruct_field_array_of_string result_struct;
 	std::istringstream json_data(R"json(
 	{
@@ -635,7 +635,7 @@ MANAGED_FIELD_ARRAY(ManagedStruct_field_bool_single, name_1)
 END_MANAGED_STRUCT
 #undef MANAGED_STRUCT_NAME
 
-TEST(struct_mapping_mapper_json, struct_field_array_of_ManagedStruct_field_bool) {
+TEST(struct_mapping_mapper_map_json_to_struct, struct_field_array_of_ManagedStruct_field_bool) {
 	ManagedStruct_field_array_of_ManagedStruct_field_bool result_struct;
 	std::istringstream json_data(R"json(
 	{
@@ -677,7 +677,7 @@ MANAGED_FIELD_ARRAY(ManagedStruct_field_char_single, name_1)
 END_MANAGED_STRUCT
 #undef MANAGED_STRUCT_NAME
 
-TEST(struct_mapping_mapper_json, struct_field_array_of_ManagedStruct_field_char) {
+TEST(struct_mapping_mapper_map_json_to_struct, struct_field_array_of_ManagedStruct_field_char) {
 	ManagedStruct_field_array_of_ManagedStruct_field_char result_struct;
 	std::istringstream json_data(R"json(
 	{
@@ -731,7 +731,7 @@ MANAGED_FIELD_ARRAY(ManagedStruct_field_short_single, name_1)
 END_MANAGED_STRUCT
 #undef MANAGED_STRUCT_NAME
 
-TEST(struct_mapping_mapper_json, struct_field_array_of_ManagedStruct_field_short) {
+TEST(struct_mapping_mapper_map_json_to_struct, struct_field_array_of_ManagedStruct_field_short) {
 	ManagedStruct_field_array_of_ManagedStruct_field_short result_struct;
 	std::istringstream json_data(R"json(
 	{
@@ -785,7 +785,7 @@ MANAGED_FIELD_ARRAY(ManagedStruct_field_int_single, name_1)
 END_MANAGED_STRUCT
 #undef MANAGED_STRUCT_NAME
 
-TEST(struct_mapping_mapper_json, struct_field_array_of_ManagedStruct_field_int) {
+TEST(struct_mapping_mapper_map_json_to_struct, struct_field_array_of_ManagedStruct_field_int) {
 	ManagedStruct_field_array_of_ManagedStruct_field_int result_struct;
 	std::istringstream json_data(R"json(
 	{
@@ -839,7 +839,7 @@ MANAGED_FIELD_ARRAY(ManagedStruct_field_long_long_single, name_1)
 END_MANAGED_STRUCT
 #undef MANAGED_STRUCT_NAME
 
-TEST(struct_mapping_mapper_json, struct_field_array_of_ManagedStruct_field_long_long) {
+TEST(struct_mapping_mapper_map_json_to_struct, struct_field_array_of_ManagedStruct_field_long_long) {
 	ManagedStruct_field_array_of_ManagedStruct_field_long_long result_struct;
 	std::istringstream json_data(R"json(
 	{
@@ -893,7 +893,7 @@ MANAGED_FIELD_ARRAY(ManagedStruct_field_float_single, name_1)
 END_MANAGED_STRUCT
 #undef MANAGED_STRUCT_NAME
 
-TEST(struct_mapping_mapper_json, struct_field_array_of_ManagedStruct_field_float) {
+TEST(struct_mapping_mapper_map_json_to_struct, struct_field_array_of_ManagedStruct_field_float) {
 	ManagedStruct_field_array_of_ManagedStruct_field_float result_struct;
 	std::istringstream json_data(R"json(
 	{
@@ -947,7 +947,7 @@ MANAGED_FIELD_ARRAY(ManagedStruct_field_double_single, name_1)
 END_MANAGED_STRUCT
 #undef MANAGED_STRUCT_NAME
 
-TEST(struct_mapping_mapper_json, struct_field_array_of_ManagedStruct_field_double) {
+TEST(struct_mapping_mapper_map_json_to_struct, struct_field_array_of_ManagedStruct_field_double) {
 	ManagedStruct_field_array_of_ManagedStruct_field_double result_struct;
 	std::istringstream json_data(R"json(
 	{
@@ -1001,7 +1001,7 @@ MANAGED_FIELD_ARRAY(ManagedStruct_field_string_one, name_1)
 END_MANAGED_STRUCT
 #undef MANAGED_STRUCT_NAME
 
-TEST(struct_mapping_mapper_json, struct_field_array_of_ManagedStruct_field_string) {
+TEST(struct_mapping_mapper_map_json_to_struct, struct_field_array_of_ManagedStruct_field_string) {
 	ManagedStruct_field_array_of_ManagedStruct_field_string result_struct;
 	std::istringstream json_data(R"json(
 	{
@@ -1035,7 +1035,7 @@ MANAGED_FIELD_ARRAY(MANAGED_ARRAY(bool), name_1)
 END_MANAGED_STRUCT
 #undef MANAGED_STRUCT_NAME
 
-TEST(struct_mapping_mapper_json, ManagedStruct_field_array_of_array_of_bool) {
+TEST(struct_mapping_mapper_map_json_to_struct, ManagedStruct_field_array_of_array_of_bool) {
 	ManagedStruct_field_array_of_array_of_bool result_struct;
 	std::istringstream json_data(R"json(
 	{
@@ -1076,7 +1076,7 @@ MANAGED_FIELD_ARRAY(MANAGED_ARRAY(char), name_1)
 END_MANAGED_STRUCT
 #undef MANAGED_STRUCT_NAME
 
-TEST(struct_mapping_mapper_json, ManagedStruct_field_array_of_array_of_char) {
+TEST(struct_mapping_mapper_map_json_to_struct, ManagedStruct_field_array_of_array_of_char) {
 	ManagedStruct_field_array_of_array_of_char result_struct;
 	std::istringstream json_data(R"json(
 	{
@@ -1131,7 +1131,7 @@ MANAGED_FIELD_ARRAY(MANAGED_ARRAY(short), name_1)
 END_MANAGED_STRUCT
 #undef MANAGED_STRUCT_NAME
 
-TEST(struct_mapping_mapper_json, ManagedStruct_field_array_of_array_of_short) {
+TEST(struct_mapping_mapper_map_json_to_struct, ManagedStruct_field_array_of_array_of_short) {
 	ManagedStruct_field_array_of_array_of_short result_struct;
 	std::istringstream json_data(R"json(
 	{
@@ -1186,7 +1186,7 @@ MANAGED_FIELD_ARRAY(MANAGED_ARRAY(int), name_1)
 END_MANAGED_STRUCT
 #undef MANAGED_STRUCT_NAME
 
-TEST(struct_mapping_mapper_json, ManagedStruct_field_array_of_array_of_int) {
+TEST(struct_mapping_mapper_map_json_to_struct, ManagedStruct_field_array_of_array_of_int) {
 	ManagedStruct_field_array_of_array_of_int result_struct;
 	std::istringstream json_data(R"json(
 	{
@@ -1241,7 +1241,7 @@ MANAGED_FIELD_ARRAY(MANAGED_ARRAY(long long), name_1)
 END_MANAGED_STRUCT
 #undef MANAGED_STRUCT_NAME
 
-TEST(struct_mapping_mapper_json, ManagedStruct_field_array_of_array_of_long_long) {
+TEST(struct_mapping_mapper_map_json_to_struct, ManagedStruct_field_array_of_array_of_long_long) {
 	ManagedStruct_field_array_of_array_of_long_long result_struct;
 	std::istringstream json_data(R"json(
 	{
@@ -1296,7 +1296,7 @@ MANAGED_FIELD_ARRAY(MANAGED_ARRAY(float), name_1)
 END_MANAGED_STRUCT
 #undef MANAGED_STRUCT_NAME
 
-TEST(struct_mapping_mapper_json, ManagedStruct_field_array_of_array_of_float) {
+TEST(struct_mapping_mapper_map_json_to_struct, ManagedStruct_field_array_of_array_of_float) {
 	ManagedStruct_field_array_of_array_of_float result_struct;
 	std::istringstream json_data(R"json(
 	{
@@ -1351,7 +1351,7 @@ MANAGED_FIELD_ARRAY(MANAGED_ARRAY(double), name_1)
 END_MANAGED_STRUCT
 #undef MANAGED_STRUCT_NAME
 
-TEST(struct_mapping_mapper_json, ManagedStruct_field_array_of_array_of_double) {
+TEST(struct_mapping_mapper_map_json_to_struct, ManagedStruct_field_array_of_array_of_double) {
 	ManagedStruct_field_array_of_array_of_double result_struct;
 	std::istringstream json_data(R"json(
 	{
@@ -1406,7 +1406,7 @@ MANAGED_FIELD_ARRAY(MANAGED_ARRAY(std::string), name_1)
 END_MANAGED_STRUCT
 #undef MANAGED_STRUCT_NAME
 
-TEST(struct_mapping_mapper_json, ManagedStruct_field_array_of_array_of_string) {
+TEST(struct_mapping_mapper_map_json_to_struct, ManagedStruct_field_array_of_array_of_string) {
 	ManagedStruct_field_array_of_array_of_string result_struct;
 	std::istringstream json_data(R"json(
 	{
@@ -1466,7 +1466,7 @@ MANAGED_FIELD_STRUCT(ManagedStruct_ManagedStruct_field_bool_2, name_1)
 END_MANAGED_STRUCT
 #undef MANAGED_STRUCT_NAME
 
-TEST(struct_mapping_mapper_json, ManagedStruct_ManagedStruct_field_bool) {
+TEST(struct_mapping_mapper_map_json_to_struct, ManagedStruct_ManagedStruct_field_bool) {
 	ManagedStruct_ManagedStruct_field_bool_1 result_struct;
 	std::istringstream json_data(R"json(
 	{
@@ -1510,7 +1510,7 @@ MANAGED_FIELD_STRUCT(ManagedStruct_ManagedStruct_field_char_2, name_1)
 END_MANAGED_STRUCT
 #undef MANAGED_STRUCT_NAME
 
-TEST(struct_mapping_mapper_json, ManagedStruct_ManagedStruct_field_char) {
+TEST(struct_mapping_mapper_map_json_to_struct, ManagedStruct_ManagedStruct_field_char) {
 	ManagedStruct_ManagedStruct_field_char_1 result_struct;
 	std::istringstream json_data(R"json(
 	{
@@ -1554,7 +1554,7 @@ MANAGED_FIELD_STRUCT(ManagedStruct_ManagedStruct_field_short_2, name_1)
 END_MANAGED_STRUCT
 #undef MANAGED_STRUCT_NAME
 
-TEST(struct_mapping_mapper_json, ManagedStruct_ManagedStruct_field_short) {
+TEST(struct_mapping_mapper_map_json_to_struct, ManagedStruct_ManagedStruct_field_short) {
 	ManagedStruct_ManagedStruct_field_short_1 result_struct;
 	std::istringstream json_data(R"json(
 	{
@@ -1598,7 +1598,7 @@ MANAGED_FIELD_STRUCT(ManagedStruct_ManagedStruct_field_int_2, name_1)
 END_MANAGED_STRUCT
 #undef MANAGED_STRUCT_NAME
 
-TEST(struct_mapping_mapper_json, ManagedStruct_ManagedStruct_field_int) {
+TEST(struct_mapping_mapper_map_json_to_struct, ManagedStruct_ManagedStruct_field_int) {
 	ManagedStruct_ManagedStruct_field_int_1 result_struct;
 	std::istringstream json_data(R"json(
 	{
@@ -1642,7 +1642,7 @@ MANAGED_FIELD_STRUCT(ManagedStruct_ManagedStruct_field_long_long_2, name_1)
 END_MANAGED_STRUCT
 #undef MANAGED_STRUCT_NAME
 
-TEST(struct_mapping_mapper_json, ManagedStruct_ManagedStruct_field_long_long) {
+TEST(struct_mapping_mapper_map_json_to_struct, ManagedStruct_ManagedStruct_field_long_long) {
 	ManagedStruct_ManagedStruct_field_long_long_1 result_struct;
 	std::istringstream json_data(R"json(
 	{
@@ -1686,7 +1686,7 @@ MANAGED_FIELD_STRUCT(ManagedStruct_ManagedStruct_field_float_2, name_1)
 END_MANAGED_STRUCT
 #undef MANAGED_STRUCT_NAME
 
-TEST(struct_mapping_mapper_json, ManagedStruct_ManagedStruct_field_float) {
+TEST(struct_mapping_mapper_map_json_to_struct, ManagedStruct_ManagedStruct_field_float) {
 	ManagedStruct_ManagedStruct_field_float_1 result_struct;
 	std::istringstream json_data(R"json(
 	{
@@ -1730,7 +1730,7 @@ MANAGED_FIELD_STRUCT(ManagedStruct_ManagedStruct_field_double_2, name_1)
 END_MANAGED_STRUCT
 #undef MANAGED_STRUCT_NAME
 
-TEST(struct_mapping_mapper_json, ManagedStruct_ManagedStruct_field_double) {
+TEST(struct_mapping_mapper_map_json_to_struct, ManagedStruct_ManagedStruct_field_double) {
 	ManagedStruct_ManagedStruct_field_double_1 result_struct;
 	std::istringstream json_data(R"json(
 	{
@@ -1774,7 +1774,7 @@ MANAGED_FIELD_STRUCT(ManagedStruct_ManagedStruct_field_string_2, name_1)
 END_MANAGED_STRUCT
 #undef MANAGED_STRUCT_NAME
 
-TEST(struct_mapping_mapper_json, ManagedStruct_ManagedStruct_field_string) {
+TEST(struct_mapping_mapper_map_json_to_struct, ManagedStruct_ManagedStruct_field_string) {
 	ManagedStruct_ManagedStruct_field_string_1 result_struct;
 	std::istringstream json_data(R"json(
 	{
@@ -1801,7 +1801,7 @@ MANAGED_FIELD_ARRAY(ManagedStruct_ManagedStruct_field_string_1, name_0)
 END_MANAGED_STRUCT
 #undef MANAGED_STRUCT_NAME
 
-TEST(struct_mapping_mapper_json, ManagedArray_ManagedStruct_ManagedStruct_field_string) {
+TEST(struct_mapping_mapper_map_json_to_struct, ManagedArray_ManagedStruct_ManagedStruct_field_string) {
 	ManagedStruct_ManagedStruct_field_string_0 result_struct;
 	std::istringstream json_data(R"json(
 	{
@@ -1872,7 +1872,7 @@ MANAGED_FIELD_STRUCT(ManagedStruct_identical_field_names_and_types_in_structures
 END_MANAGED_STRUCT
 #undef MANAGED_STRUCT_NAME
 
-TEST(struct_mapping_mapper_json, identical_field_names_and_types_in_structures) {
+TEST(struct_mapping_mapper_map_json_to_struct, identical_field_names_and_types_in_structures) {
 	ManagedStruct_identical_field_names_and_types_in_structures_3 result_struct;
 	std::istringstream json_data(R"json(
 	{
@@ -1918,7 +1918,7 @@ MANAGED_FIELD_ARRAY(ManagedStruct_multiple_times_2, name_1)
 END_MANAGED_STRUCT
 #undef MANAGED_STRUCT_NAME
 
-TEST(struct_mapping_mapper_json, multiple_times_same_struct) {
+TEST(struct_mapping_mapper_map_json_to_struct, multiple_times_same_struct) {
 	ManagedStruct_multiple_times_1 result_struct_1;
 	ManagedStruct_multiple_times_1 result_struct_2;
 
@@ -2035,7 +2035,7 @@ MANAGED_FIELD_ARRAY(ManagedStruct_planet, planets)
 END_MANAGED_STRUCT
 #undef MANAGED_STRUCT_NAME
 
-TEST(struct_mapping_mapper_json, complex) {
+TEST(struct_mapping_mapper_map_json_to_struct, complex) {
 	ManagedStruct_complex result_struct;
 
 	std::istringstream json_data(R"json(
