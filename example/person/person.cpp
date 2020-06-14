@@ -3,15 +3,13 @@
 
 #include "struct_mapping/struct_mapping.h"
 
-#define MANAGED_STRUCT_NAME Person
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(Person)
 
 MANAGED_FIELD(std::string, name)
 MANAGED_FIELD(int, age)
 MANAGED_FIELD(bool, student)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
 int main() {
  Person person;

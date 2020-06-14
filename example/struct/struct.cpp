@@ -3,22 +3,18 @@
 
 #include "struct_mapping/struct_mapping.h"
 
-#define MANAGED_STRUCT_NAME President
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(President)
 
 MANAGED_FIELD(std::string, name)
 MANAGED_FIELD(double, mass)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
-#define MANAGED_STRUCT_NAME Earth
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(Earth)
 
 MANAGED_FIELD_STRUCT(President, president)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
 int main() {
 	Earth earth;

@@ -3,15 +3,13 @@
 
 #include "struct_mapping/struct_mapping.h"
 
-#define MANAGED_STRUCT_NAME MiB
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(MiB)
 
 MANAGED_FIELD_ARRAY(std::string, friends)
 MANAGED_FIELD_ARRAY(MANAGED_ARRAY(std::string), alien_groups)
 MANAGED_FIELD_ARRAY(MANAGED_ARRAY(MANAGED_ARRAY(std::string)), planet_groups)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
 int main() {
 	MiB mib;

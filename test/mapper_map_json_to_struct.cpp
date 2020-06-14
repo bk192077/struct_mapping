@@ -14,10 +14,8 @@ using ::testing::ElementsAreArray;
 
 namespace {
 
-#define MANAGED_STRUCT_NAME ManagedStruct_empty
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ManagedStruct_empty)
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
 TEST(struct_mapping_mapper_map_json_to_struct, empty_struct) {
 	ManagedStruct_empty result_struct;
@@ -29,8 +27,7 @@ TEST(struct_mapping_mapper_map_json_to_struct, empty_struct) {
 	struct_mapping::mapper::map_json_to_struct(result_struct, json_data);
 }
 
-#define MANAGED_STRUCT_NAME ManagedStruct_field_number_long_long
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ManagedStruct_field_number_long_long)
 
 MANAGED_FIELD(long long, name_1)
 MANAGED_FIELD(long long, name_2)
@@ -39,7 +36,6 @@ MANAGED_FIELD(long long, name_4)
 MANAGED_FIELD(long long, name_5)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
 TEST(struct_mapping_mapper_map_json_to_struct, struct_field_number_long_long) {
 	ManagedStruct_field_number_long_long result_struct;
@@ -62,8 +58,7 @@ TEST(struct_mapping_mapper_map_json_to_struct, struct_field_number_long_long) {
 	ASSERT_EQ(result_struct.name_5, -452);
 }
 
-#define MANAGED_STRUCT_NAME ManagedStruct_field_number_int
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ManagedStruct_field_number_int)
 
 MANAGED_FIELD(int, name_1)
 MANAGED_FIELD(int, name_2)
@@ -72,7 +67,6 @@ MANAGED_FIELD(int, name_4)
 MANAGED_FIELD(int, name_5)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME	
 
 TEST(struct_mapping_mapper_map_json_to_struct, struct_field_number_int) {
 	ManagedStruct_field_number_int result_struct;
@@ -95,8 +89,7 @@ TEST(struct_mapping_mapper_map_json_to_struct, struct_field_number_int) {
 	ASSERT_EQ(result_struct.name_5, 6);
 }
 
-#define MANAGED_STRUCT_NAME ManagedStruct_field_number_short
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ManagedStruct_field_number_short)
 
 MANAGED_FIELD(short, name_1)
 MANAGED_FIELD(short, name_2)
@@ -105,7 +98,6 @@ MANAGED_FIELD(short, name_4)
 MANAGED_FIELD(short, name_5)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
 TEST(struct_mapping_mapper_map_json_to_struct, struct_field_number_short) {
 	ManagedStruct_field_number_short result_struct;
@@ -128,8 +120,7 @@ TEST(struct_mapping_mapper_map_json_to_struct, struct_field_number_short) {
 	ASSERT_EQ(result_struct.name_5, 128);
 }
 
-#define MANAGED_STRUCT_NAME ManagedStruct_field_number_char
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ManagedStruct_field_number_char)
 
 MANAGED_FIELD(char, name_1)
 MANAGED_FIELD(char, name_2)
@@ -138,7 +129,6 @@ MANAGED_FIELD(char, name_4)
 MANAGED_FIELD(char, name_5)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
 TEST(struct_mapping_mapper_map_json_to_struct, struct_field_number_char) {
 	ManagedStruct_field_number_char result_struct;
@@ -161,15 +151,13 @@ TEST(struct_mapping_mapper_map_json_to_struct, struct_field_number_char) {
 	ASSERT_EQ(result_struct.name_5, 78);
 }
 
-#define MANAGED_STRUCT_NAME ManagedStruct_field_number_unsigned_int
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ManagedStruct_field_number_unsigned_int)
 
 MANAGED_FIELD(unsigned int, name_1)
 MANAGED_FIELD(unsigned int, name_2)
 MANAGED_FIELD(unsigned int, name_3)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
 TEST(struct_mapping_mapper_map_json_to_struct, struct_field_number_unsigned_int) {
 	ManagedStruct_field_number_unsigned_int result_struct;
@@ -188,15 +176,13 @@ TEST(struct_mapping_mapper_map_json_to_struct, struct_field_number_unsigned_int)
 	ASSERT_EQ(result_struct.name_3, 2);
 }
 
-#define MANAGED_STRUCT_NAME ManagedStruct_field_number_unsigned_short
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ManagedStruct_field_number_unsigned_short)
 
 MANAGED_FIELD(unsigned short, name_1)
 MANAGED_FIELD(unsigned short, name_2)
 MANAGED_FIELD(unsigned short, name_3)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
 TEST(struct_mapping_mapper_map_json_to_struct, struct_field_number_unsigned_short) {
 	ManagedStruct_field_number_unsigned_short result_struct;
@@ -215,15 +201,13 @@ TEST(struct_mapping_mapper_map_json_to_struct, struct_field_number_unsigned_shor
 	ASSERT_EQ(result_struct.name_3, 45);
 }
 
-#define MANAGED_STRUCT_NAME ManagedStruct_field_number_unsigned_char
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ManagedStruct_field_number_unsigned_char)
 
 MANAGED_FIELD(unsigned char, name_1)
 MANAGED_FIELD(unsigned char, name_2)
 MANAGED_FIELD(unsigned char, name_3)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
 TEST(struct_mapping_mapper_map_json_to_struct, struct_field_number_unsigned_char) {
 	ManagedStruct_field_number_unsigned_char result_struct;
@@ -242,8 +226,7 @@ TEST(struct_mapping_mapper_map_json_to_struct, struct_field_number_unsigned_char
 	ASSERT_EQ(result_struct.name_3, 46);
 }
 
-#define MANAGED_STRUCT_NAME ManagedStruct_field_number_float
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ManagedStruct_field_number_float)
 
 MANAGED_FIELD(double, name_1)
 MANAGED_FIELD(double, name_2)
@@ -256,7 +239,6 @@ MANAGED_FIELD(double, name_8)
 MANAGED_FIELD(double, name_9)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
 TEST(struct_mapping_mapper_map_json_to_struct, struct_field_number_float) {
 	ManagedStruct_field_number_float result_struct;
@@ -287,14 +269,12 @@ TEST(struct_mapping_mapper_map_json_to_struct, struct_field_number_float) {
 	ASSERT_DOUBLE_EQ(result_struct.name_9, -1.0);
 }
 
-#define MANAGED_STRUCT_NAME ManagedStruct_field_string
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ManagedStruct_field_string)
 
 MANAGED_FIELD(std::string, name_1)
 MANAGED_FIELD(std::string, name_2)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
 TEST(struct_mapping_mapper_map_json_to_struct, struct_field_string) {
 	ManagedStruct_field_string result_struct;
@@ -311,13 +291,11 @@ TEST(struct_mapping_mapper_map_json_to_struct, struct_field_string) {
 	ASSERT_EQ(result_struct.name_2, "");
 }
 
-#define MANAGED_STRUCT_NAME ManagedStruct_field_array_of_bool
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ManagedStruct_field_array_of_bool)
 
 MANAGED_FIELD_ARRAY(bool, name_1)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
 TEST(struct_mapping_mapper_map_json_to_struct, struct_field_array_of_bool) {
 	ManagedStruct_field_array_of_bool result_struct;
@@ -344,13 +322,11 @@ TEST(struct_mapping_mapper_map_json_to_struct, struct_field_array_of_bool) {
 	}));
 }
 
-#define MANAGED_STRUCT_NAME ManagedStruct_field_array_of_number_long_long
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ManagedStruct_field_array_of_number_long_long)
 
 MANAGED_FIELD_ARRAY(long long, name_1)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
 TEST(struct_mapping_mapper_map_json_to_struct, struct_field_array_of_number_long_long) {
 	ManagedStruct_field_array_of_number_long_long result_struct;
@@ -385,13 +361,11 @@ TEST(struct_mapping_mapper_map_json_to_struct, struct_field_array_of_number_long
 	}));
 }
 
-#define MANAGED_STRUCT_NAME ManagedStruct_field_array_of_number_int
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ManagedStruct_field_array_of_number_int)
 
 MANAGED_FIELD_ARRAY(int, name_1)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
 TEST(struct_mapping_mapper_map_json_to_struct, struct_field_array_of_number_int) {
 	ManagedStruct_field_array_of_number_int result_struct;
@@ -426,13 +400,11 @@ TEST(struct_mapping_mapper_map_json_to_struct, struct_field_array_of_number_int)
 	}));
 }
 
-#define MANAGED_STRUCT_NAME ManagedStruct_field_array_of_number_short
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ManagedStruct_field_array_of_number_short)
 
 MANAGED_FIELD_ARRAY(short, name_1)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
 TEST(struct_mapping_mapper_map_json_to_struct, struct_field_array_of_number_short) {
 	ManagedStruct_field_array_of_number_short result_struct;
@@ -467,13 +439,11 @@ TEST(struct_mapping_mapper_map_json_to_struct, struct_field_array_of_number_shor
 	}));
 }
 
-#define MANAGED_STRUCT_NAME ManagedStruct_field_array_of_number_char
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ManagedStruct_field_array_of_number_char)
 
 MANAGED_FIELD_ARRAY(char, name_1)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
 TEST(struct_mapping_mapper_map_json_to_struct, struct_field_array_of_number_char) {
 	ManagedStruct_field_array_of_number_char result_struct;
@@ -508,13 +478,11 @@ TEST(struct_mapping_mapper_map_json_to_struct, struct_field_array_of_number_char
 	}));
 }
 
-#define MANAGED_STRUCT_NAME ManagedStruct_field_array_of_number_float
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ManagedStruct_field_array_of_number_float)
 
 MANAGED_FIELD_ARRAY(float, name_1)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
 TEST(struct_mapping_mapper_map_json_to_struct, struct_field_array_of_number_float) {
 	ManagedStruct_field_array_of_number_float result_struct;
@@ -549,13 +517,11 @@ TEST(struct_mapping_mapper_map_json_to_struct, struct_field_array_of_number_floa
 	}));
 }
 
-#define MANAGED_STRUCT_NAME ManagedStruct_field_array_of_number_double
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ManagedStruct_field_array_of_number_double)
 
 MANAGED_FIELD_ARRAY(double, name_1)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
 TEST(struct_mapping_mapper_map_json_to_struct, struct_field_array_of_number_double) {
 	ManagedStruct_field_array_of_number_double result_struct;
@@ -590,13 +556,11 @@ TEST(struct_mapping_mapper_map_json_to_struct, struct_field_array_of_number_doub
 	}));
 }
 
-#define MANAGED_STRUCT_NAME ManagedStruct_field_array_of_string
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ManagedStruct_field_array_of_string)
 
 MANAGED_FIELD_ARRAY(std::string, name_1)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
 TEST(struct_mapping_mapper_map_json_to_struct, struct_field_array_of_string) {
 	ManagedStruct_field_array_of_string result_struct;
@@ -619,21 +583,17 @@ TEST(struct_mapping_mapper_map_json_to_struct, struct_field_array_of_string) {
 	}));
 }
 
-#define MANAGED_STRUCT_NAME ManagedStruct_field_bool_single
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ManagedStruct_field_bool_single)
 
 MANAGED_FIELD(bool, name_2)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
-#define MANAGED_STRUCT_NAME ManagedStruct_field_array_of_ManagedStruct_field_bool
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ManagedStruct_field_array_of_ManagedStruct_field_bool)
 
 MANAGED_FIELD_ARRAY(ManagedStruct_field_bool_single, name_1)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
 TEST(struct_mapping_mapper_map_json_to_struct, struct_field_array_of_ManagedStruct_field_bool) {
 	ManagedStruct_field_array_of_ManagedStruct_field_bool result_struct;
@@ -661,21 +621,17 @@ TEST(struct_mapping_mapper_map_json_to_struct, struct_field_array_of_ManagedStru
 	ASSERT_FALSE(result_struct.name_1.get_data()[2].name_2);
 }
 
-#define MANAGED_STRUCT_NAME ManagedStruct_field_char_single
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ManagedStruct_field_char_single)
 
 MANAGED_FIELD(char, name_2)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
-#define MANAGED_STRUCT_NAME ManagedStruct_field_array_of_ManagedStruct_field_char
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ManagedStruct_field_array_of_ManagedStruct_field_char)
 
 MANAGED_FIELD_ARRAY(ManagedStruct_field_char_single, name_1)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
 TEST(struct_mapping_mapper_map_json_to_struct, struct_field_array_of_ManagedStruct_field_char) {
 	ManagedStruct_field_array_of_ManagedStruct_field_char result_struct;
@@ -715,21 +671,17 @@ TEST(struct_mapping_mapper_map_json_to_struct, struct_field_array_of_ManagedStru
 	ASSERT_EQ(result_struct.name_1.get_data()[5].name_2, 26);
 }
 
-#define MANAGED_STRUCT_NAME ManagedStruct_field_short_single
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ManagedStruct_field_short_single)
 
 MANAGED_FIELD(short, name_2)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
-#define MANAGED_STRUCT_NAME ManagedStruct_field_array_of_ManagedStruct_field_short
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ManagedStruct_field_array_of_ManagedStruct_field_short)
 
 MANAGED_FIELD_ARRAY(ManagedStruct_field_short_single, name_1)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
 TEST(struct_mapping_mapper_map_json_to_struct, struct_field_array_of_ManagedStruct_field_short) {
 	ManagedStruct_field_array_of_ManagedStruct_field_short result_struct;
@@ -769,21 +721,17 @@ TEST(struct_mapping_mapper_map_json_to_struct, struct_field_array_of_ManagedStru
 	ASSERT_EQ(result_struct.name_1.get_data()[5].name_2, 26);
 }
 
-#define MANAGED_STRUCT_NAME ManagedStruct_field_int_single
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ManagedStruct_field_int_single)
 
 MANAGED_FIELD(int, name_2)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
-#define MANAGED_STRUCT_NAME ManagedStruct_field_array_of_ManagedStruct_field_int
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ManagedStruct_field_array_of_ManagedStruct_field_int)
 
 MANAGED_FIELD_ARRAY(ManagedStruct_field_int_single, name_1)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
 TEST(struct_mapping_mapper_map_json_to_struct, struct_field_array_of_ManagedStruct_field_int) {
 	ManagedStruct_field_array_of_ManagedStruct_field_int result_struct;
@@ -823,21 +771,17 @@ TEST(struct_mapping_mapper_map_json_to_struct, struct_field_array_of_ManagedStru
 	ASSERT_EQ(result_struct.name_1.get_data()[5].name_2, 26);
 }
 
-#define MANAGED_STRUCT_NAME ManagedStruct_field_long_long_single
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ManagedStruct_field_long_long_single)
 
 MANAGED_FIELD(long long, name_2)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
-#define MANAGED_STRUCT_NAME ManagedStruct_field_array_of_ManagedStruct_field_long_long
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ManagedStruct_field_array_of_ManagedStruct_field_long_long)
 
 MANAGED_FIELD_ARRAY(ManagedStruct_field_long_long_single, name_1)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
 TEST(struct_mapping_mapper_map_json_to_struct, struct_field_array_of_ManagedStruct_field_long_long) {
 	ManagedStruct_field_array_of_ManagedStruct_field_long_long result_struct;
@@ -877,21 +821,17 @@ TEST(struct_mapping_mapper_map_json_to_struct, struct_field_array_of_ManagedStru
 	ASSERT_EQ(result_struct.name_1.get_data()[5].name_2, 26);
 }
 
-#define MANAGED_STRUCT_NAME ManagedStruct_field_float_single
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ManagedStruct_field_float_single)
 
 MANAGED_FIELD(float, name_2)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
-#define MANAGED_STRUCT_NAME ManagedStruct_field_array_of_ManagedStruct_field_float
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ManagedStruct_field_array_of_ManagedStruct_field_float)
 
 MANAGED_FIELD_ARRAY(ManagedStruct_field_float_single, name_1)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
 TEST(struct_mapping_mapper_map_json_to_struct, struct_field_array_of_ManagedStruct_field_float) {
 	ManagedStruct_field_array_of_ManagedStruct_field_float result_struct;
@@ -931,21 +871,17 @@ TEST(struct_mapping_mapper_map_json_to_struct, struct_field_array_of_ManagedStru
 	ASSERT_EQ(result_struct.name_1.get_data()[5].name_2, 26.14f);
 }
 
-#define MANAGED_STRUCT_NAME ManagedStruct_field_double_single
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ManagedStruct_field_double_single)
 
 MANAGED_FIELD(double, name_2)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
-#define MANAGED_STRUCT_NAME ManagedStruct_field_array_of_ManagedStruct_field_double
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ManagedStruct_field_array_of_ManagedStruct_field_double)
 
 MANAGED_FIELD_ARRAY(ManagedStruct_field_double_single, name_1)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
 TEST(struct_mapping_mapper_map_json_to_struct, struct_field_array_of_ManagedStruct_field_double) {
 	ManagedStruct_field_array_of_ManagedStruct_field_double result_struct;
@@ -985,21 +921,17 @@ TEST(struct_mapping_mapper_map_json_to_struct, struct_field_array_of_ManagedStru
 	ASSERT_EQ(result_struct.name_1.get_data()[5].name_2, 26.140);
 }
 
-#define MANAGED_STRUCT_NAME ManagedStruct_field_string_one
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ManagedStruct_field_string_one)
 
 MANAGED_FIELD(std::string, name_2)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
-#define MANAGED_STRUCT_NAME ManagedStruct_field_array_of_ManagedStruct_field_string
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ManagedStruct_field_array_of_ManagedStruct_field_string)
 
 MANAGED_FIELD_ARRAY(ManagedStruct_field_string_one, name_1)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
 TEST(struct_mapping_mapper_map_json_to_struct, struct_field_array_of_ManagedStruct_field_string) {
 	ManagedStruct_field_array_of_ManagedStruct_field_string result_struct;
@@ -1027,13 +959,11 @@ TEST(struct_mapping_mapper_map_json_to_struct, struct_field_array_of_ManagedStru
 	ASSERT_EQ(result_struct.name_1.get_data()[2].name_2, "");
 }
 
-#define MANAGED_STRUCT_NAME ManagedStruct_field_array_of_array_of_bool
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ManagedStruct_field_array_of_array_of_bool)
 
 MANAGED_FIELD_ARRAY(MANAGED_ARRAY(bool), name_1)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
 TEST(struct_mapping_mapper_map_json_to_struct, ManagedStruct_field_array_of_array_of_bool) {
 	ManagedStruct_field_array_of_array_of_bool result_struct;
@@ -1068,13 +998,11 @@ TEST(struct_mapping_mapper_map_json_to_struct, ManagedStruct_field_array_of_arra
 	ASSERT_TRUE(result_struct.name_1.get_data()[2].get_data()[1]);
 }
 
-#define MANAGED_STRUCT_NAME ManagedStruct_field_array_of_array_of_char
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ManagedStruct_field_array_of_array_of_char)
 
 MANAGED_FIELD_ARRAY(MANAGED_ARRAY(char), name_1)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
 TEST(struct_mapping_mapper_map_json_to_struct, ManagedStruct_field_array_of_array_of_char) {
 	ManagedStruct_field_array_of_array_of_char result_struct;
@@ -1123,13 +1051,11 @@ TEST(struct_mapping_mapper_map_json_to_struct, ManagedStruct_field_array_of_arra
 	}));
 }
 
-#define MANAGED_STRUCT_NAME ManagedStruct_field_array_of_array_of_short
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ManagedStruct_field_array_of_array_of_short)
 
 MANAGED_FIELD_ARRAY(MANAGED_ARRAY(short), name_1)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
 TEST(struct_mapping_mapper_map_json_to_struct, ManagedStruct_field_array_of_array_of_short) {
 	ManagedStruct_field_array_of_array_of_short result_struct;
@@ -1178,13 +1104,11 @@ TEST(struct_mapping_mapper_map_json_to_struct, ManagedStruct_field_array_of_arra
 	}));
 }
 
-#define MANAGED_STRUCT_NAME ManagedStruct_field_array_of_array_of_int
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ManagedStruct_field_array_of_array_of_int)
 
 MANAGED_FIELD_ARRAY(MANAGED_ARRAY(int), name_1)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
 TEST(struct_mapping_mapper_map_json_to_struct, ManagedStruct_field_array_of_array_of_int) {
 	ManagedStruct_field_array_of_array_of_int result_struct;
@@ -1233,13 +1157,11 @@ TEST(struct_mapping_mapper_map_json_to_struct, ManagedStruct_field_array_of_arra
 	}));
 }
 
-#define MANAGED_STRUCT_NAME ManagedStruct_field_array_of_array_of_long_long
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ManagedStruct_field_array_of_array_of_long_long)
 
 MANAGED_FIELD_ARRAY(MANAGED_ARRAY(long long), name_1)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
 TEST(struct_mapping_mapper_map_json_to_struct, ManagedStruct_field_array_of_array_of_long_long) {
 	ManagedStruct_field_array_of_array_of_long_long result_struct;
@@ -1288,13 +1210,11 @@ TEST(struct_mapping_mapper_map_json_to_struct, ManagedStruct_field_array_of_arra
 	}));
 }
 
-#define MANAGED_STRUCT_NAME ManagedStruct_field_array_of_array_of_float
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ManagedStruct_field_array_of_array_of_float)
 
 MANAGED_FIELD_ARRAY(MANAGED_ARRAY(float), name_1)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
 TEST(struct_mapping_mapper_map_json_to_struct, ManagedStruct_field_array_of_array_of_float) {
 	ManagedStruct_field_array_of_array_of_float result_struct;
@@ -1343,13 +1263,11 @@ TEST(struct_mapping_mapper_map_json_to_struct, ManagedStruct_field_array_of_arra
 	}));
 }
 
-#define MANAGED_STRUCT_NAME ManagedStruct_field_array_of_array_of_double
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ManagedStruct_field_array_of_array_of_double)
 
 MANAGED_FIELD_ARRAY(MANAGED_ARRAY(double), name_1)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
 TEST(struct_mapping_mapper_map_json_to_struct, ManagedStruct_field_array_of_array_of_double) {
 	ManagedStruct_field_array_of_array_of_double result_struct;
@@ -1398,13 +1316,11 @@ TEST(struct_mapping_mapper_map_json_to_struct, ManagedStruct_field_array_of_arra
 	}));
 }
 
-#define MANAGED_STRUCT_NAME ManagedStruct_field_array_of_array_of_string
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ManagedStruct_field_array_of_array_of_string)
 
 MANAGED_FIELD_ARRAY(MANAGED_ARRAY(std::string), name_1)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
 TEST(struct_mapping_mapper_map_json_to_struct, ManagedStruct_field_array_of_array_of_string) {
 	ManagedStruct_field_array_of_array_of_string result_struct;
@@ -1441,30 +1357,24 @@ TEST(struct_mapping_mapper_map_json_to_struct, ManagedStruct_field_array_of_arra
 	}));
 }
 
-#define MANAGED_STRUCT_NAME ManagedStruct_ManagedStruct_field_bool_3
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ManagedStruct_ManagedStruct_field_bool_3)
 
 MANAGED_FIELD(bool, name_3)
 MANAGED_FIELD(bool, name_4)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
-#define MANAGED_STRUCT_NAME ManagedStruct_ManagedStruct_field_bool_2
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ManagedStruct_ManagedStruct_field_bool_2)
 
 MANAGED_FIELD_STRUCT(ManagedStruct_ManagedStruct_field_bool_3, name_2)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
-#define MANAGED_STRUCT_NAME ManagedStruct_ManagedStruct_field_bool_1
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ManagedStruct_ManagedStruct_field_bool_1)
 
 MANAGED_FIELD_STRUCT(ManagedStruct_ManagedStruct_field_bool_2, name_1)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
 TEST(struct_mapping_mapper_map_json_to_struct, ManagedStruct_ManagedStruct_field_bool) {
 	ManagedStruct_ManagedStruct_field_bool_1 result_struct;
@@ -1485,30 +1395,24 @@ TEST(struct_mapping_mapper_map_json_to_struct, ManagedStruct_ManagedStruct_field
 	ASSERT_TRUE(result_struct.name_1.name_2.name_4);
 }
 
-#define MANAGED_STRUCT_NAME ManagedStruct_ManagedStruct_field_char_3
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ManagedStruct_ManagedStruct_field_char_3)
 
 MANAGED_FIELD(char, name_3)
 MANAGED_FIELD(char, name_4)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
-#define MANAGED_STRUCT_NAME ManagedStruct_ManagedStruct_field_char_2
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ManagedStruct_ManagedStruct_field_char_2)
 
 MANAGED_FIELD_STRUCT(ManagedStruct_ManagedStruct_field_char_3, name_2)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
-#define MANAGED_STRUCT_NAME ManagedStruct_ManagedStruct_field_char_1
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ManagedStruct_ManagedStruct_field_char_1)
 
 MANAGED_FIELD_STRUCT(ManagedStruct_ManagedStruct_field_char_2, name_1)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
 TEST(struct_mapping_mapper_map_json_to_struct, ManagedStruct_ManagedStruct_field_char) {
 	ManagedStruct_ManagedStruct_field_char_1 result_struct;
@@ -1529,30 +1433,24 @@ TEST(struct_mapping_mapper_map_json_to_struct, ManagedStruct_ManagedStruct_field
 	ASSERT_EQ(result_struct.name_1.name_2.name_4, -25);
 }
 
-#define MANAGED_STRUCT_NAME ManagedStruct_ManagedStruct_field_short_3
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ManagedStruct_ManagedStruct_field_short_3)
 
 MANAGED_FIELD(short, name_3)
 MANAGED_FIELD(short, name_4)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
-#define MANAGED_STRUCT_NAME ManagedStruct_ManagedStruct_field_short_2
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ManagedStruct_ManagedStruct_field_short_2)
 
 MANAGED_FIELD_STRUCT(ManagedStruct_ManagedStruct_field_short_3, name_2)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
-#define MANAGED_STRUCT_NAME ManagedStruct_ManagedStruct_field_short_1
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ManagedStruct_ManagedStruct_field_short_1)
 
 MANAGED_FIELD_STRUCT(ManagedStruct_ManagedStruct_field_short_2, name_1)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
 TEST(struct_mapping_mapper_map_json_to_struct, ManagedStruct_ManagedStruct_field_short) {
 	ManagedStruct_ManagedStruct_field_short_1 result_struct;
@@ -1573,30 +1471,24 @@ TEST(struct_mapping_mapper_map_json_to_struct, ManagedStruct_ManagedStruct_field
 	ASSERT_EQ(result_struct.name_1.name_2.name_4, 2598);
 }
 
-#define MANAGED_STRUCT_NAME ManagedStruct_ManagedStruct_field_int_3
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ManagedStruct_ManagedStruct_field_int_3)
 
 MANAGED_FIELD(int, name_3)
 MANAGED_FIELD(int, name_4)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
-#define MANAGED_STRUCT_NAME ManagedStruct_ManagedStruct_field_int_2
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ManagedStruct_ManagedStruct_field_int_2)
 
 MANAGED_FIELD_STRUCT(ManagedStruct_ManagedStruct_field_int_3, name_2)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
-#define MANAGED_STRUCT_NAME ManagedStruct_ManagedStruct_field_int_1
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ManagedStruct_ManagedStruct_field_int_1)
 
 MANAGED_FIELD_STRUCT(ManagedStruct_ManagedStruct_field_int_2, name_1)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
 TEST(struct_mapping_mapper_map_json_to_struct, ManagedStruct_ManagedStruct_field_int) {
 	ManagedStruct_ManagedStruct_field_int_1 result_struct;
@@ -1617,30 +1509,24 @@ TEST(struct_mapping_mapper_map_json_to_struct, ManagedStruct_ManagedStruct_field
 	ASSERT_EQ(result_struct.name_1.name_2.name_4, 29809);
 }
 
-#define MANAGED_STRUCT_NAME ManagedStruct_ManagedStruct_field_long_long_3
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ManagedStruct_ManagedStruct_field_long_long_3)
 
 MANAGED_FIELD(long long, name_3)
 MANAGED_FIELD(long long, name_4)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
-#define MANAGED_STRUCT_NAME ManagedStruct_ManagedStruct_field_long_long_2
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ManagedStruct_ManagedStruct_field_long_long_2)
 
 MANAGED_FIELD_STRUCT(ManagedStruct_ManagedStruct_field_long_long_3, name_2)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
-#define MANAGED_STRUCT_NAME ManagedStruct_ManagedStruct_field_long_long_1
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ManagedStruct_ManagedStruct_field_long_long_1)
 
 MANAGED_FIELD_STRUCT(ManagedStruct_ManagedStruct_field_long_long_2, name_1)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
 TEST(struct_mapping_mapper_map_json_to_struct, ManagedStruct_ManagedStruct_field_long_long) {
 	ManagedStruct_ManagedStruct_field_long_long_1 result_struct;
@@ -1661,30 +1547,24 @@ TEST(struct_mapping_mapper_map_json_to_struct, ManagedStruct_ManagedStruct_field
 	ASSERT_EQ(result_struct.name_1.name_2.name_4, -109963);
 }
 
-#define MANAGED_STRUCT_NAME ManagedStruct_ManagedStruct_field_float_3
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ManagedStruct_ManagedStruct_field_float_3)
 
 MANAGED_FIELD(float, name_3)
 MANAGED_FIELD(float, name_4)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
-#define MANAGED_STRUCT_NAME ManagedStruct_ManagedStruct_field_float_2
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ManagedStruct_ManagedStruct_field_float_2)
 
 MANAGED_FIELD_STRUCT(ManagedStruct_ManagedStruct_field_float_3, name_2)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
-#define MANAGED_STRUCT_NAME ManagedStruct_ManagedStruct_field_float_1
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ManagedStruct_ManagedStruct_field_float_1)
 
 MANAGED_FIELD_STRUCT(ManagedStruct_ManagedStruct_field_float_2, name_1)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
 TEST(struct_mapping_mapper_map_json_to_struct, ManagedStruct_ManagedStruct_field_float) {
 	ManagedStruct_ManagedStruct_field_float_1 result_struct;
@@ -1705,30 +1585,24 @@ TEST(struct_mapping_mapper_map_json_to_struct, ManagedStruct_ManagedStruct_field
 	ASSERT_EQ(result_struct.name_1.name_2.name_4, 63.0f);
 }
 
-#define MANAGED_STRUCT_NAME ManagedStruct_ManagedStruct_field_double_3
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ManagedStruct_ManagedStruct_field_double_3)
 
 MANAGED_FIELD(double, name_3)
 MANAGED_FIELD(double, name_4)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
-#define MANAGED_STRUCT_NAME ManagedStruct_ManagedStruct_field_double_2
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ManagedStruct_ManagedStruct_field_double_2)
 
 MANAGED_FIELD_STRUCT(ManagedStruct_ManagedStruct_field_double_3, name_2)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
-#define MANAGED_STRUCT_NAME ManagedStruct_ManagedStruct_field_double_1
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ManagedStruct_ManagedStruct_field_double_1)
 
 MANAGED_FIELD_STRUCT(ManagedStruct_ManagedStruct_field_double_2, name_1)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
 TEST(struct_mapping_mapper_map_json_to_struct, ManagedStruct_ManagedStruct_field_double) {
 	ManagedStruct_ManagedStruct_field_double_1 result_struct;
@@ -1749,30 +1623,24 @@ TEST(struct_mapping_mapper_map_json_to_struct, ManagedStruct_ManagedStruct_field
 	ASSERT_EQ(result_struct.name_1.name_2.name_4, -3695478.0);
 }
 
-#define MANAGED_STRUCT_NAME ManagedStruct_ManagedStruct_field_string_3
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ManagedStruct_ManagedStruct_field_string_3)
 
 MANAGED_FIELD(std::string, name_3)
 MANAGED_FIELD(std::string, name_4)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
-#define MANAGED_STRUCT_NAME ManagedStruct_ManagedStruct_field_string_2
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ManagedStruct_ManagedStruct_field_string_2)
 
 MANAGED_FIELD_STRUCT(ManagedStruct_ManagedStruct_field_string_3, name_2)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
-#define MANAGED_STRUCT_NAME ManagedStruct_ManagedStruct_field_string_1
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ManagedStruct_ManagedStruct_field_string_1)
 
 MANAGED_FIELD_STRUCT(ManagedStruct_ManagedStruct_field_string_2, name_1)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
 TEST(struct_mapping_mapper_map_json_to_struct, ManagedStruct_ManagedStruct_field_string) {
 	ManagedStruct_ManagedStruct_field_string_1 result_struct;
@@ -1793,13 +1661,11 @@ TEST(struct_mapping_mapper_map_json_to_struct, ManagedStruct_ManagedStruct_field
 	ASSERT_EQ(result_struct.name_1.name_2.name_4, "");
 }
 
-#define MANAGED_STRUCT_NAME ManagedStruct_ManagedStruct_field_string_0
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ManagedStruct_ManagedStruct_field_string_0)
 
 MANAGED_FIELD_ARRAY(ManagedStruct_ManagedStruct_field_string_1, name_0)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
 TEST(struct_mapping_mapper_map_json_to_struct, ManagedArray_ManagedStruct_ManagedStruct_field_string) {
 	ManagedStruct_ManagedStruct_field_string_0 result_struct;
@@ -1842,35 +1708,29 @@ TEST(struct_mapping_mapper_map_json_to_struct, ManagedArray_ManagedStruct_Manage
 	ASSERT_EQ(result_struct.name_0.get_data()[2].name_1.name_2.name_4, "second_string");
 }
 
-#define MANAGED_STRUCT_NAME ManagedStruct_identical_field_names_and_types_in_structures_1
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ManagedStruct_identical_field_names_and_types_in_structures_1)
 
 MANAGED_FIELD(std::string, name_1)
 MANAGED_FIELD(int, name_2)
 MANAGED_FIELD(bool, name_3)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
-#define MANAGED_STRUCT_NAME ManagedStruct_identical_field_names_and_types_in_structures_2
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ManagedStruct_identical_field_names_and_types_in_structures_2)
 
 MANAGED_FIELD(std::string, name_1)
 MANAGED_FIELD(int, name_2)
 MANAGED_FIELD(double, name_3)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
-#define MANAGED_STRUCT_NAME ManagedStruct_identical_field_names_and_types_in_structures_3
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ManagedStruct_identical_field_names_and_types_in_structures_3)
 
 MANAGED_FIELD(std::string, name_1)
 MANAGED_FIELD_STRUCT(ManagedStruct_identical_field_names_and_types_in_structures_1, name_2)
 MANAGED_FIELD_STRUCT(ManagedStruct_identical_field_names_and_types_in_structures_2, name_3)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
 TEST(struct_mapping_mapper_map_json_to_struct, identical_field_names_and_types_in_structures) {
 	ManagedStruct_identical_field_names_and_types_in_structures_3 result_struct;
@@ -1901,22 +1761,18 @@ TEST(struct_mapping_mapper_map_json_to_struct, identical_field_names_and_types_i
 	ASSERT_EQ(result_struct.name_3.name_3, -0.23);
 }
 
-#define MANAGED_STRUCT_NAME ManagedStruct_multiple_times_2
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ManagedStruct_multiple_times_2)
 
 MANAGED_FIELD(std::string, name_2)
 MANAGED_FIELD(bool, name_3)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
-#define MANAGED_STRUCT_NAME ManagedStruct_multiple_times_1
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ManagedStruct_multiple_times_1)
 
 MANAGED_FIELD_ARRAY(ManagedStruct_multiple_times_2, name_1)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
 TEST(struct_mapping_mapper_map_json_to_struct, multiple_times_same_struct) {
 	ManagedStruct_multiple_times_1 result_struct_1;
@@ -1974,17 +1830,14 @@ TEST(struct_mapping_mapper_map_json_to_struct, multiple_times_same_struct) {
 	ASSERT_FALSE(result_struct_2.name_1.get_data()[2].name_3);
 }
 
-#define MANAGED_STRUCT_NAME ManagedStruct_satellite
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ManagedStruct_satellite)
 
 MANAGED_FIELD(std::string, name)
 MANAGED_FIELD(double, radius)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
-#define MANAGED_STRUCT_NAME ManagedStruct_planet
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ManagedStruct_planet)
 
 MANAGED_FIELD(std::string, name)
 MANAGED_FIELD(bool, populated)
@@ -1992,10 +1845,8 @@ MANAGED_FIELD(double, radius)
 MANAGED_FIELD_ARRAY(ManagedStruct_satellite, satellites)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
-#define MANAGED_STRUCT_NAME ManagedStruct_photospheric_composition
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ManagedStruct_photospheric_composition)
 
 MANAGED_FIELD(double, Hydrogen)
 MANAGED_FIELD(double, Helium)
@@ -2009,10 +1860,8 @@ MANAGED_FIELD(double, Magnesium)
 MANAGED_FIELD(double, Sulphur)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
-#define MANAGED_STRUCT_NAME ManagedStruct_star
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ManagedStruct_star)
 
 MANAGED_FIELD(std::string, name)
 MANAGED_FIELD(long long, age)
@@ -2020,10 +1869,8 @@ MANAGED_FIELD(double, radius)
 MANAGED_FIELD_STRUCT(ManagedStruct_photospheric_composition, photospheric_composition)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
-#define MANAGED_STRUCT_NAME ManagedStruct_complex
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ManagedStruct_complex)
 
 MANAGED_FIELD(std::string, name)
 MANAGED_FIELD(long long, age)
@@ -2033,7 +1880,6 @@ MANAGED_FIELD_STRUCT(ManagedStruct_star, star)
 MANAGED_FIELD_ARRAY(ManagedStruct_planet, planets)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
 TEST(struct_mapping_mapper_map_json_to_struct, complex) {
 	ManagedStruct_complex result_struct;

@@ -3,17 +3,14 @@
 
 #include "struct_mapping/struct_mapping.h"
 
-#define MANAGED_STRUCT_NAME Satellite
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(Satellite)
 
 MANAGED_FIELD(std::string, name)
 MANAGED_FIELD(double, radius)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
-#define MANAGED_STRUCT_NAME Planet
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(Planet)
 
 MANAGED_FIELD(std::string, name)
 MANAGED_FIELD(bool, populated)
@@ -21,10 +18,8 @@ MANAGED_FIELD(double, radius)
 MANAGED_FIELD_ARRAY(Satellite, satellites)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
-#define MANAGED_STRUCT_NAME PhotosphericComposition
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(PhotosphericComposition)
 
 MANAGED_FIELD(double, Hydrogen)
 MANAGED_FIELD(double, Helium)
@@ -38,10 +33,8 @@ MANAGED_FIELD(double, Magnesium)
 MANAGED_FIELD(double, Sulphur)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
-#define MANAGED_STRUCT_NAME Star
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(Star)
 
 MANAGED_FIELD(std::string, name)
 MANAGED_FIELD(long long, age)
@@ -49,10 +42,8 @@ MANAGED_FIELD(double, radius)
 MANAGED_FIELD_STRUCT(PhotosphericComposition, photospheric_composition)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
-#define MANAGED_STRUCT_NAME PlanetSystem
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(PlanetSystem)
 
 MANAGED_FIELD(std::string, name)
 MANAGED_FIELD(long long, age)
@@ -63,7 +54,6 @@ MANAGED_FIELD_ARRAY(Planet, planets)
 MANAGED_FIELD_ARRAY(MANAGED_ARRAY(std::string), missions)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
 static void load(PlanetSystem & planet_system) {
 	std::istringstream json_data(R"json(

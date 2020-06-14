@@ -5,19 +5,16 @@
 
 
 
-#define MANAGED_STRUCT_NAME Spaceship // setting the structure name
-BEGIN_MANAGED_STRUCT                  // beginning of the structure Spaceship
+BEGIN_MANAGED_STRUCT(Spaceship)   // beginning of the structure Spaceship
 
-MANAGED_FIELD(std::string, color)     // the field definition of the type 'std::string' and name 'color'
-MANAGED_FIELD(double, mass)           // the field definition of the type 'double' and name 'mass'
+MANAGED_FIELD(std::string, color) // the field definition of the type 'std::string' and name 'color'
+MANAGED_FIELD(double, mass)       // the field definition of the type 'double' and name 'mass'
 
-END_MANAGED_STRUCT                    // the end of the structure Spaceship
-#undef MANAGED_STRUCT_NAME            // undefines MANAGED_STRUCT_NAME
+END_MANAGED_STRUCT                // the end of the structure Spaceship
 
 
 
-#define MANAGED_STRUCT_NAME Person         // setting the structure name
-BEGIN_MANAGED_STRUCT                       // beginning of the structure Person
+BEGIN_MANAGED_STRUCT(Person)               // beginning of the structure Person
 
 MANAGED_FIELD(bool, alien)                 // the field definition of the type 'bool' and name 'alien'
 MANAGED_FIELD(std::string, name)           // the field definition of the type 'std::string' and name 'name'
@@ -28,7 +25,6 @@ MANAGED_FIELD_STRUCT(Spaceship, spaceship) // the field definition of the type '
 MANAGED_FIELD_ARRAY(std::string, friends)  // the field definition of the type 'array of std::string' and name 'friends'
 
 END_MANAGED_STRUCT                         // the end of the structure Person
-#undef MANAGED_STRUCT_NAME                 // undef MANAGED_STRUCT_NAME
 
 
 

@@ -3,23 +3,19 @@
 
 #include "struct_mapping/struct_mapping.h"
 
-#define MANAGED_STRUCT_NAME Author
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(Author)
 
 MANAGED_FIELD(std::string, name)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
-#define MANAGED_STRUCT_NAME Book
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(Book)
 
 MANAGED_FIELD(int, price)
 MANAGED_FIELD_STRUCT(Author, author)
 MANAGED_FIELD_ARRAY(std::string, chapters)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
 int main() {
 	Book white_space;

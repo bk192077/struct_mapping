@@ -12,8 +12,7 @@
 
 namespace {
 
-#define MANAGED_STRUCT_NAME Simple
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(Simple)
 
 MANAGED_FIELD(bool, a)
 MANAGED_FIELD(int, b)
@@ -25,7 +24,6 @@ MANAGED_FIELD(double, g)
 MANAGED_FIELD(std::string, h)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
 TEST(struct_mapping_mapper_map_struct_to_json, test_simple) {
 	Simple source;
@@ -46,22 +44,18 @@ TEST(struct_mapping_mapper_map_struct_to_json, test_simple) {
 	ASSERT_EQ(result_json.str(), expected_json);
 }
 
-#define MANAGED_STRUCT_NAME Struct_A
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(Struct_A)
 
 MANAGED_FIELD(int, value)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
-#define MANAGED_STRUCT_NAME Struct
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(Struct)
 
 MANAGED_FIELD_STRUCT(Struct_A, a)
 MANAGED_FIELD_STRUCT(Struct_A, b)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
 TEST(struct_mapping_mapper_map_struct_to_json, test_struct) {
 	Struct source;
@@ -97,13 +91,11 @@ R"json({
 	ASSERT_EQ(result_json.str(), expected_json);
 }
 
-#define MANAGED_STRUCT_NAME Array
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(Array)
 
 MANAGED_FIELD_ARRAY(int, a)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
 TEST(struct_mapping_mapper_map_struct_to_json, test_array) {
 	Array source;
@@ -140,17 +132,14 @@ R"json({
 	ASSERT_EQ(result_json.str(), expected_json);
 }
 
-#define MANAGED_STRUCT_NAME ComplexAuthor
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ComplexAuthor)
 
 MANAGED_FIELD(std::string, name)
 MANAGED_FIELD(int, birth_year)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
-#define MANAGED_STRUCT_NAME ComplexBook
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(ComplexBook)
 
 MANAGED_FIELD(double, price)
 MANAGED_FIELD(bool, free)
@@ -158,7 +147,6 @@ MANAGED_FIELD_STRUCT(ComplexAuthor, author)
 MANAGED_FIELD_ARRAY(std::string, chapters)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
 TEST(struct_mapping_mapper_map_struct_to_json, test_complex) {
 	ComplexBook source;

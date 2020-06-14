@@ -8,10 +8,8 @@
 
 namespace {
 
-#define MANAGED_STRUCT_NAME struct_mapping_managed_struct_set_long_long_throw_exception_on_unknown_field_name
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(struct_mapping_managed_struct_set_long_long_throw_exception_on_unknown_field_name)
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
 TEST(struct_mapping_managed_struct, set_long_long_throw_exception_on_unknown_field_name) {
 	struct_mapping_managed_struct_set_long_long_throw_exception_on_unknown_field_name test_struct;
@@ -28,10 +26,8 @@ TEST(struct_mapping_managed_struct, set_long_long_throw_exception_on_unknown_fie
 	FAIL() << "Expected: throws an exception of type ManagedException\n  Actual: it throws nothing";
 }
 
-#define MANAGED_STRUCT_NAME struct_mapping_managed_struct_set_double_throw_exception_on_unknown_field_name
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(struct_mapping_managed_struct_set_double_throw_exception_on_unknown_field_name)
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
 TEST(struct_mapping_managed_struct, set_double_throw_exception_on_unknown_field_name) {
 	struct_mapping_managed_struct_set_double_throw_exception_on_unknown_field_name test_struct;
@@ -48,10 +44,8 @@ TEST(struct_mapping_managed_struct, set_double_throw_exception_on_unknown_field_
 	FAIL() << "Expected: throws an exception of type ManagedException\n  Actual: it throws nothing";
 }
 
-#define MANAGED_STRUCT_NAME struct_mapping_managed_struct_set_template_throw_exception_on_unknown_field_name
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(struct_mapping_managed_struct_set_template_throw_exception_on_unknown_field_name)
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
 TEST(struct_mapping_managed_struct, set_string_throw_exception_on_unknown_field_name) {
 	struct_mapping_managed_struct_set_template_throw_exception_on_unknown_field_name test_struct;
@@ -68,13 +62,11 @@ TEST(struct_mapping_managed_struct, set_string_throw_exception_on_unknown_field_
 	FAIL() << "Expected: throws an exception of type ManagedException\n  Actual: it throws nothing";
 }
 
-#define MANAGED_STRUCT_NAME struct_mapping_managed_struct_set_t_different_type
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(struct_mapping_managed_struct_set_t_different_type)
 
 MANAGED_FIELD(float, name_1)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
 TEST(struct_mapping_managed_struct, set_t_different_type_throw_unknown_field_name) {
 	struct_mapping_managed_struct_set_t_different_type test_struct;
@@ -96,13 +88,11 @@ TEST(struct_mapping_managed_struct, set_t_different_type_throw_unknown_field_nam
 	FAIL() << "Expected: throws an exception of type ManagedException\n  Actual: it throws nothing";
 }
 
-#define MANAGED_STRUCT_NAME struct_mapping_managed_struct_set_long_long_different_type
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(struct_mapping_managed_struct_set_long_long_different_type)
 
 MANAGED_FIELD(std::string, name_1)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
 TEST(struct_mapping_managed_struct, set_long_long_different_type_throw_unknown_field_name) {
 	struct_mapping_managed_struct_set_long_long_different_type test_struct;
@@ -124,13 +114,11 @@ TEST(struct_mapping_managed_struct, set_long_long_different_type_throw_unknown_f
 	FAIL() << "Expected: throws an exception of type ManagedException\n  Actual: it throws nothing";
 }
 
-#define MANAGED_STRUCT_NAME struct_mapping_managed_struct_set_double_different_type
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(struct_mapping_managed_struct_set_double_different_type)
 
 MANAGED_FIELD(std::string, name_1)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
 TEST(struct_mapping_managed_struct, set_double_different_type_throw_unknown_field_name) {
 	struct_mapping_managed_struct_set_double_different_type test_struct;
@@ -152,13 +140,11 @@ TEST(struct_mapping_managed_struct, set_double_different_type_throw_unknown_fiel
 	FAIL() << "Expected: throws an exception of type ManagedException\n  Actual: it throws nothing";
 }
 
-#define MANAGED_STRUCT_NAME struct_mapping_managed_struct_set_long_long
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(struct_mapping_managed_struct_set_long_long)
 
 MANAGED_FIELD(int, name_1)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
 TEST(struct_mapping_managed_struct, set_long_long_with_long_long) {
 	struct_mapping_managed_struct_set_long_long test_struct;
@@ -180,13 +166,11 @@ TEST(struct_mapping_managed_struct, set_long_long_with_double) {
 	ASSERT_EQ(test_struct.name_1, 42);
 }
 
-#define MANAGED_STRUCT_NAME struct_mapping_managed_struct_set_double
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(struct_mapping_managed_struct_set_double)
 
 MANAGED_FIELD(float, name_1)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
 TEST(struct_mapping_managed_struct, set_double_with_double) {
 	struct_mapping_managed_struct_set_double test_struct;

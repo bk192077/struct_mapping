@@ -3,26 +3,21 @@
 
 #include "struct_mapping/struct_mapping.h"
 
-#define MANAGED_STRUCT_NAME OceanPart
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(OceanPart)
 
 MANAGED_FIELD(std::string, name)
 MANAGED_FIELD(double, average_depth)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
-#define MANAGED_STRUCT_NAME OceanColor
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(OceanColor)
 
 MANAGED_FIELD(std::string, name)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
 
-#define MANAGED_STRUCT_NAME Ocean
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(Ocean)
 
 MANAGED_FIELD(double, water_volume)
 MANAGED_FIELD(long long, surface_area)
@@ -34,11 +29,9 @@ MANAGED_FIELD_STRUCT(OceanColor, color)
 MANAGED_FIELD_ARRAY(OceanPart, parts)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
 
-#define MANAGED_STRUCT_NAME Planet
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(Planet)
 
 MANAGED_FIELD(bool, giant)
 MANAGED_FIELD(long long, surface_area)
@@ -52,7 +45,6 @@ MANAGED_FIELD(std::string, shape)
 MANAGED_FIELD_STRUCT(Ocean, ocean)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
 int main() {
 	Planet earth;

@@ -140,13 +140,11 @@ TEST(struct_mapping_managed_array, set_managed) {
 	ASSERT_EQ(ar.get_data()[0].history, ":ctor:set:name_1:42:release:true");
 }
 
-#define MANAGED_STRUCT_NAME set_string_instead_of_student_Student
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(set_string_instead_of_student_Student)
 
 MANAGED_FIELD(std::string, name)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
 TEST(struct_mapping_managed_array, set_string_instead_of_student) {
 	struct_mapping::managed::ManagedArray<set_string_instead_of_student_Student> ar;

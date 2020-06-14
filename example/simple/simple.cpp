@@ -3,8 +3,7 @@
 
 #include "struct_mapping/struct_mapping.h"
 
-#define MANAGED_STRUCT_NAME Planet
-BEGIN_MANAGED_STRUCT
+BEGIN_MANAGED_STRUCT(Planet)
 
 MANAGED_FIELD(bool, giant)
 MANAGED_FIELD(long long, surface_area)
@@ -12,7 +11,6 @@ MANAGED_FIELD(double, mass)
 MANAGED_FIELD(std::string, satellite)
 
 END_MANAGED_STRUCT
-#undef MANAGED_STRUCT_NAME
 
 int main() {
 	Planet earth;
