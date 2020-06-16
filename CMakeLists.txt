@@ -55,7 +55,7 @@ option(STRUCT_MAPPING_BUILD_EXAMPLES "Build struct_mapping examples." ON)
 option(STRUCT_MAPPING_BUILD_TESTS "Build struct_mapping tests." ON)
 option(STRUCT_MAPPING_DEBUG "Enable debug output" OFF)
 
-sat(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 if(STRUCT_MAPPING_BUILD_EXAMPLES)
 	add_subdirectory(example)
