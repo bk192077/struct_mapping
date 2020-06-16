@@ -4,7 +4,7 @@ project(struct_mapping LANGUAGES CXX)
 
 set(LIB_MAJOR_VERSION "0")
 set(LIB_MINOR_VERSION "2")
-set(LIB_PATCH_VERSION "0")
+set(LIB_PATCH_VERSION "1")
 set(LIB_VERSION "${LIB_MAJOR_VERSION}.${LIB_MINOR_VERSION}.${LIB_PATCH_VERSION}")
 
 set(WARNINGS "")
@@ -55,7 +55,7 @@ option(STRUCT_MAPPING_BUILD_EXAMPLES "Build struct_mapping examples." ON)
 option(STRUCT_MAPPING_BUILD_TESTS "Build struct_mapping tests." ON)
 option(STRUCT_MAPPING_DEBUG "Enable debug output" OFF)
 
-SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+sat(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 if(STRUCT_MAPPING_BUILD_EXAMPLES)
 	add_subdirectory(example)

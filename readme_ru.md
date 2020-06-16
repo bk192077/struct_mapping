@@ -1,6 +1,6 @@
 # StructMapping
 
-![Release version](https://img.shields.io/badge/release-v0.2.0-blue.svg)
+![Release version](https://img.shields.io/badge/release-v0.2.1-blue.svg)
 
 [english documentation](/readme.md)
 
