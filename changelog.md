@@ -1,6 +1,22 @@
 # Change Log
 All notable changes to this project will be documented in this file. This project adheres to [Semantic Versioning](http://semver.org/).
 
+## 0.3.0 - 2020.06.23
+
+### Added
+* mapping of json data to common c++ structure
+* reverse mapping of common c++ structure to json data
+* as types of member-data can be used:
+	- std::list
+	- std::vector
+	- std::map
+	- std::unordered_map
+	- std::multimap
+	- std::unordered_multimap
+
+### Changed
+* registration of data members combined with initialization made optional
+
 ## 0.2.1 - 2020.06.16
 
 ### Changed

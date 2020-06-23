@@ -4,9 +4,9 @@
 namespace struct_mapping {
 
 #ifdef STRUCT_MAPPING_DEBUG
-	constexpr bool debug_Q5w6E7r8 = true;
+	constexpr bool debug = true;
 #else
-	constexpr bool debug_Q5w6E7r8 = false;
+	constexpr bool debug = false;
 #endif
 
 }

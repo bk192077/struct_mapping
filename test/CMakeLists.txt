@@ -24,13 +24,21 @@ set_target_properties(gtest PROPERTIES
 	"INTERFACE_LINK_LIBRARIES" "${CMAKE_THREAD_LIBS_INIT}"
 )
 
+set(GMOCK_INCLUDE_DIRS "${SOURCE_DIR}/googlemock/include")
+set(GMOCK_LIBRARY_DIRS "${BINARY_DIR}/lib")
+
+add_library(gmock IMPORTED STATIC)
+add_dependencies(gmock googletest)
+set_target_properties(gmock PROPERTIES
+	"IMPORTED_LOCATION" "${GMOCK_LIBRARY_DIRS}/libgmock.a"
+	"INTERFACE_LINK_LIBRARIES" "${CMAKE_THREAD_LIBS_INIT}"
+)
+
 set(TEST_SOURCES
 	main.cpp
-	parser_json.cpp
-	managed_array.cpp
-	managed_struct.cpp
-	mapper_map_json_to_struct.cpp
-	mapper_map_struct_to_json.cpp
+	parser.cpp
+	map_json_to_struct.cpp
+	map_struct_to_json.cpp
 )
 
 add_executable(${TARGET} ${TEST_SOURCES})
@@ -47,6 +55,7 @@ target_include_directories(${TARGET} PRIVATE SYSTEM
 )
 
 target_link_libraries(${TARGET}
+	gmock
 	gtest
 )
 

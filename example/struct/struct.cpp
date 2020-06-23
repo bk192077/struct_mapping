@@ -3,20 +3,21 @@
 
 #include "struct_mapping/struct_mapping.h"
 
-BEGIN_MANAGED_STRUCT(President)
+struct President {
+	std::string name;
+	double mass;
+};
 
-MANAGED_FIELD(std::string, name)
-MANAGED_FIELD(double, mass)
-
-END_MANAGED_STRUCT
-
-BEGIN_MANAGED_STRUCT(Earth)
-
-MANAGED_FIELD_STRUCT(President, president)
-
-END_MANAGED_STRUCT
+struct Earth {
+	President president;
+};
 
 int main() {
+	struct_mapping::reg(&President::name, "name");
+	struct_mapping::reg(&President::mass, "mass");
+
+	struct_mapping::reg(&Earth::president, "president");
+
 	Earth earth;
 
 	std::istringstream json_data(R"json(
@@ -28,7 +29,7 @@ int main() {
 	}
 	)json");
 
-	struct_mapping::mapper::map_json_to_struct(earth, json_data);
+	struct_mapping::map_json_to_struct(earth, json_data);
 
 	std::cout << "earth.president:" << std::endl;
 	std::cout << " name : " << earth.president.name << std::endl;

@@ -1,25 +1,44 @@
 #include <iostream>
+#include <list>
 #include <sstream>
+#include <vector>
 
 #include "struct_mapping/struct_mapping.h"
 
-BEGIN_MANAGED_STRUCT(MiB)
+struct Friend {
+	std::string name;
+	std::list<int> counters;
+};
 
-MANAGED_FIELD_ARRAY(std::string, friends)
-MANAGED_FIELD_ARRAY(MANAGED_ARRAY(std::string), alien_groups)
-MANAGED_FIELD_ARRAY(MANAGED_ARRAY(MANAGED_ARRAY(std::string)), planet_groups)
-
-END_MANAGED_STRUCT
+struct MiB {
+	std::list<Friend> friends;
+	std::vector<std::list<std::string>> alien_groups;
+	std::vector<std::list<std::vector<std::string>>> planet_groups;
+};
 
 int main() {
-	MiB mib;
+	struct_mapping::reg(&Friend::name, "name");
+	struct_mapping::reg(&Friend::counters, "counters");
+
+	struct_mapping::reg(&MiB::friends, "friends");
+	struct_mapping::reg(&MiB::alien_groups, "alien_groups");
+	struct_mapping::reg(&MiB::planet_groups, "planet_groups");
 
 	std::istringstream json_data(R"json(
 	{
 		"friends": [
-			"Griffin",
-			"Boris",
-			"Agent K"
+			{
+				"name": "Griffin",
+				"counters": [1,3,4]
+			},
+			{
+				"name": "Boris",
+				"counters": []
+			},
+			{
+				"name": "Agent K",
+				"counters": [42, 128]
+			}
 		],
 		"alien_groups": [
 			[
@@ -65,28 +84,34 @@ int main() {
 	}
 	)json");
 
-	struct_mapping::mapper::map_json_to_struct(mib, json_data);
+	MiB mib;
+
+	struct_mapping::map_json_to_struct(mib, json_data);
 
 	std::cout << "mib:" << std::endl;
 
 	std::cout << " friends :" << std::endl;
-	for (auto& f : mib.friends.get_data()) {
-		std::cout << "  " << f << std::endl;
+	for (auto& f : mib.friends) {
+		std::cout << "  name: [ " << f.name << " ], counters: [";
+		for (auto& c : f.counters) {
+			std::cout << c << ", ";
+		}
+		std::cout << "]" << std::endl;
 	}
 
-	std::cout << " aliens_groups :" << std::endl;
-	for (auto& alien : mib.alien_groups.get_data()) {
-		for (auto& name : alien.get_data()) {
+	std::cout << std::endl << " aliens_groups :" << std::endl;
+	for (auto& alien : mib.alien_groups) {
+		for (auto& name : alien) {
 			std::cout << "  " << name << std::endl;
 		}
 		std::cout << std::endl;
 	}
 
 	std::cout << " planets_groups :" << std::endl;
-	for (auto& group : mib.planet_groups.get_data()) {
+	for (auto& group : mib.planet_groups) {
 		std::cout << "  ---" << std::endl;
-		for (auto& category : group.get_data()) {
-			for (auto& planet : category.get_data()) {
+		for (auto& category : group) {
+			for (auto& planet : category) {
 				std::cout << "   " << planet << std::endl;
 			}
 			std::cout << std::endl;

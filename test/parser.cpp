@@ -7,7 +7,7 @@
 
 #include "gtest/gtest.h"
 
-#include "struct_mapping/parser/json.h"
+#include "struct_mapping/parser.h"
 
 namespace {
 
@@ -602,7 +602,7 @@ std::string trim_zero(std::string && number) {
 	return std::move(number);
 }
 
-TEST(struct_mapping_parser_json, test_cases) {
+TEST(parser, test_cases) {
 	for(auto t : test_cases) {
 		std::cout << "TEST CASE [" << t.title << "] : RUN" << std::endl;
 		std::vector<std::string> result;
@@ -644,7 +644,7 @@ TEST(struct_mapping_parser_json, test_cases) {
 			result.push_back("end_array");
 		};
 
-		struct_mapping::parser::Json jp(
+		struct_mapping::detail::Parser jp(
 			set_bool,
 			set_integral,
 			set_floating_point,
@@ -660,7 +660,7 @@ TEST(struct_mapping_parser_json, test_cases) {
 	}
 }
 
-TEST(struct_mapping_parser_json, test_cases_exception_end_of_data) {
+TEST(parser, test_cases_exception_end_of_data) {
 	for(auto t : test_cases_exception_end_of_data) {
 		std::cout << "TEST CASE [" << t.title << "] : RUN" << std::endl;
 		std::istringstream data(t.source);
@@ -676,7 +676,7 @@ TEST(struct_mapping_parser_json, test_cases_exception_end_of_data) {
 		auto end_array = [] {};
 
 		try {
-			struct_mapping::parser::Json jp(
+			struct_mapping::detail::Parser jp(
 				set_bool,
 				set_integral,
 				set_floating_point,
@@ -701,7 +701,7 @@ TEST(struct_mapping_parser_json, test_cases_exception_end_of_data) {
 	}
 }
 
-TEST(struct_mapping_parser_json, test_cases_exception_unexpected_character) {
+TEST(parser, test_cases_exception_unexpected_character) {
 	for(auto t : test_cases_exception_unexpected_character) {
 		std::cout << "TEST CASE [" << t.title << "] : RUN" << std::endl;
 		std::istringstream data(t.source);
@@ -717,7 +717,7 @@ TEST(struct_mapping_parser_json, test_cases_exception_unexpected_character) {
 		auto end_array = [] {};
 
 		try {
-			struct_mapping::parser::Json jp(
+			struct_mapping::detail::Parser jp(
 				set_bool,
 				set_integral,
 				set_floating_point,
@@ -742,7 +742,7 @@ TEST(struct_mapping_parser_json, test_cases_exception_unexpected_character) {
 	}
 }
 
-TEST(struct_mapping_parser_json, positive_floating_point_with_positive_exponent) {
+TEST(parser, positive_floating_point_with_positive_exponent) {
 	std::istringstream data(
 		R"json(
 			{
@@ -765,7 +765,7 @@ TEST(struct_mapping_parser_json, positive_floating_point_with_positive_exponent)
 	auto start_array = [] (std::string const &) {};
 	auto end_array = [] {};
 
-	struct_mapping::parser::Json jp(
+	struct_mapping::detail::Parser jp(
 		set_bool,
 		set_integral,
 		set_floating_point,
@@ -778,7 +778,7 @@ TEST(struct_mapping_parser_json, positive_floating_point_with_positive_exponent)
 	jp.parse(&data);
 }
 
-TEST(struct_mapping_parser_json, negative_floating_point_with_negative_exponent) {
+TEST(parser, negative_floating_point_with_negative_exponent) {
 	std::istringstream data(
 		R"json(
 			{
@@ -801,7 +801,7 @@ TEST(struct_mapping_parser_json, negative_floating_point_with_negative_exponent)
 	auto start_array = [] (std::string const &) {};
 	auto end_array = [] {};
 
-	struct_mapping::parser::Json jp(
+	struct_mapping::detail::Parser jp(
 		set_bool,
 		set_integral,
 		set_floating_point,
@@ -814,7 +814,7 @@ TEST(struct_mapping_parser_json, negative_floating_point_with_negative_exponent)
 	jp.parse(&data);
 }
 
-TEST(struct_mapping_parser_json, exception_bad_number_invalid_argument) {
+TEST(parser, exception_bad_number_invalid_argument) {
 	std::istringstream data(
 		R"json(
 			{
@@ -834,7 +834,7 @@ TEST(struct_mapping_parser_json, exception_bad_number_invalid_argument) {
 	auto end_array = [] {};
 
 	try {
-		struct_mapping::parser::Json jp(
+		struct_mapping::detail::Parser jp(
 			set_bool,
 			set_integral,
 			set_floating_point,
@@ -859,7 +859,7 @@ TEST(struct_mapping_parser_json, exception_bad_number_invalid_argument) {
 	FAIL() << "Expected: throws an exception of type ExceptionBadNumber\n  Actual: it throws nothing";
 }
 
-TEST(struct_mapping_parser_json, exception_bad_number_out_of_range) {
+TEST(parser, exception_bad_number_out_of_range) {
 	std::istringstream data(
 		R"json(
 			{
@@ -879,7 +879,7 @@ TEST(struct_mapping_parser_json, exception_bad_number_out_of_range) {
 	auto end_array = [] {};
 
 	try {
-		struct_mapping::parser::Json jp(
+		struct_mapping::detail::Parser jp(
 			set_bool,
 			set_integral,
 			set_floating_point,

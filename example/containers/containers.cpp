@@ -1,59 +1,52 @@
 #include <iostream>
+#include <list>
+#include <map>
 #include <sstream>
+#include <vector>
 
 #include "struct_mapping/struct_mapping.h"
 
-BEGIN_MANAGED_STRUCT(Satellite)
+struct Satellite {
+	std::string name;
+	long radius;
+};
 
-MANAGED_FIELD(std::string, name)
-MANAGED_FIELD(double, radius)
+struct Planet {
+	std::string name;
+	bool populated;
+	long radius;
+	std::vector<Satellite> satellites;
+};
 
-END_MANAGED_STRUCT
+struct PhotosphericComposition {
+	double Hydrogen;
+	double Helium;
+	double Oxygen;
+	double Carbon;
+	double Iron;
+	double Neon;
+	double Nitrogen;
+	double Silicon;
+	double Magnesium;
+	double Sulphur;
+};
 
-BEGIN_MANAGED_STRUCT(Planet)
+struct Star {
+	std::string name;
+	long long age;
+	long radius;
+	PhotosphericComposition photospheric_composition;
+};
 
-MANAGED_FIELD(std::string, name)
-MANAGED_FIELD(bool, populated)
-MANAGED_FIELD(double, radius)
-MANAGED_FIELD_ARRAY(Satellite, satellites)
-
-END_MANAGED_STRUCT
-
-BEGIN_MANAGED_STRUCT(PhotosphericComposition)
-
-MANAGED_FIELD(double, Hydrogen)
-MANAGED_FIELD(double, Helium)
-MANAGED_FIELD(double, Oxygen)
-MANAGED_FIELD(double, Carbon)
-MANAGED_FIELD(double, Iron)
-MANAGED_FIELD(double, Neon)
-MANAGED_FIELD(double, Nitrogen)
-MANAGED_FIELD(double, Silicon)
-MANAGED_FIELD(double, Magnesium)
-MANAGED_FIELD(double, Sulphur)
-
-END_MANAGED_STRUCT
-
-BEGIN_MANAGED_STRUCT(Star)
-
-MANAGED_FIELD(std::string, name)
-MANAGED_FIELD(long long, age)
-MANAGED_FIELD(double, radius)
-MANAGED_FIELD_STRUCT(PhotosphericComposition, photospheric_composition)
-
-END_MANAGED_STRUCT
-
-BEGIN_MANAGED_STRUCT(PlanetSystem)
-
-MANAGED_FIELD(std::string, name)
-MANAGED_FIELD(long long, age)
-MANAGED_FIELD(double, major_axis)
-MANAGED_FIELD(bool, populated)
-MANAGED_FIELD_STRUCT(Star, star)
-MANAGED_FIELD_ARRAY(Planet, planets)
-MANAGED_FIELD_ARRAY(MANAGED_ARRAY(std::string), missions)
-
-END_MANAGED_STRUCT
+struct PlanetSystem {
+	std::string name;
+	long long age;
+	long major_axis;
+	bool populated;
+	Star star;
+	std::list<Planet> planets;
+	std::map<std::string, std::list<std::string>> missions;
+};
 
 static void load(PlanetSystem & planet_system) {
 	std::istringstream json_data(R"json(
@@ -110,11 +103,11 @@ static void load(PlanetSystem & planet_system) {
 				"satellites": [
 					{
 						"name": "Phobos",
-						"radius": 11.27
+						"radius": 11
 					},
 					{
 						"name": "Deimos",
-						"radius": 6.2
+						"radius": 6
 					}
 				]
 			},
@@ -195,30 +188,30 @@ static void load(PlanetSystem & planet_system) {
 				]
 			}
 		],
-		"missions": [
-			[
+		"missions": {
+			"u": [
 				"Lunar Orbiter",
 				"Pioneer",
 				"Ranger",
 				"Surveyor",
 				"Mariner"
 			],
-			[
+			"s": [
 				"Luna",
 				"Venera",
 				"Mars",
 				"Salyut"
 			],
-			[
+			"e": [
 				"Venus Express",
 				"Solar Orbiter",
 				"Huygens"
 			]
-		]
+		}
 	}
 	)json");
 
-	struct_mapping::mapper::map_json_to_struct(planet_system, json_data);
+	struct_mapping::map_json_to_struct(planet_system, json_data);
 }
 
 static void print(PlanetSystem & planet_system) {
@@ -244,13 +237,13 @@ static void print(PlanetSystem & planet_system) {
 	std::cout << "   Sulphur   : " << planet_system.star.photospheric_composition.Sulphur << std::endl;
 	std::cout << " planets:" << std::endl;
 
-	for (auto& planet : planet_system.planets.get_data()) {
+	for (auto& planet : planet_system.planets) {
 		std::cout << "  [" << std::endl;
 		std::cout << "   name      : " << planet.name << std::endl;
 		std::cout << "   populated : " << planet.populated << std::endl;
 		std::cout << "   radius    : " << planet.radius << std::endl;
 		std::cout << "   satellites:" << std::endl;
-		for (auto& satellite : planet.satellites.get_data()) {
+		for (auto& satellite : planet.satellites) {
 			std::cout << "    {" << std::endl;
 			std::cout << "     name   : " << satellite.name << std::endl;
 			std::cout << "     radius : " << satellite.radius << std::endl;
@@ -260,16 +253,48 @@ static void print(PlanetSystem & planet_system) {
 	}
 
 	std::cout << " missions:" << std::endl;
-	for (auto& missions : planet_system.missions.get_data()) {
-		std::cout << "  [" << std::endl;
-		for (auto& mission : missions.get_data()) {
-			std::cout << "    " << mission << std::endl;
+	for (auto& [name, missions] : planet_system.missions) {
+		std::cout << "  " << name << " : [ ";
+		for (auto& mission : missions) {
+			std::cout << mission << ", ";
 		}
-		std::cout << "  ]" << std::endl;
+		std::cout << "]" << std::endl;
 	}
 }
 
 int main() {
+	struct_mapping::reg(&Satellite::name, "name");
+	struct_mapping::reg(&Satellite::radius, "radius");
+
+	struct_mapping::reg(&Planet::name, "name");
+	struct_mapping::reg(&Planet::populated, "populated");
+	struct_mapping::reg(&Planet::radius, "radius");
+	struct_mapping::reg(&Planet::satellites, "satellites");
+
+	struct_mapping::reg(&PhotosphericComposition::Hydrogen, "Hydrogen");
+	struct_mapping::reg(&PhotosphericComposition::Helium, "Helium");
+	struct_mapping::reg(&PhotosphericComposition::Oxygen, "Oxygen");
+	struct_mapping::reg(&PhotosphericComposition::Carbon, "Carbon");
+	struct_mapping::reg(&PhotosphericComposition::Iron, "Iron");
+	struct_mapping::reg(&PhotosphericComposition::Neon, "Neon");
+	struct_mapping::reg(&PhotosphericComposition::Nitrogen, "Nitrogen");
+	struct_mapping::reg(&PhotosphericComposition::Silicon, "Silicon");
+	struct_mapping::reg(&PhotosphericComposition::Magnesium, "Magnesium");
+	struct_mapping::reg(&PhotosphericComposition::Sulphur, "Sulphur");
+
+	struct_mapping::reg(&Star::name, "name");
+	struct_mapping::reg(&Star::age, "age");
+	struct_mapping::reg(&Star::radius, "radius");
+	struct_mapping::reg(&Star::photospheric_composition, "photospheric_composition");
+
+	struct_mapping::reg(&PlanetSystem::name, "name");
+	struct_mapping::reg(&PlanetSystem::age, "age");
+	struct_mapping::reg(&PlanetSystem::major_axis, "major_axis");
+	struct_mapping::reg(&PlanetSystem::populated, "populated");
+	struct_mapping::reg(&PlanetSystem::star, "star");
+	struct_mapping::reg(&PlanetSystem::planets, "planets");
+	struct_mapping::reg(&PlanetSystem::missions, "missions");
+
 	PlanetSystem planet_system;
 
 	load(planet_system);

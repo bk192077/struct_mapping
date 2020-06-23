@@ -1,6 +1,6 @@
 # StructMapping
 
-![Release version](https://img.shields.io/badge/release-v0.2.1-blue.svg)
+![Release version](https://img.shields.io/badge/release-v0.3.0-blue.svg)
 
 [english documentation](/readme.md)
 
@@ -50,14 +50,28 @@ StructMapping пытается решить эти задачи
 ## Совместимость
 
 Требуется компиляция с -std=c++17 В основном для:
+
 * if constexpr
 * static inline
 
 Комбинации компилятор | платформа, на которых была протестирована StructMapping:
 
 * GNU C++ 10.1.0 | Linux
-* Clang 9 | Linux
-* Visual C++ 2019 и Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64 | Windows 64-bit (кроме тестов)
+
+В качестве типов членов-данных могут быть использованы:
+
+* bool
+* char, unsigned char, short, unsigned short, int unsigned int, long, unsigned long, long long
+* float, double
+* std::string
+* std::list
+* std::vector
+* std::map (ключем может быть только std::string)
+* std::unordered_map (ключем может быть только std::string)
+* std::multimap (ключем может быть только std::string)
+* std::unordered_multimap (ключем может быть только std::string)
+* структуры с++
+
 
 ## Установка
 
@@ -81,13 +95,19 @@ StructMapping - это библиотека включающая только з
 определяем структуру
 
 ```cpp
-BEGIN_MANAGED_STRUCT(Person)     // начало структуры
+struct Person {
+ std::string name;
+ int age;
+ bool student;
+};
+```
 
-MANAGED_FIELD(std::string, name) // поле с типом 'std::string' и именем 'name'
-MANAGED_FIELD(int, age)          // поле с типом 'int' и именем 'age'
-MANAGED_FIELD(bool, student)     // поле с типом 'bool' и именем 'student'
+регистрируем поля
 
-END_MANAGED_STRUCT               // конец структуры
+```cpp
+struct_mapping::reg(&Person::name, "name");
+struct_mapping::reg(&Person::age, "age");
+struct_mapping::reg(&Person::student, "student");
 ```
 
 создаем экземпляр
@@ -111,13 +131,16 @@ std::istringstream json_data(R"json(
 передаем экземпляр person в метод отображения вместе с данными json
 
 ```cpp
-mapper::map_json_to_struct(person, json_data);
+struct_mapping::map_json_to_struct(person, json_data);
 ```
 
 пользуемся
 
 ```cpp
-std::cout << person.name << " : " << person.age;
+std::cout <<
+ person.name << " : " <<
+ person.age << " : " <<
+ std::boolalpha << person.student << std::endl;
 ```
 
 Полностью код выглядит так
@@ -126,17 +149,19 @@ std::cout << person.name << " : " << person.age;
 #include <iostream>
 #include <sstream>
 
-#include "struct_mapping/struct_mapping.h" // inclusion of library files
+#include "struct_mapping/struct_mapping.h"
 
-BEGIN_MANAGED_STRUCT(Person)     // начало структуры
-
-MANAGED_FIELD(std::string, name) // поле с типом 'std::string' и именем 'name'
-MANAGED_FIELD(int, age)          // поле с типом 'int' и именем 'age'
-MANAGED_FIELD(bool, student)     // поле с типом 'bool' и именем 'student'
-
-END_MANAGED_STRUCT               // конец структуры
+struct Person {
+ std::string name;
+ int age;
+ bool student;
+};
 
 int main() {
+ struct_mapping::reg(&Person::name, "name");
+ struct_mapping::reg(&Person::age, "age");
+ struct_mapping::reg(&Person::student, "student");
+
  Person person;
 
  std::istringstream json_data(R"json(
@@ -147,13 +172,12 @@ int main() {
   }
  )json");
 
- struct_mapping::mapper::map_json_to_struct(person, json_data); // json_data -> person
+ struct_mapping::map_json_to_struct(person, json_data);
 
  std::cout <<
   person.name << " : " <<
   person.age << " : " <<
-  std::boolalpha << person.student <<
-  std::endl;
+  std::boolalpha << person.student << std::endl;
 }
 ```
 
@@ -163,132 +187,23 @@ int main() {
 Jeebs : 42 : true
 ```
 
-### Управляемая структура
-
-Для использования в отображении структура должна быть определена с использованием MANAGED макросов:
-- BEGIN_MANAGED_STRUCT
-- MANAGED_FIELD
-- MANAGED_FIELD_STRUCT
-- MANAGED_FIELD_ARRAY
-- END_MANAGED_STRUCT
-
-#### BEGIN_MANAGED_STRUCT
-Задает начало структуры и ее имя    
-
-BEGIN_MANAGED_STRUCT(имя структуры)
-
-```cpp
-BEGIN_MANAGED_STRUCT(Person)
-```
-
-#### MANAGED_FIELD
-Добавляет поле структуры, когда поле имеет один из следующих типов:
-- bool
-- целочисленные типы (char, int, ...)
-- типы с плавающей точкой (float, double)
-- std::string
-
-MANAGED_FIELD(тип поля, название поля)
-
-```cpp
-MANAGED_FIELD(bool, ready)
-MANAGED_FIELD(int, size)
-MANAGED_FIELD(double, speed)
-MANAGED_FIELD(std::string, color)
-```
-
-#### MANAGED_FIELD_STRUCT
-Добавляет поле структуры, когда поле имеет тип структуры:
-
-MANAGED_FIELD_STRUCT(тип поля, название поля)
-
-```cpp
-MANAGED_FIELD_STRUCT(President, president)
-```
-
-Тип поля здесь должен быть управляемой структурой. Например, в структуре Earth поле president имеет тип President, который задан ранее.
-
-```cpp
-BEGIN_MANAGED_STRUCT(President) <-- определяем структуру President
-
-MANAGED_FIELD(std::string, name)
-MANAGED_FIELD(double, mass)
-
-END_MANAGED_STRUCT
-
-
-BEGIN_MANAGED_STRUCT(Earth)
-
-MANAGED_FIELD_STRUCT(President, president) <-- определяем поле с типом President
-
-END_MANAGED_STRUCT
-```
-
-#### MANAGED_FIELD_ARRAY
-Добавляет поле структуры, когда поле имеет тип массива:
-
-MANAGED_FIELD_ARRAY(тип элемента массива, имя поля)
-
-```cpp
-MANAGED_FIELD_ARRAY(std::string, friends)
-```
-
-тип элемента массива может быть одним из следующих:
-- bool
-- целочисленные типы (char, int, ...)
-- типы с плавающей точкой (float, double)
-- std::string
-- управляемая структура
-- массив
-
-при этом реальным типом поля становится `managed::ManagedArray<тип элемента массива>` Внутри ManagedArray находится std::vector, который будет содержать значения массива. Ссылка на этот вектор может быть получена через метод
-
-```cpp
-std::vector<T> & ManagedArray::get_data();
-````
-
-например
-
-```cpp
-mib.friends.get_data()[13] // элемент массива по индексу тринадцать
-```
-
-Если требуется массив, элементы которого так же являются массивами, то необходимо использовать для поля тот же макрос `MANAGED_FIELD_ARRAY`, а тип элементов задавать через макрос `MANAGED_ARRAY`
-
-```cpp
-MANAGED_FIELD_ARRAY(MANAGED_ARRAY(std::string), alien_groups)
-```
-
-Доступ к элементам происходит с учетом вложенности векторов
-
-```cpp
-mib.alien_groups.get_data()[13].get_data()[42] // элемент массива по индексу сорок два в массиве
-                                               // по индексу тринадцать
-```
-
-Размерность массивов можно увеличивать
-
-```cpp
-MANAGED_FIELD_ARRAY(MANAGED_ARRAY(MANAGED_ARRAY(std::string)), planet_groups)
-```
-
-#### END_MANAGED_STRUCT
-Задает конец структуры
-
-END_MANAGED_STRUCT
-
-
-```cpp
-END_MANAGED_STRUCT
-```
-
 ### Отображение json на структуру c++
 
-Для отображения json на структуру необходимо задать управляемую структуру с помощью MANAGED макросов и вызвать функцию
+Для отображения json на структуру необходимо зарегистрировать все члены-данные всех структур, которые требуется отображать, используя для каждого поля функцию
+
+```cpp
+template<typename T, typename V>
+inline void reg(V T::* ptr, std::string const & name);
+```
+
+- `ptr` - указатель на член-данные
+- `name` - имя члена
+
+и вызвать функцию
 
 ```cpp
 template<typename T>
-void map_json_to_struct(T & result_struct, std::basic_istream<char> & json_data);
+inline void map_json_to_struct(T & result_struct, std::basic_istream<char> & json_data);
 ```
 
 - `result_struct` - ссылка на результирующую структуру
@@ -304,16 +219,19 @@ void map_json_to_struct(T & result_struct, std::basic_istream<char> & json_data)
 
 #include "struct_mapping/struct_mapping.h"
 
-BEGIN_MANAGED_STRUCT(Planet)
-
-MANAGED_FIELD(bool, giant)
-MANAGED_FIELD(long long, surface_area)
-MANAGED_FIELD(double, mass)
-MANAGED_FIELD(std::string, satellite)
-
-END_MANAGED_STRUCT
+struct Planet {
+ bool giant;
+ long long surface_area;
+ double mass;
+ std::string satellite;
+};
 
 int main() {
+ struct_mapping::reg(&Planet::giant, "giant");
+ struct_mapping::reg(&Planet::surface_area, "surface_area");
+ struct_mapping::reg(&Planet::mass, "mass");
+ struct_mapping::reg(&Planet::satellite, "satellite");
+
  Planet earth;
 
  std::istringstream json_data(R"json(
@@ -325,7 +243,7 @@ int main() {
   }
  )json");
 
- struct_mapping::mapper::map_json_to_struct(earth, json_data);
+ struct_mapping::map_json_to_struct(earth, json_data);
 
  std::cout << "earth" << std::endl;
  std::cout << " giant        : " << std::boolalpha << earth.giant << std::endl;
@@ -355,20 +273,21 @@ earth
 
 #include "struct_mapping/struct_mapping.h"
 
-BEGIN_MANAGED_STRUCT(President)
+struct President {
+ std::string name;
+ double mass;
+};
 
-MANAGED_FIELD(std::string, name)
-MANAGED_FIELD(double, mass)
-
-END_MANAGED_STRUCT
-
-BEGIN_MANAGED_STRUCT(Earth)
-
-MANAGED_FIELD_STRUCT(President, president)
-
-END_MANAGED_STRUCT
+struct Earth {
+ President president;
+};
 
 int main() {
+ struct_mapping::reg(&President::name, "name");
+ struct_mapping::reg(&President::mass, "mass");
+
+ struct_mapping::reg(&Earth::president, "president");
+
  Earth earth;
 
  std::istringstream json_data(R"json(
@@ -380,7 +299,7 @@ int main() {
   }
  )json");
 
- struct_mapping::mapper::map_json_to_struct(earth, json_data);
+ struct_mapping::map_json_to_struct(earth, json_data);
 
  std::cout << "earth.president:" << std::endl;
  std::cout << " name : " << earth.president.name << std::endl;
@@ -396,34 +315,52 @@ earth.president:
  mass : 75.6
 ```
 
-#### пример использования массивов
+#### пример использования последовательных контейнеров
 
 [example/array](/example/array/array.cpp)
 
-
 ```cpp
 #include <iostream>
+#include <list>
 #include <sstream>
+#include <vector>
 
 #include "struct_mapping/struct_mapping.h"
 
-BEGIN_MANAGED_STRUCT(MiB)
+struct Friend {
+ std::string name;
+ std::list<int> counters;
+};
 
-MANAGED_FIELD_ARRAY(std::string, friends)
-MANAGED_FIELD_ARRAY(MANAGED_ARRAY(std::string), alien_groups)
-MANAGED_FIELD_ARRAY(MANAGED_ARRAY(MANAGED_ARRAY(std::string)), planet_groups)
-
-END_MANAGED_STRUCT
+struct MiB {
+ std::list<Friend> friends;
+ std::vector<std::list<std::string>> alien_groups;
+ std::vector<std::list<std::vector<std::string>>> planet_groups;
+};
 
 int main() {
- MiB mib;
+ struct_mapping::reg(&Friend::name, "name");
+ struct_mapping::reg(&Friend::counters, "counters");
+
+ struct_mapping::reg(&MiB::friends, "friends");
+ struct_mapping::reg(&MiB::alien_groups, "alien_groups");
+ struct_mapping::reg(&MiB::planet_groups, "planet_groups");
 
  std::istringstream json_data(R"json(
   {
    "friends": [
-    "Griffin",
-    "Boris",
-    "Agent K"
+    {
+     "name": "Griffin",
+     "counters": [1,3,4]
+    },
+    {
+     "name": "Boris",
+     "counters": []
+    },
+    {
+     "name": "Agent K",
+     "counters": [42, 128]
+    }
    ],
    "alien_groups": [
     [
@@ -469,28 +406,34 @@ int main() {
   }
  )json");
 
- struct_mapping::mapper::map_json_to_struct(mib, json_data);
+ MiB mib;
+
+ struct_mapping::map_json_to_struct(mib, json_data);
 
  std::cout << "mib:" << std::endl;
 
  std::cout << " friends :" << std::endl;
- for (auto& f : mib.friends.get_data()) {
-  std::cout << "  " << f << std::endl;
+ for (auto& f : mib.friends) {
+  std::cout << "  name: [ " << f.name << " ], counters: [";
+  for (auto& c : f.counters) {
+   std::cout << c << ", ";
+  }
+  std::cout << "]" << std::endl;
  }
 
- std::cout << " aliens_groups :" << std::endl;
- for (auto& alien : mib.alien_groups.get_data()) {
-  for (auto& name : alien.get_data()) {
+ std::cout << std::endl << " aliens_groups :" << std::endl;
+ for (auto& alien : mib.alien_groups) {
+  for (auto& name : alien) {
    std::cout << "  " << name << std::endl;
   }
   std::cout << std::endl;
  }
 
  std::cout << " planets_groups :" << std::endl;
- for (auto& group : mib.planet_groups.get_data()) {
+ for (auto& group : mib.planet_groups) {
   std::cout << "  ---" << std::endl;
-  for (auto& category : group.get_data()) {
-   for (auto& planet : category.get_data()) {
+  for (auto& category : group) {
+   for (auto& planet : category) {
     std::cout << "   " << planet << std::endl;
    }
    std::cout << std::endl;
@@ -507,14 +450,9 @@ int main() {
 ```cpp
 mib:
  friends :
-  Griffin
-  Boris
-  Agent K
- aliens_groups :
-  Edgar the Bug
-  Boris the Animal
-  Charlie
-  Serleena
+  name: [ Griffin ], counters: [1, 3, 4, ]
+  name: [ Boris ], counters: []
+  name: [ Agent K ], counters: [42, 128, ]
 
   Agent J
   Agent K
@@ -543,9 +481,110 @@ mib:
    Titania
 ```
 
+#### пример использования ассоциативных контейнеров
+
+[example/map](/example/map/map.cpp)
+
+```cpp
+#include <iostream>
+#include <map>
+#include <sstream>
+#include <unordered_map>
+
+#include "struct_mapping/struct_mapping.h"
+
+struct Library {
+ std::unordered_map<std::string, std::multimap<std::string, int>> counters;
+ std::multimap<std::string, std::unordered_multimap<std::string, std::string>> books;
+};
+
+int main() {
+ struct_mapping::reg(&Library::counters, "counters");
+ struct_mapping::reg(&Library::books, "books");
+
+ Library library;
+
+ std::istringstream json_data(R"json(
+  {
+   "counters": {
+    "first": {
+     "112": 13,
+     "142": 560,
+     "112": 0
+    },
+    "second": {
+     "2": 28,
+     "20": 411
+    },
+    "third": {
+    }
+   },
+   "books": {
+    "asd": {
+     "Leo": "aaa",
+     "Leo": "bbb",
+     "Mark": "ccc"
+    },
+    "wwert": {
+     "Gogol": "ddd",
+     "Tom": "eee"
+    }
+   }
+  }
+ )json");
+
+ struct_mapping::map_json_to_struct(library, json_data);
+
+ std::cout << "library:" << std::endl;
+
+ std::cout << " counters :" << std::endl;
+ for (auto [n1, v] : library.counters) {
+  std::cout << "  " << n1 << " : ";
+  for (auto [n2, c] : v) {
+   std::cout << "[" << n2 << ", " << c << "], ";
+  }
+  std::cout << std::endl;
+ }
+
+ std::cout << " books :" << std::endl;
+ for (auto [n1, v] : library.books) {
+  std::cout << "  " << n1 << " : ";
+  for (auto [n2, b] : v) {
+   std::cout << "[" << n2 << ", " << b << "], ";
+  }
+  std::cout << std::endl;
+ }
+
+ std::cout << std::endl;
+}
+```
+
+результат
+
+```cpp
+library:
+ counters :
+  third : 
+  second : [2, 28], [20, 411], 
+  first : [112, 13], [112, 0], [142, 560], 
+ books :
+  asd : [Mark, ccc], [Leo, bbb], [Leo, aaa], 
+  wwert : [Tom, eee], [Gogol, ddd],
+```
+
 ### Обратное отображение структуры c++ на json
 
-Для обратного отображения структуры в json необходимо задать управляемую структуру с помощью MANAGED макросов и вызвать функцию
+Для обратного отображения структуры на json необходимо зарегистрировать все члены-данные всех структур, которые требуется отображать, используя для каждого поля функцию
+
+```cpp
+template<typename T, typename V>
+inline void reg(V T::* ptr, std::string const & name);
+```
+
+- `ptr` - указатель на член-данные
+- `name` - имя члена
+
+и вызвать функцию
 
 ```cpp
 template<typename T>
@@ -564,50 +603,64 @@ void map_struct_to_json(T & source_struct, std::basic_ostream<char> & json_data,
 
 #include "struct_mapping/struct_mapping.h"
 
-BEGIN_MANAGED_STRUCT(OceanPart)
+struct OceanPart {
+ std::string name;
+ double average_depth;
+ std::vector<int> temperature;
+};
 
-MANAGED_FIELD(std::string, name)
-MANAGED_FIELD(double, average_depth)
+struct OceanColor {
+ std::string name;
+};
 
-END_MANAGED_STRUCT
+struct Ocean {
+ double water_volume;
+ long long surface_area;
+ bool liquid;
+ std::string name;
 
-BEGIN_MANAGED_STRUCT(OceanColor)
+ OceanColor color;
 
-MANAGED_FIELD(std::string, name)
+ std::vector<OceanPart> parts;
+};
 
-END_MANAGED_STRUCT
+struct Planet {
+ bool giant;
+ long long surface_area;
+ double mass;
+ double volume;
+ long long orbital_period;
+ std::string name;
+ bool terrestrial;
+ std::string shape;
 
-
-BEGIN_MANAGED_STRUCT(Ocean)
-
-MANAGED_FIELD(double, water_volume)
-MANAGED_FIELD(long long, surface_area)
-MANAGED_FIELD(bool, liquid)
-MANAGED_FIELD(std::string, name)
-
-MANAGED_FIELD_STRUCT(OceanColor, color)
-
-MANAGED_FIELD_ARRAY(OceanPart, parts)
-
-END_MANAGED_STRUCT
-
-
-BEGIN_MANAGED_STRUCT(Planet)
-
-MANAGED_FIELD(bool, giant)
-MANAGED_FIELD(long long, surface_area)
-MANAGED_FIELD(double, mass)
-MANAGED_FIELD(double, volume)
-MANAGED_FIELD(long long, orbital_period)
-MANAGED_FIELD(std::string, name)
-MANAGED_FIELD(bool, terrestrial)
-MANAGED_FIELD(std::string, shape)
-
-MANAGED_FIELD_STRUCT(Ocean, ocean)
-
-END_MANAGED_STRUCT
+ Ocean ocean;
+};
 
 int main() {
+ struct_mapping::reg(&OceanPart::name, "name");
+ struct_mapping::reg(&OceanPart::average_depth, "average_depth");
+ struct_mapping::reg(&OceanPart::temperature, "temperature");
+
+ struct_mapping::reg(&OceanColor::name, "name");
+
+ struct_mapping::reg(&Ocean::water_volume, "water_volume");
+ struct_mapping::reg(&Ocean::surface_area, "surface_area");
+ struct_mapping::reg(&Ocean::liquid, "liquid");
+ struct_mapping::reg(&Ocean::name, "name");
+ struct_mapping::reg(&Ocean::color, "color");
+ struct_mapping::reg(&Ocean::parts, "parts");
+
+ struct_mapping::reg(&Planet::giant, "giant");
+ struct_mapping::reg(&Planet::surface_area, "surface_area");
+ struct_mapping::reg(&Planet::mass, "mass");
+ struct_mapping::reg(&Planet::volume, "volume");
+ struct_mapping::reg(&Planet::orbital_period, "orbital_period");
+ struct_mapping::reg(&Planet::name, "name");
+ struct_mapping::reg(&Planet::terrestrial, "terrestrial");
+ struct_mapping::reg(&Planet::shape, "shape");
+ struct_mapping::reg(&Planet::ocean, "ocean");
+
  Planet earth;
 
  earth.giant = false;
@@ -628,16 +681,18 @@ int main() {
  OceanPart pacific;
  pacific.name = "Pacific Ocean";
  pacific.average_depth = 4.280111;
+ pacific.temperature = std::vector<int>{-3, 5, 12};
 
  OceanPart atlantic;
  atlantic.name = "Atlantic Ocean";
  atlantic.average_depth = 3.646;
+ atlantic.temperature = std::vector<int>{-3, 0};
 
- earth.ocean.parts.get_data().push_back(pacific);
- earth.ocean.parts.get_data().push_back(atlantic);
+ earth.ocean.parts.push_back(pacific);
+ earth.ocean.parts.push_back(atlantic);
 
  std::ostringstream json_data;
- struct_mapping::mapper::map_struct_to_json(earth, json_data, "  ");
+ struct_mapping::map_struct_to_json(earth, json_data, "  ");
 
  std::cout << json_data.str() << std::endl;
 }
@@ -666,14 +721,146 @@ int main() {
     "parts": [
       {
         "name": "Pacific Ocean",
-        "average_depth": 4.28011
+        "average_depth": 4.28011,
+        "temperature": [
+          -3,
+          5,
+          12
+        ]
       },
       {
         "name": "Atlantic Ocean",
-        "average_depth": 3.646
+        "average_depth": 3.646,
+        "temperature": [
+          -3,
+          0
+        ]
       }
     ]
   }
+}
+```
+
+### Регистрация членов-данных, совмещенная с инициализацией
+
+Чтобы не выносить регистрацию членов-данных из структуры можно совместить регистрацию с инициализацией
+
+[example/in_struct_reg](/example/in_struct_reg/in_struct_reg.cpp)
+
+```cpp
+#include <iostream>
+#include <sstream>
+#include <vector>
+
+#include "struct_mapping/struct_mapping.h"
+
+struct Planet {
+ bool giant = [] {struct_mapping::reg(&Planet::giant, "giant"); return false;} ();
+ long long surface_area = [] {struct_mapping::reg(&Planet::surface_area, "surface_area"); return 0;} ();
+ double mass = [] {struct_mapping::reg(&Planet::mass, "mass"); return 0;} ();
+ std::vector<std::string> satellites = [] {
+  struct_mapping::reg(&Planet::satellites, "satellites"); return std::vector<std::string>{};} ();
+};
+
+int main() {
+ std::istringstream json_data(R"json(
+  {
+   "giant": false,
+   "surface_area": 510072000000000,
+   "mass": 5.97237e24,
+   "satellites": ["Moon", "R24"]
+  }
+ )json");
+
+ Planet earth;
+
+ struct_mapping::map_json_to_struct(earth, json_data);
+
+ std::cout << "earth" << std::endl;
+ std::cout << " giant        : " << std::boolalpha << earth.giant << std::endl;
+ std::cout << " surface_area : " << earth.surface_area << std::endl;
+ std::cout << " mass         : " << earth.mass << std::endl;
+ std::cout << " satellite    : [ ";
+ for (auto & s : earth.satellites) std::cout << s << ", ";
+ std::cout << "]" << std::endl;
+}
+```
+
+Для упрощения использования такого способа определены три макроса
+
+- BEGIN_STRUCT
+- MEMBER
+- END_STRUCT
+
+#### BEGIN_STRUCT
+Задает начало структуры и ее имя    
+
+BEGIN_STRUCT(имя структуры)
+
+```cpp
+BEGIN_STRUCT(Planet)
+```
+
+#### MEMBER
+Добавляет член-данные, регистрирует его и инициализирует его значением по умолчанию:
+
+MEMBER(тип, название)
+
+```cpp
+MEMBER(bool, giant)
+MEMBER(long long, surface_area)
+MEMBER(double, mass)
+MEMBER(std::vector<std::string>, satellites)
+```
+
+#### END_STRUCT
+Задает конец структуры
+
+END_STRUCT
+
+```cpp
+END_STRUCT
+```
+
+[example/macro_reg](/example/macro_reg/macro_reg.cpp)
+
+```cpp
+#include <iostream>
+#include <sstream>
+#include <vector>
+
+#include "struct_mapping/struct_mapping.h"
+
+BEGIN_STRUCT(Planet)
+
+MEMBER(bool, giant)
+MEMBER(long long, surface_area)
+MEMBER(double, mass)
+MEMBER(std::vector<std::string>, satellites)
+
+END_STRUCT
+
+int main() {
+ std::istringstream json_data(R"json(
+  {
+   "giant": false,
+   "surface_area": 510072000000000,
+   "mass": 5.97237e24,
+   "satellites": ["Moon", "R24"]
+  }
+ )json");
+
+ Planet earth;
+
+ struct_mapping::map_json_to_struct(earth, json_data);
+
+ std::cout << "earth" << std::endl;
+ std::cout << " giant        : " << std::boolalpha << earth.giant << std::endl;
+ std::cout << " surface_area : " << earth.surface_area << std::endl;
+ std::cout << " mass         : " << earth.mass << std::endl;
+ std::cout << " satellite    : [ ";
+ for (auto & s : earth.satellites) std::cout << s << ", ";
+ std::cout << "]" << std::endl;
 }
 ```
 
@@ -682,9 +869,6 @@ int main() {
 StructMapping генерирует в процессе отображения исключение `StructMappingException`
 
 * при использовании для структуры поля с несуществующим именем (в json имя значения в объекте не сответствуют ни одному из полей с++ структуры)
-* при попытке установить для массива значение неверного типа (в json тип значения в массиве не соответствует типу значения массива с++)
 *	при достижении конца потока json, когда парсинг не завершен (выполняется процесс парсинга объекта, значения и т.д.)
 * когда в потоке json получен символ, который недопустим в данной позиции (например, символ завершения массива, если символ начала массива не был получен ранее)
 * при ошибке преобразования json строки, представляющей собой число в число
-
-После исключения состояние управляемой структуры неполное и не может быть использовано.

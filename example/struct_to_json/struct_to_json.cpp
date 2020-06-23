@@ -1,52 +1,67 @@
 #include <iostream>
 #include <sstream>
+#include <vector>
 
 #include "struct_mapping/struct_mapping.h"
 
-BEGIN_MANAGED_STRUCT(OceanPart)
+struct OceanPart {
+	std::string name;
+	double average_depth;
+	std::vector<int> temperature;
+};
 
-MANAGED_FIELD(std::string, name)
-MANAGED_FIELD(double, average_depth)
+struct OceanColor {
+	std::string name;
+};
 
-END_MANAGED_STRUCT
+struct Ocean {
+	double water_volume;
+	long long surface_area;
+	bool liquid;
+	std::string name;
 
-BEGIN_MANAGED_STRUCT(OceanColor)
+	OceanColor color;
 
-MANAGED_FIELD(std::string, name)
+	std::vector<OceanPart> parts;
+};
 
-END_MANAGED_STRUCT
+struct Planet {
+	bool giant;
+	long long surface_area;
+	double mass;
+	double volume;
+	long long orbital_period;
+	std::string name;
+	bool terrestrial;
+	std::string shape;
 
-
-BEGIN_MANAGED_STRUCT(Ocean)
-
-MANAGED_FIELD(double, water_volume)
-MANAGED_FIELD(long long, surface_area)
-MANAGED_FIELD(bool, liquid)
-MANAGED_FIELD(std::string, name)
-
-MANAGED_FIELD_STRUCT(OceanColor, color)
-
-MANAGED_FIELD_ARRAY(OceanPart, parts)
-
-END_MANAGED_STRUCT
-
-
-BEGIN_MANAGED_STRUCT(Planet)
-
-MANAGED_FIELD(bool, giant)
-MANAGED_FIELD(long long, surface_area)
-MANAGED_FIELD(double, mass)
-MANAGED_FIELD(double, volume)
-MANAGED_FIELD(long long, orbital_period)
-MANAGED_FIELD(std::string, name)
-MANAGED_FIELD(bool, terrestrial)
-MANAGED_FIELD(std::string, shape)
-
-MANAGED_FIELD_STRUCT(Ocean, ocean)
-
-END_MANAGED_STRUCT
+	Ocean ocean;
+};
 
 int main() {
+	struct_mapping::reg(&OceanPart::name, "name");
+	struct_mapping::reg(&OceanPart::average_depth, "average_depth");
+	struct_mapping::reg(&OceanPart::temperature, "temperature");
+
+	struct_mapping::reg(&OceanColor::name, "name");
+	
+	struct_mapping::reg(&Ocean::water_volume, "water_volume");
+	struct_mapping::reg(&Ocean::surface_area, "surface_area");
+	struct_mapping::reg(&Ocean::liquid, "liquid");
+	struct_mapping::reg(&Ocean::name, "name");
+	struct_mapping::reg(&Ocean::color, "color");
+	struct_mapping::reg(&Ocean::parts, "parts");
+
+	struct_mapping::reg(&Planet::giant, "giant");
+	struct_mapping::reg(&Planet::surface_area, "surface_area");
+	struct_mapping::reg(&Planet::mass, "mass");
+	struct_mapping::reg(&Planet::volume, "volume");
+	struct_mapping::reg(&Planet::orbital_period, "orbital_period");
+	struct_mapping::reg(&Planet::name, "name");
+	struct_mapping::reg(&Planet::terrestrial, "terrestrial");
+	struct_mapping::reg(&Planet::shape, "shape");
+	struct_mapping::reg(&Planet::ocean, "ocean");
+
 	Planet earth;
 
 	earth.giant = false;
@@ -67,16 +82,18 @@ int main() {
 	OceanPart pacific;
 	pacific.name = "Pacific Ocean";
 	pacific.average_depth = 4.280111;
+	pacific.temperature = std::vector<int>{-3, 5, 12};
 
 	OceanPart atlantic;
 	atlantic.name = "Atlantic Ocean";
 	atlantic.average_depth = 3.646;
+	atlantic.temperature = std::vector<int>{-3, 0};
 
-	earth.ocean.parts.get_data().push_back(pacific);
-	earth.ocean.parts.get_data().push_back(atlantic);
+	earth.ocean.parts.push_back(pacific);
+	earth.ocean.parts.push_back(atlantic);
 
 	std::ostringstream json_data;
-	struct_mapping::mapper::map_struct_to_json(earth, json_data, "  ");
+	struct_mapping::map_struct_to_json(earth, json_data, "  ");
 
 	std::cout << json_data.str() << std::endl;
 }

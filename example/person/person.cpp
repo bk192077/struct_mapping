@@ -3,16 +3,18 @@
 
 #include "struct_mapping/struct_mapping.h"
 
-BEGIN_MANAGED_STRUCT(Person)
-
-MANAGED_FIELD(std::string, name)
-MANAGED_FIELD(int, age)
-MANAGED_FIELD(bool, student)
-
-END_MANAGED_STRUCT
+struct Person {
+	std::string name;
+	int age;
+	bool student;
+};
 
 int main() {
- Person person;
+	struct_mapping::reg(&Person::name, "name");
+	struct_mapping::reg(&Person::age, "age");
+	struct_mapping::reg(&Person::student, "student");
+
+	Person person;
 
  std::istringstream json_data(R"json(
   {
@@ -22,7 +24,7 @@ int main() {
   }
  )json");
 
- struct_mapping::mapper::map_json_to_struct(person, json_data);
+ struct_mapping::map_json_to_struct(person, json_data);
 
  std::cout << person.name << " : " << person.age << " : " << std::boolalpha << person.student << std::endl;
 }

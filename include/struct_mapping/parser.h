@@ -1,12 +1,12 @@
-#ifndef STRUCT_MAPPING_PARSER_JSON_H
-#define STRUCT_MAPPING_PARSER_JSON_H
+#ifndef STRUCT_MAPPING_PARSER_H
+#define STRUCT_MAPPING_PARSER_H
 
 #include <istream>
 #include <string>
 
-#include "../exception.h"
+#include "exception.h"
 
-namespace struct_mapping::parser {
+namespace struct_mapping::detail {
 
 template<
 	typename SetBool,
@@ -18,11 +18,11 @@ template<
 	typename EndStruct,
 	typename StartArray,
 	typename EndArray>
-class Json {
+class Parser {
 public:
 	using stream_type = std::basic_istream<char>;
 
-	Json (
+	Parser (
 		SetBool set_bool_,
 		SetIntegral set_integral_,
 		SetFloatingPoint set_floating_point_,

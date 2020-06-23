@@ -1,8 +1,9 @@
 set(EXAMPLES
 	array
-	base
-	enhanced
-	how_it_works
+	containers
+	in_struct_reg
+	macro_reg
+	map
 	person
 	simple
 	struct
