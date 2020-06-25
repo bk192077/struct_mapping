@@ -1,5 +1,6 @@
 #include <cstdint>
 #include <list>
+#include <map>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -1688,6 +1689,165 @@ TEST(struct_mapping_map_json_to_struct, multiple_times_same_struct) {
 	ASSERT_TRUE(result_struct_2.name_1[1].name_3);
 	ASSERT_EQ(result_struct_2.name_1[2].name_2, "fifth_string");
 	ASSERT_FALSE(result_struct_2.name_1[2].name_3);
+}
+
+struct reset_after_mapping_fault_in_struct_2 {
+	std::string name_2;
+};
+
+struct reset_after_mapping_fault_in_struct_1 {
+	std::string name_11;
+	reset_after_mapping_fault_in_struct_2 name_12;
+};
+
+TEST(struct_mapping_map_json_to_struct, reset_after_mapping_fault_in_struct) {
+	struct_mapping::reg(&reset_after_mapping_fault_in_struct_2::name_2, "name_2");
+	struct_mapping::reg(&reset_after_mapping_fault_in_struct_1::name_11, "name_11");
+	struct_mapping::reg(&reset_after_mapping_fault_in_struct_1::name_12, "name_12");
+
+	reset_after_mapping_fault_in_struct_1 result_struct_1;
+	reset_after_mapping_fault_in_struct_1 result_struct_2;
+
+	std::istringstream json_data_1(R"json(
+	{
+		"name_11": "first",
+		"name_12": {
+			"name_": "second"
+		}
+	}
+	)json");
+
+	std::istringstream json_data_2(R"json(
+	{
+		"name_11": "first1",
+		"name_12": {
+			"name_2": "second1"
+		}
+	}
+	)json");
+	
+	try {
+		struct_mapping::map_json_to_struct(result_struct_1, json_data_1);
+	} catch (...) {}
+
+	struct_mapping::map_json_to_struct(result_struct_2, json_data_2);
+
+	ASSERT_EQ(result_struct_2.name_11, "first1");
+	ASSERT_EQ(result_struct_2.name_12.name_2, "second1");
+}
+
+struct reset_after_mapping_fault_in_array_2 {
+	std::string name_2;
+};
+
+struct reset_after_mapping_fault_in_array_1 {
+	std::string name_11;
+	std::vector<reset_after_mapping_fault_in_array_2> name_12;
+};
+
+TEST(struct_mapping_map_json_to_struct, reset_after_mapping_fault_in_array) {
+	struct_mapping::reg(&reset_after_mapping_fault_in_array_2::name_2, "name_2");
+	struct_mapping::reg(&reset_after_mapping_fault_in_array_1::name_11, "name_11");
+	struct_mapping::reg(&reset_after_mapping_fault_in_array_1::name_12, "name_12");
+
+	reset_after_mapping_fault_in_array_1 result_struct_1;
+	reset_after_mapping_fault_in_array_1 result_struct_2;
+
+	std::istringstream json_data_1(R"json(
+	{
+		"name_11": "first",
+		"name_12": [
+			{
+				"name_2": "second"
+			},
+			{
+				"name_": "third"
+			}
+		]
+	}
+	)json");
+
+	std::istringstream json_data_2(R"json(
+	{
+		"name_11": "first1",
+		"name_12": [
+			{
+				"name_2": "second1"
+			},
+			{
+				"name_2": "third1"
+			}
+		]
+	}
+	)json");
+	
+	try {
+		struct_mapping::map_json_to_struct(result_struct_1, json_data_1);
+	} catch (...) {}
+
+	struct_mapping::map_json_to_struct(result_struct_2, json_data_2);
+
+	ASSERT_EQ(result_struct_2.name_11, "first1");
+	ASSERT_EQ(result_struct_2.name_12.size(), 2);
+	ASSERT_EQ(result_struct_2.name_12[0].name_2, "second1");
+	ASSERT_EQ(result_struct_2.name_12[1].name_2, "third1");
+}
+
+struct reset_after_mapping_fault_in_map_2 {
+	std::string name_2;
+};
+
+struct reset_after_mapping_fault_in_map_1 {
+	std::string name_11;
+	std::map<std::string, reset_after_mapping_fault_in_map_2> name_12;
+};
+
+TEST(struct_mapping_map_json_to_struct, reset_after_mapping_fault_in_map) {
+	struct_mapping::reg(&reset_after_mapping_fault_in_map_2::name_2, "name_2");
+	struct_mapping::reg(&reset_after_mapping_fault_in_map_1::name_11, "name_11");
+	struct_mapping::reg(&reset_after_mapping_fault_in_map_1::name_12, "name_12");
+
+	reset_after_mapping_fault_in_map_1 result_struct_1;
+	reset_after_mapping_fault_in_map_1 result_struct_2;
+
+	std::istringstream json_data_1(R"json(
+	{
+		"name_11": "first",
+		"name_12": {
+			"name_12_1": {
+				"name_2": "second"
+			},
+			"name_12_2": {
+				"name_": "third"
+			}
+		}
+	}
+	)json");
+
+	std::istringstream json_data_2(R"json(
+	{
+		"name_11": "first1",
+		"name_12": {
+			"name_12_1": {
+				"name_2": "second1"
+			},
+			"name_12_2": {
+				"name_2": "third1"
+			}
+		}
+	}
+	)json");
+	
+	try {
+		struct_mapping::map_json_to_struct(result_struct_1, json_data_1);
+	} catch (...) {}
+
+	struct_mapping::map_json_to_struct(result_struct_2, json_data_2);
+
+	ASSERT_EQ(result_struct_2.name_11, "first1");
+	ASSERT_EQ(result_struct_2.name_12.size(), 2);
+	ASSERT_EQ(result_struct_2.name_12["name_12_1"].name_2, "second1");
+	ASSERT_EQ(result_struct_2.name_12["name_12_2"].name_2, "third1");
 }
 
 }

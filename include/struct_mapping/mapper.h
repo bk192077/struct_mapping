@@ -17,6 +17,7 @@ namespace struct_mapping {
 
 template<typename T>
 inline void map_json_to_struct(T & result_struct, std::basic_istream<char> & json_data) {
+	detail::F_reset::reset();
 	int struct_level = 0;
 
 	auto set_bool = [&result_struct] (std::string const & name, bool value) {

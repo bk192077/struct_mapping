@@ -1,6 +1,7 @@
 set(EXAMPLES
 	array
 	containers
+	how_it_work
 	in_struct_reg
 	macro_reg
 	map

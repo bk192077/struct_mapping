@@ -4,6 +4,7 @@
 #include <functional>
 #include <string>
 #include <type_traits>
+#include <unordered_set>
 #include <utility>
 
 namespace struct_mapping::detail {
@@ -31,6 +32,9 @@ constexpr bool has_key_type_v = has_key_type<T>::value;
 
 template<typename, typename = std::void_t<>>
 struct is_container_like : std::false_type{};
+
+template<>
+struct is_container_like<std::string> : std::false_type{};
 
 template<typename T>
 struct is_container_like<T, std::void_t<decltype(std::declval<T>().insert(typename T::iterator(), typename T::value_type()))>> : std::true_type{};
@@ -63,6 +67,22 @@ public:
 	static inline std::function<EndStruct> end_struct;
 	static inline std::function<StartArray> start_array;
 	static inline std::function<EndArray> end_array;
+};
+
+class F_reset {
+public:
+	using Reset = void(*)();
+
+	static void add(Reset reset) {
+		functions.insert(reset);
+	}
+
+	static void reset() {
+		for (auto f : functions) f();
+	}
+
+private:
+	static inline std::unordered_set<Reset> functions;
 };
 
 }

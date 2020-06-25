@@ -51,6 +51,10 @@ public:
 		return false;
 	}
 
+	static void reset() {
+		used = false;
+	}
+
 	static void set_bool(T & o, const std::string & name, bool value) {
 		if (!used) {
 			if constexpr (std::is_same_v<ValueType<T>, bool>) {
