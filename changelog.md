@@ -1,6 +1,27 @@
 # Change Log
 All notable changes to this project will be documented in this file. This project adheres to [Semantic Versioning](http://semver.org/).
 
+## 0.4.0 - 2020.07.02
+
+### Added
+* check type limits on set value
+* check type on set value
+* option Bounds for integer and floating point
+* option Default for bool, integer, floating point and string
+* option NotEmpty for string
+* Visual C++ 2019 and Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64 | Windows 64-bit (except tests)
+
+### Changed
+* exception messages
+* internal mapping mechanics
+
+### Fixed
+* before starting mapping the states of F classes is reset
+* std::string is no longer treated as array_like
+
+### Removed
+* unsigned long
+
 ## 0.3.0 - 2020.06.23
 
 ### Added
