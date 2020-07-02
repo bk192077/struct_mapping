@@ -46,7 +46,8 @@ inline void map_json_to_struct(T & result_struct, std::basic_istream<char> & jso
 
 	auto start_struct = [&result_struct, &struct_level] (std::string const & name) {
 		if constexpr (debug) std::cout << "struct_mapping: map_json_to_struct.start_struct: " << name << std::endl;
-		if (++struct_level != 1) detail::F<T>::use(result_struct, name);
+		if (++struct_level == 1) detail::F<T>::init(result_struct);
+		else detail::F<T>::use(result_struct, name);
 	};
 
 	auto end_struct = [&result_struct, &struct_level] {
@@ -76,6 +77,7 @@ inline void map_json_to_struct(T & result_struct, std::basic_istream<char> & jso
 		end_array);
 	
 	jp.parse(&json_data);
+	detail::F<T>::finish(result_struct);
 }
 
 template<typename T>

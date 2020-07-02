@@ -3,245 +3,403 @@
 
 #include <functional>
 #include <limits>
+#include <memory>
 #include <string>
-#include <tuple>
+#include <type_traits>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 #include "f.h"
+#include "options/option_bounds.h"
+#include "options/option_default.h"
+#include "options/option_not_empty.h"
 
 namespace struct_mapping::detail {
 
 template<typename T, bool = is_array_like_v<T>, bool = is_map_like_v<T>>
 class F {
 public:
-	enum class MemberType {
-		Complex = -1,
-		Bool = 0,
-		Char = 1,
-		UnsignedChar = 2,
-		Short = 3,
-		UnsignedShort = 4,
-		Int = 5,
-		UnsignedInt = 6,
-		Long = 7,
-		UnsignedLong = 8,
-		LongLong = 9,
-		Float = 10,
-		Double = 11,
-		String = 12,
-	};
-
-	using MemberPtrIndex = unsigned int;
-	using MemberDeepIndex = unsigned int;
-	using MemberName = std::string;
-	using Member = std::tuple<MemberName, MemberType, MemberPtrIndex, MemberDeepIndex>;
+	using Index = unsigned int;
 
 	template<typename V>
 	using Member_ptr = V T::*;
 
+	using Finish = void (T&);
+	using Init = void (T&);
+	using IterateOver = void (T&, const std::string &);
 	using Release = bool (T&);
 	using SetBool = void (T&, const std::string &, bool);
 	using SetFloatingPoint = void (T&, const std::string &, double);
 	using SetIntegral = void (T&, const std::string &, long long);
 	using SetString = void (T&, const std::string &, const std::string &);
 	using Use = void (T&, const std::string &);
-	using IterateOver = void (T&, const std::string &);
+
+	enum class Changed {
+		True,
+		False,
+	};
 
 	template<typename V>
-	static void reg(Member_ptr<V> ptr, std::string const & name) {
+	struct MemberType {};
+
+	template<typename V, typename ... U, template<typename> typename ... Options>
+	static void reg(Member_ptr<V> ptr, std::string const & name, Options<U>&& ... options) {
 		if (members_name_index.find(name) == members_name_index.end()) {
-			F_reset::add(reset);
-			if constexpr (is_array_like_v<V> || is_map_like_v<V>) add_reset_array_map_like<V>();
+			reg_reset<V>();			
 
 			members_name_index.emplace(name, members.size());
+			Member member(name, MemberType<V>{}, std::forward<Options<U>>(options)...);
 
-			if constexpr (constexpr auto member_type = get_member_type<V>(); member_type == MemberType::Complex) {
-				members.emplace_back(name, member_type, NO_INDEX, members_release.size());
-				members_release.emplace_back(std::function<Release>([ptr] (T & o) {
+			if constexpr (Member::template get_member_type<V>() == Member::Type::Complex) {				
+				member.ptr_index = NO_INDEX;
+				member.deep_index = static_cast<Index>(members_release.size());
+				members.push_back(std::move(member));
+
+				members_init.emplace_back([ptr] (T & o) {
+					return F<V>::init(o.*ptr);
+				});
+
+				members_finish.emplace_back([ptr] (T & o) {
+					return F<V>::finish(o.*ptr);
+				});
+
+				members_release.emplace_back([ptr] (T & o) {
 					return F<V>::release(o.*ptr);
-				}));
+				});
 
-				members_set_bool.emplace_back(std::function<SetBool>([ptr] (T & o, const std::string & name_, bool value_) {
+				members_set_bool.emplace_back([ptr] (T & o, const std::string & name_, bool value_) {
 					F<V>::set_bool(o.*ptr, name_, value_);
-				}));
+				});
 
-				members_set_floating_point.emplace_back(std::function<SetFloatingPoint>([ptr] (T & o, const std::string & name_, double value_) {
+				members_set_floating_point.emplace_back([ptr] (T & o, const std::string & name_, double value_) {
 					F<V>::set_floating_point(o.*ptr, name_, value_);
-				}));
+				});
 
-				members_set_integral.emplace_back(std::function<SetFloatingPoint>([ptr] (T & o, const std::string & name_, long long value_) {
+				members_set_integral.emplace_back([ptr] (T & o, const std::string & name_, long long value_) {
 					F<V>::set_integral(o.*ptr, name_, value_);
-				}));
+				});
 
-				members_set_string.emplace_back(std::function<SetString>([ptr] (T & o, const std::string & name_, const std::string & value_) {
+				members_set_string.emplace_back([ptr] (T & o, const std::string & name_, const std::string & value_) {
 					F<V>::set_string(o.*ptr, name_, value_);
-				}));
+				});
 
-				members_use.emplace_back(std::function<Use>([ptr] (T & o, const std::string & name_) {
+				members_use.emplace_back([ptr] (T & o, const std::string & name_) {
 					F<V>::use(o.*ptr, name_);
-				}));
+				});
 
-				members_iterate_over.emplace_back(std::function<IterateOver>([ptr] (T & o, const std::string & name_) {
+				members_iterate_over.emplace_back([ptr] (T & o, const std::string & name_) {
 					F<V>::iterate_over(o.*ptr, name_);
-				}));
+				});
 			} else {
-				members.emplace_back(name, member_type, members_ptr<V>.size(), NO_INDEX);
-				members_ptr<V>.emplace_back(ptr);
+				member.ptr_index = static_cast<Index>(members_ptr<V>.size());
+				member.deep_index = NO_INDEX;
+				members.push_back(std::move(member));
+				members_ptr<V>.push_back(ptr);
 			}
+		}
+	}
+
+	static void init(T & o) {
+		for (auto & member : members) {
+			member.init(o);
+		}
+	}
+
+	static void finish(T & o) {
+		for (auto & member : members) {
+			member.finish(o);
 		}
 	}
 
 	static void iterate_over(T & o, const std::string & name) {
 		F_iterate_over::start_struct(name);
-		for (auto& [member_name, member_type, member_ptr_index, member_deep_index] : members) {
-			switch (member_type) {
-			case MemberType::Bool: F_iterate_over::set_bool(member_name, o.*members_ptr<bool>[member_ptr_index]);break;
-			case MemberType::Char: F_iterate_over::set_integral(member_name, o.*members_ptr<char>[member_ptr_index]);break;
-			case MemberType::UnsignedChar: F_iterate_over::set_integral(member_name, o.*members_ptr<unsigned char>[member_ptr_index]);break;
-			case MemberType::Short: F_iterate_over::set_integral(member_name, o.*members_ptr<short>[member_ptr_index]);break;
-			case MemberType::UnsignedShort: F_iterate_over::set_integral(member_name, o.*members_ptr<unsigned short>[member_ptr_index]);break;
-			case MemberType::Int: F_iterate_over::set_integral(member_name, o.*members_ptr<int>[member_ptr_index]);break;
-			case MemberType::UnsignedInt: F_iterate_over::set_integral(member_name, o.*members_ptr<unsigned int>[member_ptr_index]);break;
-			case MemberType::Long: F_iterate_over::set_integral(member_name, o.*members_ptr<long>[member_ptr_index]);break;
-			case MemberType::UnsignedLong: F_iterate_over::set_integral(member_name, static_cast<long long>(o.*members_ptr<unsigned long>[member_ptr_index]));break;
-			case MemberType::LongLong: F_iterate_over::set_integral(member_name, o.*members_ptr<long long>[member_ptr_index]);break;
-			case MemberType::Float: F_iterate_over::set_floating_point(member_name, o.*members_ptr<float>[member_ptr_index]);break;
-			case MemberType::Double: F_iterate_over::set_floating_point(member_name, o.*members_ptr<double>[member_ptr_index]);break;
-			case MemberType::String: F_iterate_over::set_string(member_name, o.*members_ptr<std::string>[member_ptr_index]);break;
-			case MemberType::Complex: members_iterate_over[member_deep_index](o, member_name);break;
-			}
+		for (auto& member : members) {
+			member.iterate_over(o);
 		}
 
 		F_iterate_over::end_struct();
 	}
 
 	static bool release(T & o) {
-		if (deep_index == NO_INDEX) return true;
-		else if (members_release[deep_index](o)) deep_index = NO_INDEX;
+		if (member_deep_index == NO_INDEX) return true;
+		else if (members_release[member_deep_index](o)) member_deep_index = NO_INDEX;
 
 		return false;
 	}
 
 	static void set_bool(T & o, const std::string & name, bool value) {
-		if (deep_index == NO_INDEX) {
-			if (auto it = members_name_index.find(name); it == members_name_index.end()) throw StructMappingException("set_bool : unknown member " + name);
-			else if (std::get<1>(members[it->second]) != MemberType::Bool) throw StructMappingException("set_bool : bad type for " + name);
-			else o.*members_ptr<bool>[std::get<2>(members[it->second])] = value;
+		if (member_deep_index == NO_INDEX) {
+			if (auto it = members_name_index.find(name); it == members_name_index.end()) throw StructMappingException("bad member: " + name);
+			else if (members[it->second].type != Member::Type::Bool) throw StructMappingException("bad type (bool) for member: " + name);
+			else set<bool>(o, value, it->second);
 		}	else {
-			members_set_bool[deep_index](o, name, value);
+			members_set_bool[member_deep_index](o, name, value);
 		}
 	}
 
 	static void set_floating_point(T & o, const std::string & name, double value) {
-		if (deep_index == NO_INDEX) {
-			if (auto it = members_name_index.find(name); it == members_name_index.end()) throw StructMappingException("set_floating_point : unknown member " + name);
+		if (member_deep_index == NO_INDEX) {
+			if (auto it = members_name_index.find(name); it == members_name_index.end()) throw StructMappingException("bad member: " + name);
 			else {
-				switch (auto member_type = std::get<1>(members[it->second]); member_type) {
-				case MemberType::Float: o.*members_ptr<float>[std::get<2>(members[it->second])] = static_cast<float>(value); break;
-				case MemberType::Double: o.*members_ptr<double>[std::get<2>(members[it->second])] = static_cast<double>(value); break;
-				case MemberType::Char: o.*members_ptr<char>[std::get<2>(members[it->second])] = static_cast<char>(value); break;
-				case MemberType::UnsignedChar: o.*members_ptr<unsigned char>[std::get<2>(members[it->second])] = static_cast<unsigned char>(value); break;
-				case MemberType::Short: o.*members_ptr<short>[std::get<2>(members[it->second])] = static_cast<short>(value); break;
-				case MemberType::UnsignedShort: o.*members_ptr<unsigned short>[std::get<2>(members[it->second])] = static_cast<unsigned short>(value); break;
-				case MemberType::Int: o.*members_ptr<int>[std::get<2>(members[it->second])] = static_cast<int>(value); break;
-				case MemberType::UnsignedInt: o.*members_ptr<unsigned int>[std::get<2>(members[it->second])] = static_cast<unsigned int>(value); break;
-				case MemberType::Long: o.*members_ptr<long>[std::get<2>(members[it->second])] = static_cast<long>(value); break;
-				case MemberType::UnsignedLong: o.*members_ptr<unsigned long>[std::get<2>(members[it->second])] = static_cast<unsigned long>(value); break;
-				case MemberType::LongLong: o.*members_ptr<long long>[std::get<2>(members[it->second])] = static_cast<long long>(value); break;
-				default: throw StructMappingException("set_floating_point : bad type for " + name);
+				switch (members[it->second].type) {
+				case Member::Type::Float: set<float>(o, value, it->second); break;
+				case Member::Type::Double: set<double>(o, value, it->second); break;
+				default: throw StructMappingException("bad set type (floating point) for member: " + name);
 				}
 			}
 		}	else {
-			members_set_floating_point[deep_index](o, name, value);
+			members_set_floating_point[member_deep_index](o, name, value);
 		}
 	}
 
 	static void set_integral(T & o, const std::string & name, long long value) {
-		if (deep_index == NO_INDEX) {
-			if (auto it = members_name_index.find(name); it == members_name_index.end()) throw StructMappingException("set_integral : unknown member " + name);
+		if (member_deep_index == NO_INDEX) {
+			if (auto it = members_name_index.find(name); it == members_name_index.end()) throw StructMappingException("bad member: " + name);
 			else {
-				switch (auto member_type = std::get<1>(members[it->second]); member_type) {
-				case MemberType::Char: o.*members_ptr<char>[std::get<2>(members[it->second])] = static_cast<char>(value); break;
-				case MemberType::UnsignedChar: o.*members_ptr<unsigned char>[std::get<2>(members[it->second])] = static_cast<unsigned char>(value); break;
-				case MemberType::Short: o.*members_ptr<short>[std::get<2>(members[it->second])] = static_cast<short>(value); break;
-				case MemberType::UnsignedShort: o.*members_ptr<unsigned short>[std::get<2>(members[it->second])] = static_cast<unsigned short>(value); break;
-				case MemberType::Int: o.*members_ptr<int>[std::get<2>(members[it->second])] = static_cast<int>(value); break;
-				case MemberType::UnsignedInt: o.*members_ptr<unsigned int>[std::get<2>(members[it->second])] = static_cast<unsigned int>(value); break;
-				case MemberType::Long: o.*members_ptr<long>[std::get<2>(members[it->second])] = static_cast<long>(value); break;
-				case MemberType::UnsignedLong: o.*members_ptr<unsigned long>[std::get<2>(members[it->second])] = static_cast<unsigned long>(value); break;
-				case MemberType::LongLong: o.*members_ptr<long long>[std::get<2>(members[it->second])] = static_cast<long long>(value); break;
-				case MemberType::Float: o.*members_ptr<float>[std::get<2>(members[it->second])] = static_cast<float>(value); break;
-				case MemberType::Double: o.*members_ptr<double>[std::get<2>(members[it->second])] = static_cast<double>(value); break;
-				default: throw StructMappingException("set_integral : bad type for " + name);
+				switch (members[it->second].type) {
+				case Member::Type::Char: set<char>(o, value, it->second); break;
+				case Member::Type::UnsignedChar: set<unsigned char>(o, value, it->second); break;
+				case Member::Type::Short: set<short>(o, value, it->second); break;
+				case Member::Type::UnsignedShort: set<unsigned short>(o, value, it->second); break;
+				case Member::Type::Int: set<int>(o, value, it->second); break;
+				case Member::Type::UnsignedInt: set<unsigned int>(o, value, it->second); break;
+				case Member::Type::Long: set<long>(o, value, it->second); break;
+				case Member::Type::LongLong: set<long long>(o, value, it->second); break;
+				case Member::Type::Float: set<float>(o, value, it->second); break;
+				case Member::Type::Double: set<double>(o, value, it->second); break;
+				default: throw StructMappingException("bad type (integral) for member: " + name);
 				}
 			}
-		}	else members_set_integral[deep_index](o, name, value);
+		}	else members_set_integral[member_deep_index](o, name, value);
 	}
 
 	static void set_string(T & o, const std::string & name, const std::string & value) {
-		if (deep_index == NO_INDEX) {
-			if (auto it = members_name_index.find(name); it == members_name_index.end()) throw StructMappingException("set_string : unknown member " + name);
-			else if (std::get<1>(members[it->second]) != MemberType::String) throw StructMappingException("set_string : bad type for " + name);
-			else o.*members_ptr<std::string>[std::get<2>(members[it->second])] = value;
-		}	else members_set_string[deep_index](o, name, value);
+		if (member_deep_index == NO_INDEX) {
+			if (auto it = members_name_index.find(name); it == members_name_index.end()) throw StructMappingException("bad member: " + name);
+			else if (members[it->second].type != Member::Type::String) throw StructMappingException("bad type (string) for member: " + name);
+			else set<std::string>(o, value, it->second);
+		}	else members_set_string[member_deep_index](o, name, value);
 	}
 
 	static void use(T & o, const std::string & name) {
-		if (deep_index == NO_INDEX) {
-			if (auto it = members_name_index.find(name); it == members_name_index.end()) throw StructMappingException("use : unknown member " + name);
-			else deep_index = std::get<3>(members[it->second]);
-		}	else members_use[deep_index](o, name);
+		if (member_deep_index == NO_INDEX) {
+			if (auto it = members_name_index.find(name); it == members_name_index.end()) throw StructMappingException("bad member: " + name);
+			else {
+				member_deep_index = members[it->second].deep_index;
+				members_init[member_deep_index](o);
+			}
+		}	else members_use[member_deep_index](o, name);
 	}
 
 private:
-	static constexpr unsigned int NO_INDEX = std::numeric_limits<unsigned int>::max();
+	class Member {
+	public:
+		enum class Type {
+			Complex = -1,
+			Bool = 0,
+			Char = 1,
+			UnsignedChar = 2,
+			Short = 3,
+			UnsignedShort = 4,
+			Int = 5,
+			UnsignedInt = 6,
+			Long = 7,
+			LongLong = 9,
+			Float = 10,
+			Double = 11,
+			String = 12,
+		};
 
+		using Name = std::string;
+
+		template<typename V, typename ... U, template<typename> typename ... Options>
+		Member(Name name_, MemberType<V>, Options<U>&& ... options)
+			:	name(name_), type(get_member_type<V>()) {
+			(add_option<V>(std::forward<Options<U>>(options)), ...);
+		}
+
+		void finish(T & o) {
+			finish_not_empty(o);
+
+			if (type == Member::Type::Complex) {
+				members_finish[deep_index](o);
+			}
+		}
+
+		template<typename V>
+		static constexpr auto get_member_type() {
+			if constexpr (std::is_same_v<V, bool>) return Member::Type::Bool;
+			if constexpr (std::is_same_v<V, char>) return Member::Type::Char;
+			if constexpr (std::is_same_v<V, unsigned char>) return Member::Type::UnsignedChar;
+			if constexpr (std::is_same_v<V, short>) return Member::Type::Short;
+			if constexpr (std::is_same_v<V, unsigned short>) return Member::Type::UnsignedShort;
+			if constexpr (std::is_same_v<V, int>) return Member::Type::Int;
+			if constexpr (std::is_same_v<V, unsigned int>) return Member::Type::UnsignedInt;
+			if constexpr (std::is_same_v<V, long>) return Member::Type::Long;
+			if constexpr (std::is_same_v<V, long long>) return Member::Type::LongLong;
+			if constexpr (std::is_same_v<V, float>) return Member::Type::Float;
+			if constexpr (std::is_same_v<V, double>) return Member::Type::Double;
+			if constexpr (std::is_same_v<V, std::string>) return Member::Type::String;
+			
+			return Member::Type::Complex;
+		}
+
+		void init(T & o) {
+			switch (type) {
+			case Member::Type::Bool: set_default<bool>(o); break;
+			case Member::Type::Char: set_default<char>(o); break;
+			case Member::Type::UnsignedChar: set_default<unsigned char>(o); break;
+			case Member::Type::Short: set_default<short>(o); break;
+			case Member::Type::UnsignedShort: set_default<unsigned short>(o); break;
+			case Member::Type::Int: set_default<int>(o); break;
+			case Member::Type::UnsignedInt: set_default<unsigned int>(o); break;
+			case Member::Type::Long: set_default<long>(o); break;
+			case Member::Type::LongLong: set_default<long long>(o); break;
+			case Member::Type::Float: set_default<float>(o); break;
+			case Member::Type::Double: set_default<double>(o); break;
+			case Member::Type::String: set_default<std::string>(o); break;
+			case Member::Type::Complex: members_init[deep_index](o); break;
+			}
+		}
+
+		void iterate_over(T & o) {
+			switch (type) {
+			case Member::Type::Bool: F_iterate_over::set_bool(name, o.*members_ptr<bool>[ptr_index]); break;
+			case Member::Type::Char: F_iterate_over::set_integral(name, o.*members_ptr<char>[ptr_index]); break;
+			case Member::Type::UnsignedChar: F_iterate_over::set_integral(name, o.*members_ptr<unsigned char>[ptr_index]); break;
+			case Member::Type::Short: F_iterate_over::set_integral(name, o.*members_ptr<short>[ptr_index]); break;
+			case Member::Type::UnsignedShort: F_iterate_over::set_integral(name, o.*members_ptr<unsigned short>[ptr_index]); break;
+			case Member::Type::Int: F_iterate_over::set_integral(name, o.*members_ptr<int>[ptr_index]); break;
+			case Member::Type::UnsignedInt: F_iterate_over::set_integral(name, o.*members_ptr<unsigned int>[ptr_index]); break;
+			case Member::Type::Long: F_iterate_over::set_integral(name, o.*members_ptr<long>[ptr_index]); break;
+			case Member::Type::LongLong: F_iterate_over::set_integral(name, o.*members_ptr<long long>[ptr_index]); break;
+			case Member::Type::Float: F_iterate_over::set_floating_point(name, o.*members_ptr<float>[ptr_index]); break;
+			case Member::Type::Double: F_iterate_over::set_floating_point(name, o.*members_ptr<double>[ptr_index]); break;
+			case Member::Type::String: F_iterate_over::set_string(name, o.*members_ptr<std::string>[ptr_index]); break;
+			case Member::Type::Complex: members_iterate_over[deep_index](o, name); break;
+			}
+		}
+
+		Name name;
+		Type type;
+		Index ptr_index;
+		Index deep_index;
+		Index default_index = NO_INDEX;
+		Index bounds_index = NO_INDEX;
+		bool option_not_empty = false;
+
+	private:
+		template<typename V, typename U, template<typename> typename Op>
+		void add_option(Op<U>&& op) {
+			if constexpr (std::is_same_v<Bounds<U>, std::decay_t<Op<U>>>) {
+				op.template check_option<V>(name);
+				add_option_bounds<V>(op);
+			} else if constexpr (std::is_same_v<Default<U>, std::decay_t<Op<U>>>) {
+				op.template check_option<V>(name);
+				add_option_default<V>(op);
+			} else if constexpr (std::is_same_v<NotEmpty<U>, std::decay_t<Op<U>>>) {
+				op.template check_option<V>();
+				add_option_not_empty<V>();
+			}
+		}
+
+		template<typename V, typename U>
+		void add_option_bounds(Bounds<U> & op) {
+			bounds_index = static_cast<Index>(members_bounds<V>.size());
+			members_bounds<V>.push_back(op);
+		}
+
+		template<typename V, typename U>
+		void add_option_default(Default<U> & op) {
+			if constexpr (std::is_same_v<V, std::string> && std::is_same_v<U, const char *>) {
+					default_index = static_cast<Index>(members_default<std::string>.size());
+					members_default<std::string>.push_back(op.template get_value<V>());
+			}	else if constexpr (std::is_same_v<V, U> || (is_integer_or_floating_point_v<V> && is_integer_or_floating_point_v<U>)) {
+				default_index = static_cast<Index>(members_default<V>.size());
+				members_default<V>.push_back(op.template get_value<V>());
+			}
+		}
+
+		template<typename V>
+		void add_option_not_empty() {
+			option_not_empty = true;
+		}
+
+		void finish_not_empty(T & o) {
+			if (option_not_empty) {
+				switch (type) {
+				case Member::Type::String: NotEmpty<>::check_result(o.*members_ptr<std::string>[ptr_index], name); break;
+				default: break;
+				}
+			} 
+		}
+
+		template<typename V>
+		void set_default(T & o) {
+			if (default_index != NO_INDEX) o.*members_ptr<V>[ptr_index] = members_default<V>[default_index];
+		}
+	};
+
+	static inline constexpr Index NO_INDEX = std::numeric_limits<Index>::max();
+	static inline Index member_deep_index = NO_INDEX;
 	static inline std::vector<Member> members;
-	static inline std::unordered_map<MemberName, unsigned int> members_name_index;
+	static inline std::unordered_map<typename Member::Name, Index> members_name_index;
 
 	template<typename V>
-	static inline std::vector<Member_ptr<V>> members_ptr;
+	static inline std::vector<Member_ptr<V>> members_ptr{};
 
+	template<typename V>
+	static inline std::vector<V> members_default{};
+
+	template<typename V>
+	static inline std::vector<std::function<void(V, const std::string &)>> members_bounds{};
+
+	static inline std::vector<std::function<Finish>> members_finish;
+	static inline std::vector<std::function<Init>> members_init;
+	static inline std::vector<std::function<IterateOver>> members_iterate_over;
 	static inline std::vector<std::function<Release>> members_release;
 	static inline std::vector<std::function<SetBool>> members_set_bool;
 	static inline std::vector<std::function<SetFloatingPoint>> members_set_floating_point;
 	static inline std::vector<std::function<SetIntegral>> members_set_integral;
 	static inline std::vector<std::function<SetString>> members_set_string;
 	static inline std::vector<std::function<Use>> members_use;
-	static inline std::vector<std::function<IterateOver>> members_iterate_over;
-
-	static inline unsigned int deep_index = NO_INDEX;
 
 	template<typename V>
-	static constexpr MemberType get_member_type() {
-		if constexpr (std::is_same_v<V, bool>) return MemberType::Bool;
-		if constexpr (std::is_same_v<V, char>) return MemberType::Char;
-		if constexpr (std::is_same_v<V, unsigned char>) return MemberType::UnsignedChar;
-		if constexpr (std::is_same_v<V, short>) return MemberType::Short;
-		if constexpr (std::is_same_v<V, unsigned short>) return MemberType::UnsignedShort;
-		if constexpr (std::is_same_v<V, int>) return MemberType::Int;
-		if constexpr (std::is_same_v<V, unsigned int>) return MemberType::UnsignedInt;
-		if constexpr (std::is_same_v<V, long>) return MemberType::Long;
-		if constexpr (std::is_same_v<V, unsigned long>) return MemberType::UnsignedLong;
-		if constexpr (std::is_same_v<V, long long>) return MemberType::LongLong;
-		if constexpr (std::is_same_v<V, float>) return MemberType::Float;
-		if constexpr (std::is_same_v<V, double>) return MemberType::Double;
-		if constexpr (std::is_same_v<V, std::string>) return MemberType::String;
-		
-		return MemberType::Complex;
+	static void reg_reset() {
+		F_reset::reg(reset);
+		if constexpr (is_array_like_v<V> || is_map_like_v<V>) reg_reset_array_map_like<V>();
 	}
 
 	template<typename V>
-	static void add_reset_array_map_like() {
-		F_reset::add(F<V>::reset);
-		if constexpr (is_array_like_v<typename F<V>::ValueType<V>> || is_map_like_v<typename F<V>::ValueType<V>>) {
-			add_reset_array_map_like<typename F<V>::ValueType<V>>();
+	static void reg_reset_array_map_like() {
+		F_reset::reg(F<V>::reset);
+		if constexpr (is_array_like_v<typename F<V>::template ValueType<V>> || is_map_like_v<typename F<V>::template ValueType<V>>) {
+			reg_reset_array_map_like<typename F<V>::template ValueType<V>>();
 		}
 	}
 
 	static void reset() {
-		deep_index = NO_INDEX;
+		member_deep_index = NO_INDEX;
+	}
+
+	template<typename U, typename V>
+	static void set(T & o, V value, unsigned int index) {
+		if constexpr (detail::is_integer_or_floating_point_v<U>) {
+			if (!detail::in_limits<U>(value)) {
+				throw StructMappingException(
+					"bad value for '" + members[index].name + "': " + std::to_string(value) + " is out of limits of type [" +
+					std::to_string(std::numeric_limits<U>::lowest()) +
+					" : " +
+					std::to_string(std::numeric_limits<U>::max()) + "]");
+			}
+		}
+
+		for (auto & option : members_bounds<U>) {
+			option(static_cast<U>(value), members[index].name);
+		}
+
+		o.*members_ptr<U>[members[index].ptr_index] = static_cast<U>(value);
 	}
 };
 

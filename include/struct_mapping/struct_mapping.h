@@ -6,12 +6,15 @@
 #include "exception.h"
 #include "f_struct.h"
 #include "mapper.h"
+#include "options/option_bounds.h"
+#include "options/option_default.h"
+#include "options/option_not_empty.h"
 
 namespace struct_mapping {
 
-template<typename T, typename V>
-inline void reg(V T::* ptr, std::string const & name) {
-	detail::F<T>::reg(ptr, name);
+template<typename T, typename V, typename ... U, template<typename> typename ... Options>
+inline void reg(V T::* ptr, std::string const & name, Options<U>&& ... options) {
+	detail::F<T>::reg(ptr, name, std::forward<Options<U>>(options)...);
 }
 
 }

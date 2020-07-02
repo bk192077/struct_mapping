@@ -41,6 +41,7 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 	set(WARNINGS "${WARNINGS} -Wduplicated-cond")
 	set(WARNINGS "${WARNINGS} -Wduplicated-branches")
 	set(WARNINGS "${WARNINGS} -Wlogical-op")
+	set(WARNINGS "${WARNINGS} -Wno-sign-compare")
 
 endif()
 

@@ -1,6 +1,7 @@
 #include <iostream>
 #include <list>
 #include <sstream>
+#include <string>
 #include <vector>
 
 #include "struct_mapping/struct_mapping.h"

@@ -1,6 +1,7 @@
 #include <iostream>
 #include <map>
 #include <sstream>
+#include <string>
 #include <unordered_map>
 
 #include "struct_mapping/struct_mapping.h"

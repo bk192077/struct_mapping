@@ -88,7 +88,7 @@ private:
 			}
 		}
 
-		throw StructMappingException("unexpected end of data");
+		throw StructMappingException("parser: unexpected end of data");
 	}
 
 	bool is_empty_char(char ch) const {
@@ -226,9 +226,9 @@ private:
 					if (is_floating_point_number) set_floating_point(name, std::stod(value));
 					else set_integral(name, std::stoll(value));
 				} catch (std::invalid_argument&) {
-					throw StructMappingException(std::string("bad number [") + value + std::string("] at line ") + std::to_string(line_number));
+					throw StructMappingException(std::string("parser: bad number [") + value + std::string("] at line ") + std::to_string(line_number));
 				} catch (std::out_of_range&) {
-					throw StructMappingException(std::string("bad number [") + value + std::string("] at line ") + std::to_string(line_number));
+					throw StructMappingException(std::string("parser: bad number [") + value + std::string("] at line ") + std::to_string(line_number));
 				}
 				return;
 			}
@@ -251,11 +251,11 @@ private:
 			if (is_new_line_char(test_ch)) {
 				++line_number;
 			} else if (!is_empty_char(test_ch)) {
-				throw StructMappingException(std::string("unexpected character '") + std::string(1, test_ch) + std::string("' at line ") + std::to_string(line_number));
+				throw StructMappingException(std::string("parser: unexpected character '") + std::string(1, test_ch) + std::string("' at line ") + std::to_string(line_number));
 			}
 		}
 
-		throw StructMappingException("unexpected end of data");
+		throw StructMappingException("parser: unexpected end of data");
 	}
 };
 

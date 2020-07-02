@@ -4,7 +4,27 @@
 
 [english documentation](/readme.md)
 
-## Отображение json на структуру c++ и обратно
+### Содержание
+- [Введение](#introduction)
+- [Совместимость](#compatibility)
+- [Установка](#installation)
+- [Использование](#usage)
+	- [Реализация сценария со структурой Person](#implementing_a_scenario_with_a_Person_structure)
+	- [Отображение json на структуру c++](#mapping_json_to_c_plus_plus_structure)
+		- [Пример использования простых типов](#simple_types_example)
+		- [Пример использования структур](#structure_example)
+		- [Пример использования последовательных контейнеров](#sequence_container_example)
+		- [Пример использования ассоциативных контейнеров](#associative_container_example)
+		- [Опции отображения](#options)
+			- [Bounds](#options_bounds)
+			- [Default](#options_default)
+			- [NotEmpty](#options_not_empty)
+			- [Пример использования опций](#options_example)
+	- [Обратное отображение структуры c++ на json](#reverse_mapping_of_c_plus_plus_structure_to_json)
+	- [Регистрация членов-данных, совмещенная с инициализацией](#registration_of_data_members_combined_with_initialization)
+- [Генерируемые исключения](#exceptions)
+
+## Отображение json на структуру c++ и обратно <div id="introduction"></div>
 
 Хотелось бы определить структуру с++
 
@@ -47,7 +67,7 @@ std::cout << json_data.str() << std::endl;
 
 StructMapping пытается решить эти задачи
 
-## Совместимость
+## Совместимость <div id="compatibility"></div>
 
 Требуется компиляция с -std=c++17 В основном для:
 
@@ -57,11 +77,12 @@ StructMapping пытается решить эти задачи
 Комбинации компилятор | платформа, на которых была протестирована StructMapping:
 
 * GNU C++ 10.1.0 | Linux
+* Visual C++ 2019 and Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64 | Windows 64-bit (кроме тестов)
 
 В качестве типов членов-данных могут быть использованы:
 
 * bool
-* char, unsigned char, short, unsigned short, int unsigned int, long, unsigned long, long long
+* char, unsigned char, short, unsigned short, int unsigned int, long, long long
 * float, double
 * std::string
 * std::list
@@ -72,8 +93,7 @@ StructMapping пытается решить эти задачи
 * std::unordered_multimap (ключем может быть только std::string)
 * структуры с++
 
-
-## Установка
+## Установка <div id="installation"></div>
 
 StructMapping - это библиотека включающая только заголовочные файлы. Все файлы библиотеки находятся в каталоге `include`
 
@@ -86,9 +106,9 @@ StructMapping - это библиотека включающая только з
 5. (не для windows) для запуска тестов выполните команду `ctest` (вы можете получить детальный вывод используя команду `ctest -V`)
 6. для установки библиотеки можно выполнить команду `cmake --install .` с административными привилегиями
 
-## Использование
+## Использование <div id="usage"></div>
 
-### Реализация сценария со структурой Person
+### Реализация сценария со структурой Person <div id="implementing_a_scenario_with_a_Person_structure"></div>
 
 [example/person](/example/person/person.cpp)
 
@@ -187,17 +207,18 @@ int main() {
 Jeebs : 42 : true
 ```
 
-### Отображение json на структуру c++
+### Отображение json на структуру c++ <div id="mapping_json_to_c_plus_plus_structure"></div>
 
 Для отображения json на структуру необходимо зарегистрировать все члены-данные всех структур, которые требуется отображать, используя для каждого поля функцию
 
 ```cpp
-template<typename T, typename V>
-inline void reg(V T::* ptr, std::string const & name);
+template<typename T, typename V, typename ... U, template<typename> typename ... Options>
+inline void reg(V T::* ptr, std::string const & name, Options<U>&& ... options);
 ```
 
 - `ptr` - указатель на член-данные
 - `name` - имя члена
+- `options` - [опции отображения](#options)
 
 и вызвать функцию
 
@@ -209,7 +230,9 @@ inline void map_json_to_struct(T & result_struct, std::basic_istream<char> & jso
 - `result_struct` - ссылка на результирующую структуру
 - `json_data` - ссылка на входной поток json данных
 
-#### пример использования простых типов
+В процессе отображения проверяется соответствие типов членов данных типам устанавливаемого значения и (для чисел) устанавливаемое значение проверяется на выход из диапазона значений типа члена данных. При несоответствии типов или выхода знаения за границы диапазона генерируются [исключения](#exceptions).
+
+#### пример использования простых типов <div id="simple_types_example"></div>
 
 [example/simple](/example/simple/simple.cpp)
 
@@ -263,7 +286,7 @@ earth
  satellite    : Moon
 ```
 
-#### пример использования структур
+#### пример использования структур <div id="structure_example"></div>
 
 [example/struct](/example/struct/struct.cpp)
 
@@ -315,7 +338,7 @@ earth.president:
  mass : 75.6
 ```
 
-#### пример использования последовательных контейнеров
+#### пример использования последовательных контейнеров <div id="sequence_container_example"></div>
 
 [example/array](/example/array/array.cpp)
 
@@ -481,7 +504,7 @@ mib:
    Titania
 ```
 
-#### пример использования ассоциативных контейнеров
+#### пример использования ассоциативных контейнеров <div id="associative_container_example"></div>
 
 [example/map](/example/map/map.cpp)
 
@@ -572,17 +595,153 @@ library:
   wwert : [Tom, eee], [Gogol, ddd],
 ```
 
-### Обратное отображение структуры c++ на json
+#### Опции отображения <div id="options"></div>
+
+При регистрации члена-данные можно указывать одну или несколько опций, которые будут настраивать отображение.
+
+##### Bounds <div id="options_bounds"></div>
+
+Устанавливает диапазон значений, в котором (включая границы диапазона) должно находится устанавливаемое значение. Применима для целочисленных типов и типов с плавающей точкой. Опция принимает два параметра - границы диапазона. Генерирует [исключение](#exceptions) при выходе устанавливаемого в процессе отображения значения за границы.
+
+```cpp
+Bounds{нижняя граница, верхняя граница}
+```
+
+Пример задания опции:
+
+```cpp
+reg(&Stage::engine_count, "engine_count", Bounds{1, 31});
+```
+
+##### Default <div id="options_default"></div>
+
+Устанавливает значение по умолчанию для члена-данные. Применима для bool, целочисленных типов, типов с плавающей точкой и строк. Опция принимает один параметр - значение по умолчанию.
+
+```cpp
+Default{значение по умолчанию}
+```
+
+Пример задания опции:
+
+```cpp
+reg(&Stage::engine_count, "engine_count", Default{3});
+```
+
+##### NotEmpty <div id="options_not_empty"></div>
+
+Отмечает, что для члена-данные не может быть установлено пустое значение. Применима для строк. Опция не принимает параметров. Генерирует [исключение](#exceptions), если после завершения отображения значением поля является пустая строка.
+
+Пример задания опции:
+
+```cpp
+reg(&Spacecraft::name, "name", NotEmpty{}));
+```
+
+##### Пример использования опций <div id="options_example"></div>
+
+[example/options](/example/options/options.cpp)
+
+```cpp
+#include <iostream>
+#include <sstream>
+#include <string>
+
+#include "struct_mapping/struct_mapping.h"
+
+namespace sm = struct_mapping;
+
+struct Stage {
+ unsigned short engine_count;
+ std::string fuel;
+ long length;
+
+ friend std::ostream & operator<<(std::ostream & os, const Stage & o) {
+  os << " engine_count : " << o.engine_count << std::endl;
+  os << " fuel         : " << o.fuel << std::endl;
+  os << " length       : " << o.length << std::endl;
+
+  return os;
+ }
+};
+
+struct Spacecraft {
+ bool in_development;
+ std::string name;
+ int mass;
+ Stage first_stage;
+ Stage second_stage;
+
+ friend std::ostream & operator<<(std::ostream & os, const Spacecraft & o) {
+  os << "in_development : " << std::boolalpha << o.in_development << std::endl;
+  os << "name           : " << o.name << std::endl;
+  os << "mass           : " << o.mass << std::endl << std::endl;
+  os << "first stage: " << std::endl << o.first_stage << std::endl;
+  os << "second stage: " << std::endl << o.second_stage << std::endl;
+
+  return os;
+ }
+};
+
+int main() {
+ sm::reg(&Stage::engine_count, "engine_count", sm::Default{6}, sm::Bounds{1, 31});
+ sm::reg(&Stage::fuel, "fuel", sm::Default{"subcooled"});
+ sm::reg(&Stage::length, "length", sm::Default{50});
+
+ sm::reg(&Spacecraft::in_development, "in_development", sm::Default{true});
+ sm::reg(&Spacecraft::name, "name", sm::NotEmpty{});
+ sm::reg(&Spacecraft::mass, "mass", sm::Default{5000000}, sm::Bounds{100000, 10000000});
+ sm::reg(&Spacecraft::first_stage, "first_stage");
+ sm::reg(&Spacecraft::second_stage, "second_stage");
+
+ Spacecraft starship;
+
+ std::istringstream json_data(R"json(
+  {
+   "name": "Vostok",
+   "second_stage": {
+     "engine_count": 31,
+     "fuel": "compressed gas",
+     "length": 70
+   }
+  }
+ )json");
+
+ sm::map_json_to_struct(starship, json_data);
+
+ std::cout << starship << std::endl;
+}
+```
+
+результат
+
+```cpp
+in_development : true
+name           : Vostok
+mass           : 5000000
+
+first stage: 
+ engine_count : 6
+ fuel         : subcooled
+ length       : 50
+
+second stage: 
+ engine_count : 31
+ fuel         : compressed gas
+ length       : 70
+```
+
+### Обратное отображение структуры c++ на json <div id="reverse_mapping_of_c_plus_plus_structure_to_json"></div>
 
 Для обратного отображения структуры на json необходимо зарегистрировать все члены-данные всех структур, которые требуется отображать, используя для каждого поля функцию
 
 ```cpp
-template<typename T, typename V>
-inline void reg(V T::* ptr, std::string const & name);
+template<typename T, typename V, typename ... U, template<typename> typename ... Options>
+inline void reg(V T::* ptr, std::string const & name, Options<U>&& ... options);
 ```
 
 - `ptr` - указатель на член-данные
 - `name` - имя члена
+- `options` - [опции отображения](#options)
 
 и вызвать функцию
 
@@ -741,7 +900,7 @@ int main() {
 }
 ```
 
-### Регистрация членов-данных, совмещенная с инициализацией
+### Регистрация членов-данных, совмещенная с инициализацией <div id="registration_of_data_members_combined_with_initialization"></div>
 
 Чтобы не выносить регистрацию членов-данных из структуры можно совместить регистрацию с инициализацией
 
@@ -863,12 +1022,18 @@ int main() {
  std::cout << "]" << std::endl;
 }
 ```
-
-## Генерируемые исключения
+## Генерируемые исключения <div id="exceptions"></div>
 
 StructMapping генерирует в процессе отображения исключение `StructMappingException`
 
-* при использовании для структуры поля с несуществующим именем (в json имя значения в объекте не сответствуют ни одному из полей с++ структуры)
+* при установке значения для незарегистрированного поля (в json имя значения в объекте не сответствуют ни одному из зарегистрированных полей с++ структуры)
+* при установке значения, тип которого не соответствует типу поля
+* (для числовых полей) при установке значения , величина которого выходит за границы типа поля
+* при установке значения, величина которого выходит за границы, установленные опцией Bounds
+* при пустом строковом поле, если для него была установлена опция NotEmpty
+* при задании для опции Bounds значения, которое выходит за границы диапазона значений для типа поля
+* при задании для опции Bounds значений, когда значение нижней границы больше значения верхней границы
+* при задании для опции Default значения, которое выходит за границы диапазона значений для типа поля
 *	при достижении конца потока json, когда парсинг не завершен (выполняется процесс парсинга объекта, значения и т.д.)
 * когда в потоке json получен символ, который недопустим в данной позиции (например, символ завершения массива, если символ начала массива не был получен ранее)
 * при ошибке преобразования json строки, представляющей собой число в число

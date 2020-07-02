@@ -2,12 +2,19 @@
 #define STRUCT_MAPPING_F_H
 
 #include <functional>
+#include <limits>
 #include <string>
 #include <type_traits>
 #include <unordered_set>
 #include <utility>
 
 namespace struct_mapping::detail {
+
+template<typename T>
+static constexpr bool is_integer_v = !std::is_same_v<T, bool> && std::is_integral_v<T>;
+
+template<typename T>
+static constexpr bool is_integer_or_floating_point_v = !std::is_same_v<T, bool> && (std::is_integral_v<T> || std::is_floating_point_v<T>);
 
 template<typename T>
 static constexpr bool is_integral_or_floating_point_or_string_v = std::is_integral_v<T> || std::is_floating_point_v<T> || std::is_same_v<T, std::string>;
@@ -73,7 +80,7 @@ class F_reset {
 public:
 	using Reset = void(*)();
 
-	static void add(Reset reset) {
+	static void reg(Reset reset) {
 		functions.insert(reset);
 	}
 
@@ -84,6 +91,15 @@ public:
 private:
 	static inline std::unordered_set<Reset> functions;
 };
+
+template<typename U, typename V>
+inline bool in_limits(V value) {
+	if constexpr (std::is_integral_v<U>)
+		return (value >= std::numeric_limits<U>::lowest() && value <= std::numeric_limits<U>::max());
+	else
+		return static_cast<double>(value) >= static_cast<double>(std::numeric_limits<U>::lowest()) &&
+			static_cast<double>(value) <= static_cast<double>(std::numeric_limits<U>::max());
+}
 
 }
 

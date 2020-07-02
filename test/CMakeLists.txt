@@ -36,6 +36,9 @@ set_target_properties(gmock PROPERTIES
 
 set(TEST_SOURCES
 	main.cpp
+	option_bounds.cpp
+	option_default.cpp
+	option_not_empty.cpp
 	parser.cpp
 	map_json_to_struct.cpp
 	map_struct_to_json.cpp

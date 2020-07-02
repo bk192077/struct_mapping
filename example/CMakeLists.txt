@@ -5,6 +5,7 @@ set(EXAMPLES
 	in_struct_reg
 	macro_reg
 	map
+	options
 	person
 	simple
 	struct

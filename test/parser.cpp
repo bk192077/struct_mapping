@@ -550,7 +550,7 @@ std::vector<TestCaseExceptionEndOfData> test_cases_exception_end_of_data {
 				"name": [
 					true
 		)json",
-		"unexpected end of data"
+		"parser: unexpected end of data"
 	},
 	{
 		"end of data in string",
@@ -559,7 +559,7 @@ std::vector<TestCaseExceptionEndOfData> test_cases_exception_end_of_data {
 				"name_1": {
 					"name_2": "42
 		)json",
-		"unexpected end of data"
+		"parser: unexpected end of data"
 	},
 };
 
@@ -570,7 +570,7 @@ std::vector<TestCaseExceptionUnexpectedCharacter> test_cases_exception_unexpecte
 			{
 				true
 		)json",
-		"unexpected character 't' at line 3"
+		"parser: unexpected character 't' at line 3"
 	},
 	{
 		"unexpected character after comma in the struct",
@@ -579,7 +579,7 @@ std::vector<TestCaseExceptionUnexpectedCharacter> test_cases_exception_unexpecte
 				"name": true,
 			}
 		)json",
-		"unexpected character '}' at line 4"
+		"parser: unexpected character '}' at line 4"
 	},
 	{
 		"unexpected character after value in the struct",
@@ -588,7 +588,7 @@ std::vector<TestCaseExceptionUnexpectedCharacter> test_cases_exception_unexpecte
 				"name": true
 				false
 		)json",
-		"unexpected character 'f' at line 4"
+		"parser: unexpected character 'f' at line 4"
 	},
 };
 
@@ -846,8 +846,8 @@ TEST(parser, exception_bad_number_invalid_argument) {
 			end_array);
 		jp.parse(&data); 
 	} catch (struct_mapping::StructMappingException& e) {
-		if (std::string("bad number [-...99999] at line 4").compare(e.what()) != 0) {
-			FAIL() << "Expected: exception message: bad number [-...99999] at line 4\n  Actual: exception message: " << e.what();
+		if (std::string("parser: bad number [-...99999] at line 4").compare(e.what()) != 0) {
+			FAIL() << "Expected: exception message: parser: bad number [-...99999] at line 4\n  Actual: exception message: " << e.what();
 		}
 
 		SUCCEED();
@@ -891,8 +891,8 @@ TEST(parser, exception_bad_number_out_of_range) {
 			end_array);
 		jp.parse(&data); 
 	} catch (struct_mapping::StructMappingException& e) {
-		if (std::string("bad number [10.0e99999] at line 4").compare(e.what()) != 0) {
-			FAIL() << "Expected: exception message: bad number [10.0e99999] at line 4\n  Actual: exception message: " << e.what();
+		if (std::string("parser: bad number [10.0e99999] at line 4").compare(e.what()) != 0) {
+			FAIL() << "Expected: exception message: parser: bad number [10.0e99999] at line 4\n  Actual: exception message: " << e.what();
 		}
 
 		SUCCEED();

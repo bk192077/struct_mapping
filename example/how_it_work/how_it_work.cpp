@@ -2,6 +2,7 @@
 #include <list>
 #include <map>
 #include <sstream>
+#include <string>
 
 #include "struct_mapping/struct_mapping.h"
 

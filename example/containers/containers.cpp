@@ -2,6 +2,7 @@
 #include <list>
 #include <map>
 #include <sstream>
+#include <string>
 #include <vector>
 
 #include "struct_mapping/struct_mapping.h"
@@ -41,7 +42,7 @@ struct Star {
 struct PlanetSystem {
 	std::string name;
 	long long age;
-	long major_axis;
+	long long major_axis;
 	bool populated;
 	Star star;
 	std::list<Planet> planets;
