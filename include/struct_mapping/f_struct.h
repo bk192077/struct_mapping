@@ -57,11 +57,11 @@ public:
 				members.push_back(std::move(member));
 
 				members_init.emplace_back([ptr] (T & o) {
-					return F<V>::init(o.*ptr);
+					F<V>::init(o.*ptr);
 				});
 
 				members_finish.emplace_back([ptr] (T & o) {
-					return F<V>::finish(o.*ptr);
+					F<V>::finish(o.*ptr);
 				});
 
 				members_release.emplace_back([ptr] (T & o) {
