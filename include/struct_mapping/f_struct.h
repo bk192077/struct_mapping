@@ -48,7 +48,7 @@ public:
 		if (members_name_index.find(name) == members_name_index.end()) {
 			reg_reset<V>();			
 
-			members_name_index.emplace(name, members.size());
+			members_name_index.emplace(name, static_cast<Index>(members.size()));
 			Member member(name, MemberType<V>{}, std::forward<Options<U>>(options)...);
 
 			if constexpr (Member::template get_member_type<V>() == Member::Type::Complex) {				
