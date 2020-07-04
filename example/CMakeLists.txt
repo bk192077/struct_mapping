@@ -19,8 +19,8 @@ foreach (example ${EXAMPLES})
 	target_compile_features(${example} PRIVATE cxx_std_17)
 endforeach()
 
-if(STRUCT_MAPPING_DEBUG)
-	add_definitions(-DSTRUCT_MAPPING_DEBUG)
+if(DEBUG_OUTPUT)
+	add_definitions(-DDEBUG_OUTPUT)
 endif()
 
 add_custom_target(examples ALL DEPENDS ${EXAMPLES})

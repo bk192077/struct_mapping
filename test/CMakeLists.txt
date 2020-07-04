@@ -46,8 +46,8 @@ set(TEST_SOURCES
 
 add_executable(${TARGET} ${TEST_SOURCES})
 
-if(STRUCT_MAPPING_DEBUG)
-	target_compile_definitions(${TARGET} PRIVATE STRUCT_MAPPING_DEBUG)
+if(DEBUG_OUTPUT)
+	target_compile_definitions(${TARGET} PRIVATE DEBUG_OUTPUT)
 endif()
 
 target_compile_features(${TARGET} PRIVATE cxx_std_17)

@@ -3,7 +3,7 @@
 
 namespace struct_mapping {
 
-#ifdef STRUCT_MAPPING_DEBUG
+#ifdef DEBUG_OUTPUT
 	constexpr bool debug = true;
 #else
 	constexpr bool debug = false;

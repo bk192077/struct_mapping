@@ -52,17 +52,17 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc")
 endif()
 
-option(STRUCT_MAPPING_BUILD_EXAMPLES "Build struct_mapping examples." ON)
-option(STRUCT_MAPPING_BUILD_TESTS "Build struct_mapping tests." ON)
-option(STRUCT_MAPPING_DEBUG "Enable debug output" OFF)
+option(BUILD_EXAMPLES "Build struct_mapping examples." ON)
+option(BUILD_TESTS "Build struct_mapping tests." ON)
+option(DEBUG_OUTPUT "Enable debug output" OFF)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-if(STRUCT_MAPPING_BUILD_EXAMPLES)
+if(BUILD_EXAMPLES)
 	add_subdirectory(example)
 endif()
 
-if(STRUCT_MAPPING_BUILD_TESTS AND (NOT CMAKE_CXX_COMPILER_ID STREQUAL "MSVC"))
+if(BUILD_TESTS AND (NOT CMAKE_CXX_COMPILER_ID STREQUAL "MSVC"))
 	enable_testing()
 	add_subdirectory(test)
 endif()
