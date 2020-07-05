@@ -21,27 +21,51 @@ template<typename T, bool = is_array_like_v<T>, bool = is_map_like_v<T>>
 class F {
 public:
 	using Index = unsigned int;
-
-	template<typename V>
-	using Member_ptr = V T::*;
-
-	using Finish = void (T&);
-	using Init = void (T&);
-	using IterateOver = void (T&, const std::string &);
-	using Release = bool (T&);
-	using SetBool = void (T&, const std::string &, bool);
-	using SetFloatingPoint = void (T&, const std::string &, double);
-	using SetIntegral = void (T&, const std::string &, long long);
-	using SetString = void (T&, const std::string &, const std::string &);
-	using Use = void (T&, const std::string &);
+	template<typename V> using Member_ptr = V T::*;
 
 	enum class Changed {
 		True,
 		False,
 	};
 
-	template<typename V>
-	struct MemberType {};
+	template<typename V> struct MemberType {};
+
+	class Functions {
+	public:
+		using Finish = void (T&);
+		using Init = void (T&);
+		using IterateOver = void (T&, const std::string &);
+		using Release = bool (T&);
+		using SetBool = void (T&, const std::string &, bool);
+		using SetFloatingPoint = void (T&, const std::string &, double);
+		using SetIntegral = void (T&, const std::string &, long long);
+		using SetString = void (T&, const std::string &, const std::string &);
+		using Use = void (T&, const std::string &);
+
+		template<typename V>
+		Index add(Member_ptr<V> ptr) {
+			finish.emplace_back([ptr] (T & o) {F<V>::finish(o.*ptr);});
+			init.emplace_back([ptr] (T & o) {F<V>::init(o.*ptr);});
+			iterate_over.emplace_back([ptr] (T & o, const std::string & name_) {F<V>::iterate_over(o.*ptr, name_);});
+			release.emplace_back([ptr] (T & o) {return F<V>::release(o.*ptr);});
+			set_bool.emplace_back([ptr] (T & o, const std::string & name_, bool value_) {F<V>::set_bool(o.*ptr, name_, value_);});
+			set_floating_point.emplace_back([ptr] (T & o, const std::string & name_, double value_) {F<V>::set_floating_point(o.*ptr, name_, value_);});
+			set_integral.emplace_back([ptr] (T & o, const std::string & name_, long long value_) {F<V>::set_integral(o.*ptr, name_, value_);});
+			set_string.emplace_back([ptr] (T & o, const std::string & name_, const std::string & value_) {F<V>::set_string(o.*ptr, name_, value_);});
+			use.emplace_back([ptr] (T & o, const std::string & name_) {F<V>::use(o.*ptr, name_);});
+			return static_cast<Index>(use.size()) - 1;
+		}
+
+		std::vector<std::function<Finish>> finish;
+		std::vector<std::function<Init>> init;
+		std::vector<std::function<IterateOver>> iterate_over;
+		std::vector<std::function<Release>> release;
+		std::vector<std::function<SetBool>> set_bool;
+		std::vector<std::function<SetFloatingPoint>> set_floating_point;
+		std::vector<std::function<SetIntegral>> set_integral;
+		std::vector<std::function<SetString>> set_string;
+		std::vector<std::function<Use>> use;
+	};
 
 	template<typename V, typename ... U, template<typename> typename ... Options>
 	static void reg(Member_ptr<V> ptr, std::string const & name, Options<U>&& ... options) {
@@ -53,44 +77,8 @@ public:
 
 			if constexpr (Member::template get_member_type<V>() == Member::Type::Complex) {				
 				member.ptr_index = NO_INDEX;
-				member.deep_index = static_cast<Index>(members_release.size());
+				member.deep_index = functions.add(ptr);
 				members.push_back(std::move(member));
-
-				members_init.emplace_back([ptr] (T & o) {
-					F<V>::init(o.*ptr);
-				});
-
-				members_finish.emplace_back([ptr] (T & o) {
-					F<V>::finish(o.*ptr);
-				});
-
-				members_release.emplace_back([ptr] (T & o) {
-					return F<V>::release(o.*ptr);
-				});
-
-				members_set_bool.emplace_back([ptr] (T & o, const std::string & name_, bool value_) {
-					F<V>::set_bool(o.*ptr, name_, value_);
-				});
-
-				members_set_floating_point.emplace_back([ptr] (T & o, const std::string & name_, double value_) {
-					F<V>::set_floating_point(o.*ptr, name_, value_);
-				});
-
-				members_set_integral.emplace_back([ptr] (T & o, const std::string & name_, long long value_) {
-					F<V>::set_integral(o.*ptr, name_, value_);
-				});
-
-				members_set_string.emplace_back([ptr] (T & o, const std::string & name_, const std::string & value_) {
-					F<V>::set_string(o.*ptr, name_, value_);
-				});
-
-				members_use.emplace_back([ptr] (T & o, const std::string & name_) {
-					F<V>::use(o.*ptr, name_);
-				});
-
-				members_iterate_over.emplace_back([ptr] (T & o, const std::string & name_) {
-					F<V>::iterate_over(o.*ptr, name_);
-				});
 			} else {
 				member.ptr_index = static_cast<Index>(members_ptr<V>.size());
 				member.deep_index = NO_INDEX;
@@ -100,15 +88,15 @@ public:
 		}
 	}
 
-	static void init(T & o) {
-		for (auto & member : members) {
-			member.init(o);
-		}
-	}
-
 	static void finish(T & o) {
 		for (auto & member : members) {
 			member.finish(o);
+		}
+	}
+
+	static void init(T & o) {
+		for (auto & member : members) {
+			member.init(o);
 		}
 	}
 
@@ -123,7 +111,7 @@ public:
 
 	static bool release(T & o) {
 		if (member_deep_index == NO_INDEX) return true;
-		else if (members_release[member_deep_index](o)) member_deep_index = NO_INDEX;
+		else if (functions.release[member_deep_index](o)) member_deep_index = NO_INDEX;
 
 		return false;
 	}
@@ -134,7 +122,7 @@ public:
 			else if (members[it->second].type != Member::Type::Bool) throw StructMappingException("bad type (bool) for member: " + name);
 			else set<bool>(o, value, it->second);
 		}	else {
-			members_set_bool[member_deep_index](o, name, value);
+			functions.set_bool[member_deep_index](o, name, value);
 		}
 	}
 
@@ -149,7 +137,7 @@ public:
 				}
 			}
 		}	else {
-			members_set_floating_point[member_deep_index](o, name, value);
+			functions.set_floating_point[member_deep_index](o, name, value);
 		}
 	}
 
@@ -171,7 +159,7 @@ public:
 				default: throw StructMappingException("bad type (integral) for member: " + name);
 				}
 			}
-		}	else members_set_integral[member_deep_index](o, name, value);
+		}	else functions.set_integral[member_deep_index](o, name, value);
 	}
 
 	static void set_string(T & o, const std::string & name, const std::string & value) {
@@ -179,7 +167,7 @@ public:
 			if (auto it = members_name_index.find(name); it == members_name_index.end()) throw StructMappingException("bad member: " + name);
 			else if (members[it->second].type != Member::Type::String) throw StructMappingException("bad type (string) for member: " + name);
 			else set<std::string>(o, value, it->second);
-		}	else members_set_string[member_deep_index](o, name, value);
+		}	else functions.set_string[member_deep_index](o, name, value);
 	}
 
 	static void use(T & o, const std::string & name) {
@@ -187,14 +175,16 @@ public:
 			if (auto it = members_name_index.find(name); it == members_name_index.end()) throw StructMappingException("bad member: " + name);
 			else {
 				member_deep_index = members[it->second].deep_index;
-				members_init[member_deep_index](o);
+				functions.init[member_deep_index](o);
 			}
-		}	else members_use[member_deep_index](o, name);
+		}	else functions.use[member_deep_index](o, name);
 	}
 
 private:
 	class Member {
 	public:
+		using Name = std::string;
+
 		enum class Type {
 			Complex = -1,
 			Bool = 0,
@@ -211,8 +201,6 @@ private:
 			String = 12,
 		};
 
-		using Name = std::string;
-
 		template<typename V, typename ... U, template<typename> typename ... Options>
 		Member(Name name_, MemberType<V>, Options<U>&& ... options)
 			:	name(name_), type(get_member_type<V>()) {
@@ -223,7 +211,7 @@ private:
 			finish_not_empty(o);
 
 			if (type == Member::Type::Complex) {
-				members_finish[deep_index](o);
+				functions.finish[deep_index](o);
 			}
 		}
 
@@ -259,7 +247,7 @@ private:
 			case Member::Type::Float: set_default<float>(o); break;
 			case Member::Type::Double: set_default<double>(o); break;
 			case Member::Type::String: set_default<std::string>(o); break;
-			case Member::Type::Complex: members_init[deep_index](o); break;
+			case Member::Type::Complex: functions.init[deep_index](o); break;
 			}
 		}
 
@@ -277,17 +265,17 @@ private:
 			case Member::Type::Float: F_iterate_over::set_floating_point(name, o.*members_ptr<float>[ptr_index]); break;
 			case Member::Type::Double: F_iterate_over::set_floating_point(name, o.*members_ptr<double>[ptr_index]); break;
 			case Member::Type::String: F_iterate_over::set_string(name, o.*members_ptr<std::string>[ptr_index]); break;
-			case Member::Type::Complex: members_iterate_over[deep_index](o, name); break;
+			case Member::Type::Complex: functions.iterate_over[deep_index](o, name); break;
 			}
 		}
 
 		Name name;
-		Type type;
-		Index ptr_index;
-		Index deep_index;
-		Index default_index = NO_INDEX;
 		Index bounds_index = NO_INDEX;
+		Index default_index = NO_INDEX;
+		Index deep_index;
+		Index ptr_index;
 		bool option_not_empty = false;
+		Type type;
 
 	private:
 		template<typename V, typename U, template<typename> typename Op>
@@ -313,8 +301,8 @@ private:
 		template<typename V, typename U>
 		void add_option_default(Default<U> & op) {
 			if constexpr (std::is_same_v<V, std::string> && std::is_same_v<U, const char *>) {
-					default_index = static_cast<Index>(members_default<std::string>.size());
-					members_default<std::string>.push_back(op.template get_value<V>());
+				default_index = static_cast<Index>(members_default<std::string>.size());
+				members_default<std::string>.push_back(op.template get_value<V>());
 			}	else if constexpr (std::is_same_v<V, U> || (is_integer_or_floating_point_v<V> && is_integer_or_floating_point_v<U>)) {
 				default_index = static_cast<Index>(members_default<V>.size());
 				members_default<V>.push_back(op.template get_value<V>());
@@ -342,28 +330,21 @@ private:
 	};
 
 	static inline constexpr Index NO_INDEX = std::numeric_limits<Index>::max();
+
+	static inline Functions functions;
 	static inline Index member_deep_index = NO_INDEX;
 	static inline std::vector<Member> members;
-	static inline std::unordered_map<typename Member::Name, Index> members_name_index;
-
-	template<typename V>
-	static inline std::vector<Member_ptr<V>> members_ptr{};
-
-	template<typename V>
-	static inline std::vector<V> members_default{};
-
+	
 	template<typename V>
 	static inline std::vector<std::function<void(V, const std::string &)>> members_bounds{};
-
-	static inline std::vector<std::function<Finish>> members_finish;
-	static inline std::vector<std::function<Init>> members_init;
-	static inline std::vector<std::function<IterateOver>> members_iterate_over;
-	static inline std::vector<std::function<Release>> members_release;
-	static inline std::vector<std::function<SetBool>> members_set_bool;
-	static inline std::vector<std::function<SetFloatingPoint>> members_set_floating_point;
-	static inline std::vector<std::function<SetIntegral>> members_set_integral;
-	static inline std::vector<std::function<SetString>> members_set_string;
-	static inline std::vector<std::function<Use>> members_use;
+	
+	template<typename V>
+	static inline std::vector<V> members_default{};
+	
+	static inline std::unordered_map<typename Member::Name, Index> members_name_index;
+	
+	template<typename V>
+	static inline std::vector<Member_ptr<V>> members_ptr{};
 
 	template<typename V>
 	static void reg_reset() {

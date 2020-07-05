@@ -18,10 +18,10 @@ public:
 	template<typename V>
 	using Member_ptr = V T::*;
 
+	using Iterator = typename T::iterator;
+
 	template<typename V>
 	using ValueType = typename V::mapped_type;
-
-	using Iterator = typename T::iterator;
 
 	static void finish(T & o) {
 		for (auto & [n, v] : o) {
@@ -138,8 +138,8 @@ public:
 	}
 
 private:
-	static inline bool used = false;
 	static inline Iterator last_inserted;
+	static inline bool used = false;
 
 	static auto & get_last_inserted() {
 		if constexpr (has_mapped_type_v<T>) return last_inserted->second;
