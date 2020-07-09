@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.5)
 project(struct_mapping LANGUAGES CXX)
 
 set(LIB_MAJOR_VERSION "0")
-set(LIB_MINOR_VERSION "4")
+set(LIB_MINOR_VERSION "5")
 set(LIB_PATCH_VERSION "0")
 set(LIB_VERSION "${LIB_MAJOR_VERSION}.${LIB_MINOR_VERSION}.${LIB_PATCH_VERSION}")
 

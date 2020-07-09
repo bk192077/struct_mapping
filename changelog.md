@@ -1,6 +1,21 @@
 # Change Log
 All notable changes to this project will be documented in this file. This project adheres to [Semantic Versioning](http://semver.org/).
 
+## 0.5.0 - 2020.07.09
+
+### Added
+* use of enumerations as member and as element of container
+* option Required
+
+### Changed
+* option Default for cpp structures
+* option Default for containers
+* option Default for enumeration
+* option NotEmpty for containers
+
+### Fixed
+* if Boundes were set for fields with the same types, then all fields used the same range.
+
 ## 0.4.0 - 2020.07.02
 
 ### Added
