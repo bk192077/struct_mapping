@@ -1,11 +1,13 @@
 set(EXAMPLES
 	array
 	containers
+	enumeration
 	how_it_work
 	in_struct_reg
 	macro_reg
 	map
 	options
+	options_default
 	person
 	simple
 	struct

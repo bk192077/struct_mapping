@@ -19,6 +19,9 @@ static constexpr bool is_integer_or_floating_point_v = !std::is_same_v<T, bool> 
 template<typename T>
 static constexpr bool is_integral_or_floating_point_or_string_v = std::is_integral_v<T> || std::is_floating_point_v<T> || std::is_same_v<T, std::string>;
 
+template<typename T>
+static constexpr bool is_complex_v = !is_integral_or_floating_point_or_string_v<T> && !std::is_enum_v<T>;
+
 template<typename, typename = std::void_t<>>
 struct has_mapped_type : std::false_type{};
 

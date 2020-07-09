@@ -12,15 +12,18 @@ English translation provided by [translate.google.com](https://translate.google.
 - [Installation](#installation)
 - [Usage](#usage)
 	- [Implementing a scenario with a Person structure](#implementing_a_scenario_with_a_Person_structure)
-	- [Mapping json to c ++ structure](#mapping_json_to_c_plus_plus_structure)
+	- [Mapping json to c++ structure](#mapping_json_to_c_plus_plus_structure)
+		- [Enumeration](#mapping_json_to_c_plus_plus_structure_enumeration)
 		- [Simple types example](#simple_types_example)
 		- [Structure example](#structure_example)
+		- [Enumeration example](#enumeration_example)
 		- [Sequence container example](#sequence_container_example)
 		- [Associative container example](#associative_container_example)
 		- [Mapping options](#options)
 			- [Bounds](#options_bounds)
 			- [Default](#options_default)
 			- [NotEmpty](#options_not_empty)
+			- [Required](#options_required)
 			- [Options example](#options_example)
 	- [Reverse mapping of c ++ structure to json](#reverse_mapping_of_c_plus_plus_structure_to_json)
 	- [Registration of data members combined with initialization](#registration_of_data_members_combined_with_initialization)
@@ -94,6 +97,7 @@ As types of member-data can be used
 * std::multimap (the key can only be std::string)
 * std::unordered_multimap (the key can only be std::string)
 * c++ structure
+* enumerations
 
 ## Installation <div id="installation"></div>
 
@@ -209,7 +213,7 @@ result
 Jeebs : 42 : true
 ```
 
-### Mapping json to c ++ structure <div id="mapping_json_to_c_plus_plus_structure"></div>
+### Mapping json to c++ structure <div id="mapping_json_to_c_plus_plus_structure"></div>
 
 To map json to a structure, it is necessary to register all data members of all structures that you want to mapped using for each field
 
@@ -233,6 +237,44 @@ void map_json_to_struct(T & result_struct, std::basic_istream<char> & json_data)
 - `json_data` - reference to json data input stream
 
 During the mapping process, the correspondence between the types of data members and the types of set value is checked, and (for numbers) the set value is checked to get out of the range of values of the data member type. In case of type mismatch or out of range values [exceptions](#exceptions) are generated.
+
+#### Enumeration <div id="mapping_json_to_c_plus_plus_structure_enumeration"></div>
+
+Enums in json will be represented as strings. Therefore, to use enumerations, it is required to establish conversion methods from string to enumeration value and vice versa, using:
+
+```cpp
+template<typename From, typename To>
+static void MemberString::set(From function_from_string_, To function_to_string_);
+```
+
+- `function_from_string_` - conversion function from string to enum value
+- `function_to_string_` - conversion function from enum value to string
+
+for example
+
+```cpp
+enum class Color {
+ red,
+ blue,
+ green,
+};
+
+struct_mapping::MemberString<Color>::set(
+ [] (const std::string & value) {
+  if (value == "red") return Color::red;
+  if (value == "green") return Color::green;
+  if (value == "blue") return Color::blue;
+
+  throw struct_mapping::StructMappingException("bad convert '" + value + "' to Color");
+ },
+ [] (Color value) {
+  switch (value) {
+  case Color::red: return "red";
+  case Color::green: return "green";
+  default: return "blue";
+  }
+ });
+```
 
 #### simple types example <div id="simple_types_example"></div>
 
@@ -338,6 +380,98 @@ result
 earth.president:
  name : Agent K
  mass : 75.6
+```
+
+#### Enumeration example <div id="enumeration_example"></div>
+
+[example/enumeration](/example/enumeration/enumeration.cpp)
+
+```cpp
+#include <iostream>
+#include <list>
+#include <map>
+#include <sstream>
+#include <string>
+
+#include "struct_mapping/struct_mapping.h"
+
+namespace sm = struct_mapping;
+
+enum class Color {
+ red,
+ blue,
+ green,
+};
+
+Color color_from_string(const std::string & value) {
+ if (value == "red") return Color::red;
+ if (value == "blue") return Color::blue;
+
+ return Color::green;
+}
+
+std::string color_to_string(Color color) {
+ switch (color) {
+ case Color::red: return "red";
+ case Color::green: return "green";
+ default: return "blue";
+ }
+}
+
+struct Palette {
+ Color main_color;
+ Color background_color;
+ std::list<Color> special_colors;
+ std::map<std::string, Color> colors;
+
+ friend std::ostream & operator<<(std::ostream & os, const Palette & o) {
+  os << "main_color       : " << color_to_string(o.main_color) << std::endl;
+  os << "background_color : " << color_to_string(o.background_color) << std::endl;
+  os << "special_colors   : ";
+  for (auto color : o.special_colors) os << color_to_string(color) << ", ";
+  os << std::endl << "colors           : ";
+  for (auto [name, color] : o.colors) os << "[" << name << ", " << color_to_string(color) << "], ";
+  os << std::endl;
+
+  return os;
+ }
+};
+
+int main() {
+ sm::MemberString<Color>::set(color_from_string, color_to_string);
+
+ sm::reg(&Palette::main_color, "main_color", sm::Required{});
+ sm::reg(&Palette::background_color, "background_color", sm::Default{Color::blue});
+ sm::reg(&Palette::special_colors, "special_colors");
+ sm::reg(&Palette::colors, "colors");
+
+ Palette palette;
+
+ std::istringstream json_data(R"json(
+ {
+  "main_color": "green",
+  "special_colors": ["green", "green", "red"],
+  "colors": {
+   "dark": "green",
+   "light": "red",
+   "neutral": "blue"
+  }
+ }
+ )json");
+
+ sm::map_json_to_struct(palette, json_data);
+
+ std::cout << palette << std::endl;
+}
+```
+
+result
+
+```cpp
+main_color       : green
+background_color : blue
+special_colors   : green, green, red, 
+colors           : [dark, green], [light, red], [neutral, blue],
 ```
 
 #### sequence container example <div id="sequence_container_example"></div>
@@ -618,7 +752,7 @@ reg(&Stage::engine_count, "engine_count", Bounds{1, 31});
 
 ##### Default <div id="options_default"></div>
 
-Sets the default value for the data member. Applicable for bool, integer types, floating point types and strings. The option accepts one parameter - the default value.
+Sets the default value for the data member. Applicable for bool, integer types, floating point types, strings, containers, cpp structures and enumerations. The option accepts one parameter - the default value.
 
 ```cpp
 Default{default_value}
@@ -632,12 +766,22 @@ reg(&Stage::engine_count, "engine_count", Default{3});
 
 ##### NotEmpty <div id="options_not_empty"></div>
 
-Notes that a data member cannot be set to an empty value. Applicable for strings. The option does not accept parameters. Throws an [exception](#exceptions) if, after completion of the mapping, the field value is an empty string.
+Notes that a data member cannot be set to an empty value. Applicable for strings and containers. The option does not accept parameters. Throws an [exception](#exceptions) if, after completion of the mapping, the field value is an empty string or an empty container.
 
 Example of setting an option:
 
 ```cpp
 reg(&Spacecraft::name, "name", NotEmpty{}));
+```
+
+##### Required <div id="options_required"></div>
+
+Notes that a data member must be set to a value. Applicable for bool, integer types, floating point types, strings, containers, cpp structures and enumerations. The option does not accept parameters. Throws an [exception](#exceptions) if, after completion of the mapping, value for the field has not been set.
+
+Example of setting an option:
+
+```cpp
+reg(&Spacecraft::name, "name", Required{}));
 ```
 
 ##### Options example <div id="options_example"></div>
@@ -646,6 +790,8 @@ reg(&Spacecraft::name, "name", NotEmpty{}));
 
 ```cpp
 #include <iostream>
+#include <list>
+#include <map>
 #include <sstream>
 #include <string>
 
@@ -659,9 +805,9 @@ struct Stage {
  long length;
 
  friend std::ostream & operator<<(std::ostream & os, const Stage & o) {
-  os << " engine_count : " << o.engine_count << std::endl;
-  os << " fuel         : " << o.fuel << std::endl;
-  os << " length       : " << o.length << std::endl;
+  os << "  engine_count : " << o.engine_count << std::endl;
+  os << "  fuel         : " << o.fuel << std::endl;
+  os << "  length       : " << o.length << std::endl;
 
   return os;
  }
@@ -671,15 +817,17 @@ struct Spacecraft {
  bool in_development;
  std::string name;
  int mass;
- Stage first_stage;
- Stage second_stage;
+ std::map<std::string, Stage> stages;
+ std::list<std::string> crew;
 
  friend std::ostream & operator<<(std::ostream & os, const Spacecraft & o) {
   os << "in_development : " << std::boolalpha << o.in_development << std::endl;
   os << "name           : " << o.name << std::endl;
-  os << "mass           : " << o.mass << std::endl << std::endl;
-  os << "first stage: " << std::endl << o.first_stage << std::endl;
-  os << "second stage: " << std::endl << o.second_stage << std::endl;
+  os << "mass           : " << o.mass << std::endl;
+  os << "stages: " << std::endl;
+  for (auto& s : o.stages) os << " " << s.first << std::endl << s.second;
+  os << "crew: " << std::endl;
+  for (auto& p : o.crew) os << " " << p << std::endl;
 
   return os;
  }
@@ -690,23 +838,27 @@ int main() {
  sm::reg(&Stage::fuel, "fuel", sm::Default{"subcooled"});
  sm::reg(&Stage::length, "length", sm::Default{50});
 
- sm::reg(&Spacecraft::in_development, "in_development", sm::Default{true});
+ sm::reg(&Spacecraft::in_development, "in_development", sm::Required{});
  sm::reg(&Spacecraft::name, "name", sm::NotEmpty{});
  sm::reg(&Spacecraft::mass, "mass", sm::Default{5000000}, sm::Bounds{100000, 10000000});
- sm::reg(&Spacecraft::first_stage, "first_stage");
- sm::reg(&Spacecraft::second_stage, "second_stage");
+ sm::reg(&Spacecraft::stages, "stages", sm::NotEmpty{});
+ sm::reg(&Spacecraft::crew, "crew", sm::Default{std::list<std::string>{"Arthur", "Ford", "Marvin"}});
 
  Spacecraft starship;
 
  std::istringstream json_data(R"json(
-  {
-   "name": "Vostok",
-   "second_stage": {
-     "engine_count": 31,
-     "fuel": "compressed gas",
-     "length": 70
-   }
+ {
+  "in_development": false,
+  "name": "Vostok",
+  "stages": {
+   "first": {
+    "engine_count": 31,
+    "fuel": "compressed gas",
+    "length": 70
+   },
+   "second": {}
   }
+ }
  )json");
 
  sm::map_json_to_struct(starship, json_data);
@@ -718,22 +870,25 @@ int main() {
 result
 
 ```cpp
-in_development : true
+in_development : false
 name           : Vostok
 mass           : 5000000
-
-first stage: 
- engine_count : 6
- fuel         : subcooled
- length       : 50
-
-second stage: 
- engine_count : 31
- fuel         : compressed gas
- length       : 70
+stages: 
+ first
+  engine_count : 31
+  fuel         : compressed gas
+  length       : 70
+ second
+  engine_count : 6
+  fuel         : subcooled
+  length       : 50
+crew: 
+ Arthur
+ Ford
+ Marvin
 ```
 
-### Reverse mapping of c ++ structure to json <div id="reverse_mapping_of_c_plus_plus_structure_to_json"></div>
+### Reverse mapping of c++ structure to json <div id="reverse_mapping_of_c_plus_plus_structure_to_json"></div>
 
 For the structure to be mapped back to json, it is necessary to register all data members of all the structures that need to be mapped using for each field
 
@@ -1030,10 +1185,13 @@ int main() {
 
 StructMapping throws a `StructMappingException` exception during the mapping process
 
-* when setting a value for an unregistered field (in json, the name of the value in the object does not correspond to any of the registered fields in the C ++ structure)
-* when setting a value whose type does not match the type of field
+* when setting a value for an unregistered field (in json, the name of the value in the object does not correspond to any of the registered fields in the c++ structure)
+* when setting a value whose type does not match the type of field (for enumerations when setting values other than a string)
+* (for numerical fields) when setting a value that is outside the range of the field type
+* when using an enumeration, if functions for converting to / from a string were not specified for it
 * when setting a value that exceeds the limits set by the Bounds option
 * with an empty string field, if the NotEmpty option was set for it
+* if the Required option was set, but the value was not set
 * when setting the Bounds option to a value that is outside the range of values for the field type
 * when setting the Bounds option to values when the lower bound value is greater than the upper bound value
 * when setting the Default option to a value that is outside the range of values for the field type

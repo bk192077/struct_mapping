@@ -1,11 +1,17 @@
 #include <cstdint>
 #include <limits>
+#include <list>
+#include <map>
 #include <sstream>
 #include <string>
 
+#include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
 #include "struct_mapping/struct_mapping.h"
+
+using ::testing::ElementsAre;
+using ::testing::Pair;
 
 namespace {
 
@@ -409,6 +415,108 @@ TEST(option_default, default_limits_max_float) {
 	}
 
 	FAIL() << "Expected: throws an exception of type StructMappingException\n  Actual: it throws nothing";
+}
+
+struct Struct_list {
+	std::list<std::string> values;
+};
+
+TEST(option_default, list_default) {
+	Struct_list result_struct;
+	
+	struct_mapping::reg(&Struct_list::values, "values", struct_mapping::Default{std::list<std::string>{"first", "second"}});
+
+	std::istringstream json_data(R"json(
+	{
+	}
+	)json");
+
+	struct_mapping::map_json_to_struct(result_struct, json_data);
+
+	ASSERT_THAT(result_struct.values, ElementsAre("first", "second"));
+}
+
+struct Struct_map {
+	std::map<std::string, int> values;
+};
+
+TEST(option_default, map_default) {
+	Struct_map result_struct;
+	
+	struct_mapping::reg(&Struct_map::values, "values", struct_mapping::Default{std::map<std::string, int>{{"first", 1}, {"second", 2}}});
+
+	std::istringstream json_data(R"json(
+	{
+	}
+	)json");
+
+	struct_mapping::map_json_to_struct(result_struct, json_data);
+
+	ASSERT_THAT(result_struct.values, ElementsAre(Pair("first", 1), Pair("second", 2)));
+}
+
+struct Struct_cppstruct_a {
+	std::string name;
+};
+
+struct Struct_cppstruct {
+	Struct_cppstruct_a value;
+};
+
+TEST(option_default, cppstruct_default) {
+	Struct_cppstruct result_struct;
+	
+	struct_mapping::reg(&Struct_cppstruct_a::name, "name");
+	struct_mapping::reg(&Struct_cppstruct::value, "value", struct_mapping::Default{Struct_cppstruct_a{"cppstruct name"}});
+
+	std::istringstream json_data(R"json(
+	{
+	}
+	)json");
+
+	struct_mapping::map_json_to_struct(result_struct, json_data);
+
+	ASSERT_THAT(result_struct.value.name, "cppstruct name");
+}
+
+enum class Enum_default {
+	v1,
+	v2,
+	v3
+};
+
+struct Struct_enum_default {
+	Enum_default value;
+};
+
+TEST(option_default, enum_default) {
+	struct_mapping::MemberString<Enum_default>::set([] (const std::string & value) {
+		if (value == "v1") return Enum_default::v1;
+		if (value == "v2") return Enum_default::v2;
+		if (value == "v3") return Enum_default::v3;
+
+		throw struct_mapping::StructMappingException("bad convert '" + value + "' to Enum_default");
+	},
+	[] (Enum_default value) {
+		switch (value) {
+		case Enum_default::v1: return "v1";
+		case Enum_default::v2: return "v2";
+		default: return "v3";
+		}
+	});
+
+	Struct_enum_default result_struct;
+	
+	struct_mapping::reg(&Struct_enum_default::value, "value", struct_mapping::Default{Enum_default::v3});
+
+	std::istringstream json_data(R"json(
+	{
+	}
+	)json");
+
+	struct_mapping::map_json_to_struct(result_struct, json_data);
+
+	ASSERT_EQ(result_struct.value, Enum_default::v3);
 }
 
 }

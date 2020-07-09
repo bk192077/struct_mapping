@@ -39,6 +39,7 @@ set(TEST_SOURCES
 	option_bounds.cpp
 	option_default.cpp
 	option_not_empty.cpp
+	option_required.cpp
 	parser.cpp
 	map_json_to_struct.cpp
 	map_struct_to_json.cpp

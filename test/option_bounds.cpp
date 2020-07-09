@@ -115,4 +115,32 @@ TEST(option_bounds, more_than_upper) {
 	FAIL() << "Expected: throws an exception of type StructMappingException\n  Actual: it throws nothing";
 }
 
+struct Struct_multiple_members_of_the_same_type {
+	int member_int_1;
+	int member_int_2;
+	int member_int_3;
+};
+
+TEST(option_bounds, multiple_members_of_the_same_type) {
+	Struct_multiple_members_of_the_same_type result_struct;
+	
+	struct_mapping::reg(&Struct_multiple_members_of_the_same_type::member_int_1, "member_int_1", struct_mapping::Bounds{1, 3});
+	struct_mapping::reg(&Struct_multiple_members_of_the_same_type::member_int_2, "member_int_2", struct_mapping::Bounds{10, 30});
+	struct_mapping::reg(&Struct_multiple_members_of_the_same_type::member_int_3, "member_int_3", struct_mapping::Bounds{100, 300});
+
+	std::istringstream json_data(R"json(
+	{
+		"member_int_1": 2,
+		"member_int_2": 20,
+		"member_int_3": 200
+	}
+	)json");
+
+	struct_mapping::map_json_to_struct(result_struct, json_data);
+
+	ASSERT_EQ(result_struct.member_int_1, 2);
+	ASSERT_EQ(result_struct.member_int_2, 20);
+	ASSERT_EQ(result_struct.member_int_3, 200);
+}
+
 }

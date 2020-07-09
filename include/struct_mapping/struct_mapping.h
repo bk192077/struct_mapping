@@ -5,10 +5,12 @@
 
 #include "exception.h"
 #include "f_struct.h"
+#include "member_string.h"
 #include "mapper.h"
 #include "options/option_bounds.h"
 #include "options/option_default.h"
 #include "options/option_not_empty.h"
+#include "options/option_required.h"
 
 namespace struct_mapping {
 

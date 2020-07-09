@@ -1,4 +1,6 @@
 #include <cstdint>
+#include <list>
+#include <map>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -207,6 +209,65 @@ R"json({
 ++++"M 1998",
 ++++"E 1997"
 ++]
+})json");
+
+	ASSERT_EQ(result_json.str(), expected_json);
+}
+
+enum class Enum_reverse {
+	v1,
+	v2,
+	v3
+};
+
+struct Struct_enum_reverse {
+	Enum_reverse value;
+	std::list<Enum_reverse> value_list;
+	std::map<std::string, Enum_reverse> value_map;
+};
+
+TEST(struct_mapping_map_json_to_struct, test_enum) {
+	struct_mapping::MemberString<Enum_reverse>::set([] (const std::string & value) {
+		if (value == "v1") return Enum_reverse::v1;
+		if (value == "v2") return Enum_reverse::v2;
+		if (value == "v3") return Enum_reverse::v3;
+
+		throw struct_mapping::StructMappingException("bad convert '" + value + "' to Enum_reverse");
+	},
+	[] (Enum_reverse value) {
+		switch (value) {
+		case Enum_reverse::v1: return "v1";
+		case Enum_reverse::v2: return "v2";
+		default: return "v3";
+		}
+	});
+
+	struct_mapping::reg(&Struct_enum_reverse::value, "value");
+	struct_mapping::reg(&Struct_enum_reverse::value_list, "value_list");
+	struct_mapping::reg(&Struct_enum_reverse::value_map, "value_map");
+
+	Struct_enum_reverse source;
+
+	source.value = Enum_reverse::v2;
+	source.value_list.push_back(Enum_reverse::v1);
+	source.value_list.push_back(Enum_reverse::v3);
+	source.value_map["first"] = Enum_reverse::v2;
+	source.value_map["second"] = Enum_reverse::v3;
+
+	std::ostringstream result_json;
+	struct_mapping::map_struct_to_json(source, result_json, "++");
+
+	std::string expected_json(
+R"json({
+++"value": "v2",
+++"value_list": [
+++++"v1",
+++++"v3"
+++],
+++"value_map": {
+++++"first": "v2",
+++++"second": "v3"
+++}
 })json");
 
 	ASSERT_EQ(result_json.str(), expected_json);

@@ -17,11 +17,12 @@ public:
 
 	template<typename M>
 	void check_option(const std::string & name) const {
-		static_assert(detail::is_integral_or_floating_point_or_string_v<M>, "bad option (Default): option can only be applied to types: bool, integer, floating point or std::string");
 		static_assert(!std::is_same_v<M, bool> || std::is_same_v<T, bool>, "bad option (Default): type error, expected bool");
 		static_assert(!detail::is_integer_v<M> || detail::is_integer_v<T>, "bad option (Default): type error, expected integer");
 		static_assert(!std::is_floating_point_v<M> || detail::is_integer_or_floating_point_v<T>, "bad option (Default): type error, expected integer or floating point");
 		static_assert(!std::is_same_v<M, std::string> || std::is_same_v<T, std::string> || std::is_same_v<T, const char *>, "bad option (Default): type error, expected string");
+		static_assert(!std::is_enum_v<M> || std::is_enum_v<T>, "bad option (Default): type error, expected enumeration");
+		static_assert(detail::is_integral_or_floating_point_or_string_v<M> || std::is_same_v<std::decay_t<M>, std::decay_t<T>>, "bad option (Default): type error");
 
 		if constexpr (detail::is_integer_or_floating_point_v<M>) {
 			if (!in_limits<M>()) {
@@ -34,9 +35,8 @@ public:
 		}
 	}
 
-	template<typename V>
-	V get_value() const {
-		return static_cast<V>(value);
+	auto get_value() const {
+		return value;
 	}
 
 private:

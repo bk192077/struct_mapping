@@ -11,17 +11,20 @@
 - [Использование](#usage)
 	- [Реализация сценария со структурой Person](#implementing_a_scenario_with_a_Person_structure)
 	- [Отображение json на структуру c++](#mapping_json_to_c_plus_plus_structure)
+		- [Перечисления](#mapping_json_to_c_plus_plus_structure_enumeration)
 		- [Пример использования простых типов](#simple_types_example)
 		- [Пример использования структур](#structure_example)
+		- [Пример использования перечислений](#enumeration_example)
 		- [Пример использования последовательных контейнеров](#sequence_container_example)
 		- [Пример использования ассоциативных контейнеров](#associative_container_example)
 		- [Опции отображения](#options)
 			- [Bounds](#options_bounds)
 			- [Default](#options_default)
 			- [NotEmpty](#options_not_empty)
+			- [Required](#options_required)
 			- [Пример использования опций](#options_example)
 	- [Обратное отображение структуры c++ на json](#reverse_mapping_of_c_plus_plus_structure_to_json)
-	- [Регистрация членов-данных, совмещенная с инициализацией](#registration_of_data_members_combined_with_initialization)
+	- [Регистрация полей, совмещенная с инициализацией](#registration_of_data_members_combined_with_initialization)
 - [Генерируемые исключения](#exceptions)
 
 ## Отображение json на структуру c++ и обратно <div id="introduction"></div>
@@ -79,7 +82,7 @@ StructMapping пытается решить эти задачи
 * GNU C++ 10.1.0 | Linux
 * Visual C++ 2019 and Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64 | Windows 64-bit (кроме тестов)
 
-В качестве типов членов-данных могут быть использованы:
+В качестве типов полей могут быть использованы:
 
 * bool
 * char, unsigned char, short, unsigned short, int unsigned int, long, long long
@@ -92,6 +95,7 @@ StructMapping пытается решить эти задачи
 * std::multimap (ключем может быть только std::string)
 * std::unordered_multimap (ключем может быть только std::string)
 * структуры с++
+* перечисления
 
 ## Установка <div id="installation"></div>
 
@@ -209,15 +213,15 @@ Jeebs : 42 : true
 
 ### Отображение json на структуру c++ <div id="mapping_json_to_c_plus_plus_structure"></div>
 
-Для отображения json на структуру необходимо зарегистрировать все члены-данные всех структур, которые требуется отображать, используя для каждого поля функцию
+Для отображения json на структуру необходимо зарегистрировать все поля всех структур, которые требуется отображать, используя для каждого поля функцию
 
 ```cpp
 template<typename T, typename V, typename ... U, template<typename> typename ... Options>
 inline void reg(V T::* ptr, std::string const & name, Options<U>&& ... options);
 ```
 
-- `ptr` - указатель на член-данные
-- `name` - имя члена
+- `ptr` - указатель на поле
+- `name` - имя поля
 - `options` - [опции отображения](#options)
 
 и вызвать функцию
@@ -230,7 +234,45 @@ inline void map_json_to_struct(T & result_struct, std::basic_istream<char> & jso
 - `result_struct` - ссылка на результирующую структуру
 - `json_data` - ссылка на входной поток json данных
 
-В процессе отображения проверяется соответствие типов членов данных типам устанавливаемого значения и (для чисел) устанавливаемое значение проверяется на выход из диапазона значений типа члена данных. При несоответствии типов или выхода знаения за границы диапазона генерируются [исключения](#exceptions).
+В процессе отображения проверяется соответствие типов полей типам устанавливаемого значения и (для чисел) устанавливаемое значение проверяется на выход из диапазона значений типа поля. При несоответствии типов или выхода значения за границы диапазона генерируются [исключения](#exceptions).
+
+#### Перечисления <div id="mapping_json_to_c_plus_plus_structure_enumeration"></div>
+
+Перечисления в json будут представляться в виде строк. Поэтому для использования перечислений требуется установить методы преобразования из строки в значение перечисления и наоборот, используя:
+
+```cpp
+template<typename From, typename To>
+static void MemberString::set(From function_from_string_, To function_to_string_);
+```
+
+- `function_from_string_` - функция преобразования из строки в значение перечисления
+- `function_to_string_` - функция преобразования из значения перечисления в строку
+
+например
+
+```cpp
+enum class Color {
+ red,
+ blue,
+ green,
+};
+
+struct_mapping::MemberString<Color>::set(
+ [] (const std::string & value) {
+  if (value == "red") return Color::red;
+  if (value == "green") return Color::green;
+  if (value == "blue") return Color::blue;
+
+  throw struct_mapping::StructMappingException("bad convert '" + value + "' to Color");
+ },
+ [] (Color value) {
+  switch (value) {
+  case Color::red: return "red";
+  case Color::green: return "green";
+  default: return "blue";
+  }
+ });
+```
 
 #### пример использования простых типов <div id="simple_types_example"></div>
 
@@ -336,6 +378,98 @@ int main() {
 earth.president:
  name : Agent K
  mass : 75.6
+```
+
+#### пример использования перечислений <div id="enumeration_example"></div>
+
+[example/enumeration](/example/enumeration/enumeration.cpp)
+
+```cpp
+#include <iostream>
+#include <list>
+#include <map>
+#include <sstream>
+#include <string>
+
+#include "struct_mapping/struct_mapping.h"
+
+namespace sm = struct_mapping;
+
+enum class Color {
+ red,
+ blue,
+ green,
+};
+
+Color color_from_string(const std::string & value) {
+ if (value == "red") return Color::red;
+ if (value == "blue") return Color::blue;
+
+ return Color::green;
+}
+
+std::string color_to_string(Color color) {
+ switch (color) {
+ case Color::red: return "red";
+ case Color::green: return "green";
+ default: return "blue";
+ }
+}
+
+struct Palette {
+ Color main_color;
+ Color background_color;
+ std::list<Color> special_colors;
+ std::map<std::string, Color> colors;
+
+ friend std::ostream & operator<<(std::ostream & os, const Palette & o) {
+  os << "main_color       : " << color_to_string(o.main_color) << std::endl;
+  os << "background_color : " << color_to_string(o.background_color) << std::endl;
+  os << "special_colors   : ";
+  for (auto color : o.special_colors) os << color_to_string(color) << ", ";
+  os << std::endl << "colors           : ";
+  for (auto [name, color] : o.colors) os << "[" << name << ", " << color_to_string(color) << "], ";
+  os << std::endl;
+
+  return os;
+ }
+};
+
+int main() {
+ sm::MemberString<Color>::set(color_from_string, color_to_string);
+
+ sm::reg(&Palette::main_color, "main_color", sm::Required{});
+ sm::reg(&Palette::background_color, "background_color", sm::Default{Color::blue});
+ sm::reg(&Palette::special_colors, "special_colors");
+ sm::reg(&Palette::colors, "colors");
+
+ Palette palette;
+
+ std::istringstream json_data(R"json(
+ {
+  "main_color": "green",
+  "special_colors": ["green", "green", "red"],
+  "colors": {
+   "dark": "green",
+   "light": "red",
+   "neutral": "blue"
+  }
+ }
+ )json");
+
+ sm::map_json_to_struct(palette, json_data);
+
+ std::cout << palette << std::endl;
+}
+```
+
+результат
+
+```cpp
+main_color       : green
+background_color : blue
+special_colors   : green, green, red, 
+colors           : [dark, green], [light, red], [neutral, blue],
 ```
 
 #### пример использования последовательных контейнеров <div id="sequence_container_example"></div>
@@ -597,7 +731,7 @@ library:
 
 #### Опции отображения <div id="options"></div>
 
-При регистрации члена-данные можно указывать одну или несколько опций, которые будут настраивать отображение.
+При регистрации поля можно указывать одну или несколько опций, которые будут настраивать отображение.
 
 ##### Bounds <div id="options_bounds"></div>
 
@@ -615,7 +749,7 @@ reg(&Stage::engine_count, "engine_count", Bounds{1, 31});
 
 ##### Default <div id="options_default"></div>
 
-Устанавливает значение по умолчанию для члена-данные. Применима для bool, целочисленных типов, типов с плавающей точкой и строк. Опция принимает один параметр - значение по умолчанию.
+Устанавливает значение по умолчанию для поля. Применима для bool, целочисленных типов, типов с плавающей точкой, строк, контейнеров, структур с++ и перечислений. Опция принимает один параметр - значение по умолчанию.
 
 ```cpp
 Default{значение по умолчанию}
@@ -629,12 +763,22 @@ reg(&Stage::engine_count, "engine_count", Default{3});
 
 ##### NotEmpty <div id="options_not_empty"></div>
 
-Отмечает, что для члена-данные не может быть установлено пустое значение. Применима для строк. Опция не принимает параметров. Генерирует [исключение](#exceptions), если после завершения отображения значением поля является пустая строка.
+Отмечает, что для поля не может быть установлено пустое значение. Применима для строк и контейнеров. Опция не принимает параметров. Генерирует [исключение](#exceptions), если после завершения отображения значением поля является пустая строка или пустой контейнер.
 
 Пример задания опции:
 
 ```cpp
 reg(&Spacecraft::name, "name", NotEmpty{}));
+```
+
+##### Required <div id="options_required"></div>
+
+Отмечает, что для поля обязательно должно быть установлено значение. Применима для bool, целочисленных типов, типов с плавающей точкой, строк, контейнеров, структур с++ и перечислений. Опция не принимает параметров. Генерирует [исключение](#exceptions), если после завершения отображения значение для поля не было установлено.
+
+Пример задания опции:
+
+```cpp
+reg(&Spacecraft::name, "name", Required{}));
 ```
 
 ##### Пример использования опций <div id="options_example"></div>
@@ -643,6 +787,8 @@ reg(&Spacecraft::name, "name", NotEmpty{}));
 
 ```cpp
 #include <iostream>
+#include <list>
+#include <map>
 #include <sstream>
 #include <string>
 
@@ -656,9 +802,9 @@ struct Stage {
  long length;
 
  friend std::ostream & operator<<(std::ostream & os, const Stage & o) {
-  os << " engine_count : " << o.engine_count << std::endl;
-  os << " fuel         : " << o.fuel << std::endl;
-  os << " length       : " << o.length << std::endl;
+  os << "  engine_count : " << o.engine_count << std::endl;
+  os << "  fuel         : " << o.fuel << std::endl;
+  os << "  length       : " << o.length << std::endl;
 
   return os;
  }
@@ -668,15 +814,17 @@ struct Spacecraft {
  bool in_development;
  std::string name;
  int mass;
- Stage first_stage;
- Stage second_stage;
+ std::map<std::string, Stage> stages;
+ std::list<std::string> crew;
 
  friend std::ostream & operator<<(std::ostream & os, const Spacecraft & o) {
   os << "in_development : " << std::boolalpha << o.in_development << std::endl;
   os << "name           : " << o.name << std::endl;
-  os << "mass           : " << o.mass << std::endl << std::endl;
-  os << "first stage: " << std::endl << o.first_stage << std::endl;
-  os << "second stage: " << std::endl << o.second_stage << std::endl;
+  os << "mass           : " << o.mass << std::endl;
+  os << "stages: " << std::endl;
+  for (auto& s : o.stages) os << " " << s.first << std::endl << s.second;
+  os << "crew: " << std::endl;
+  for (auto& p : o.crew) os << " " << p << std::endl;
 
   return os;
  }
@@ -687,23 +835,27 @@ int main() {
  sm::reg(&Stage::fuel, "fuel", sm::Default{"subcooled"});
  sm::reg(&Stage::length, "length", sm::Default{50});
 
- sm::reg(&Spacecraft::in_development, "in_development", sm::Default{true});
+ sm::reg(&Spacecraft::in_development, "in_development", sm::Required{});
  sm::reg(&Spacecraft::name, "name", sm::NotEmpty{});
  sm::reg(&Spacecraft::mass, "mass", sm::Default{5000000}, sm::Bounds{100000, 10000000});
- sm::reg(&Spacecraft::first_stage, "first_stage");
- sm::reg(&Spacecraft::second_stage, "second_stage");
+ sm::reg(&Spacecraft::stages, "stages", sm::NotEmpty{});
+ sm::reg(&Spacecraft::crew, "crew", sm::Default{std::list<std::string>{"Arthur", "Ford", "Marvin"}});
 
  Spacecraft starship;
 
  std::istringstream json_data(R"json(
-  {
-   "name": "Vostok",
-   "second_stage": {
-     "engine_count": 31,
-     "fuel": "compressed gas",
-     "length": 70
-   }
+ {
+  "in_development": false,
+  "name": "Vostok",
+  "stages": {
+   "first": {
+    "engine_count": 31,
+    "fuel": "compressed gas",
+    "length": 70
+   },
+   "second": {}
   }
+ }
  )json");
 
  sm::map_json_to_struct(starship, json_data);
@@ -715,32 +867,35 @@ int main() {
 результат
 
 ```cpp
-in_development : true
+in_development : false
 name           : Vostok
 mass           : 5000000
-
-first stage: 
- engine_count : 6
- fuel         : subcooled
- length       : 50
-
-second stage: 
- engine_count : 31
- fuel         : compressed gas
- length       : 70
+stages: 
+ first
+  engine_count : 31
+  fuel         : compressed gas
+  length       : 70
+ second
+  engine_count : 6
+  fuel         : subcooled
+  length       : 50
+crew: 
+ Arthur
+ Ford
+ Marvin
 ```
 
 ### Обратное отображение структуры c++ на json <div id="reverse_mapping_of_c_plus_plus_structure_to_json"></div>
 
-Для обратного отображения структуры на json необходимо зарегистрировать все члены-данные всех структур, которые требуется отображать, используя для каждого поля функцию
+Для обратного отображения структуры на json необходимо зарегистрировать все поля всех структур, которые требуется отображать, используя для каждого поля функцию
 
 ```cpp
 template<typename T, typename V, typename ... U, template<typename> typename ... Options>
 inline void reg(V T::* ptr, std::string const & name, Options<U>&& ... options);
 ```
 
-- `ptr` - указатель на член-данные
-- `name` - имя члена
+- `ptr` - указатель на поле
+- `name` - имя поля
 - `options` - [опции отображения](#options)
 
 и вызвать функцию
@@ -900,9 +1055,9 @@ int main() {
 }
 ```
 
-### Регистрация членов-данных, совмещенная с инициализацией <div id="registration_of_data_members_combined_with_initialization"></div>
+### Регистрация полей, совмещенная с инициализацией <div id="registration_of_data_members_combined_with_initialization"></div>
 
-Чтобы не выносить регистрацию членов-данных из структуры можно совместить регистрацию с инициализацией
+Чтобы не выносить регистрацию полей из структуры можно совместить регистрацию с инициализацией
 
 [example/in_struct_reg](/example/in_struct_reg/in_struct_reg.cpp)
 
@@ -961,7 +1116,7 @@ BEGIN_STRUCT(Planet)
 ```
 
 #### MEMBER
-Добавляет член-данные, регистрирует его и инициализирует его значением по умолчанию:
+Добавляет поле, регистрирует его и инициализирует его значением по умолчанию:
 
 MEMBER(тип, название)
 
@@ -1027,10 +1182,12 @@ int main() {
 StructMapping генерирует в процессе отображения исключение `StructMappingException`
 
 * при установке значения для незарегистрированного поля (в json имя значения в объекте не сответствуют ни одному из зарегистрированных полей с++ структуры)
-* при установке значения, тип которого не соответствует типу поля
+* при установке значения, тип которого не соответствует типу поля (для перечислений при установке значений отличных от строки)
 * (для числовых полей) при установке значения , величина которого выходит за границы типа поля
+* при использовании перечисления, если для него не бьли заданы функции преобразования в строку/из строки
 * при установке значения, величина которого выходит за границы, установленные опцией Bounds
-* при пустом строковом поле, если для него была установлена опция NotEmpty
+* при пустой строке или контейнере, если для была установлена опция NotEmpty
+* если была задана опция Required, но значение не было установлено 
 * при задании для опции Bounds значения, которое выходит за границы диапазона значений для типа поля
 * при задании для опции Bounds значений, когда значение нижней границы больше значения верхней границы
 * при задании для опции Default значения, которое выходит за границы диапазона значений для типа поля

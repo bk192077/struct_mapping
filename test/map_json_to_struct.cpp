@@ -484,7 +484,6 @@ TEST(struct_mapping_map_json_to_struct, member_map_struct) {
 	ASSERT_EQ(result_struct.member_map_a["2"].member_string, "second");
 }
 
-
 struct Struct_map_struct_struct_A {
 	std::string member_string;
 };
@@ -526,6 +525,135 @@ TEST(struct_mapping_map_json_to_struct, member_map_struct_struct) {
 	ASSERT_EQ(result_struct.member_map_struct_b.size(), 2);
 	ASSERT_EQ(result_struct.member_map_struct_b["1"].member_struct_a.member_string, "first");
 	ASSERT_EQ(result_struct.member_map_struct_b["2"].member_struct_a.member_string, "second");
+}
+
+enum Enum {
+	Enum_v1,
+	Enum_v2,
+	Enum_v3
+};
+
+struct Struct_enum {
+	Enum value;
+};
+
+TEST(struct_mapping_map_json_to_struct, enum) {
+	struct_mapping::MemberString<Enum>::set([] (const std::string & value) {
+		if (value == "Enum_v1") return Enum_v1;
+		if (value == "Enum_v2") return Enum_v2;
+		if (value == "Enum_v3") return Enum_v3;
+
+		throw struct_mapping::StructMappingException("bad convert '" + value + "' to Enum");
+	},
+	[] (Enum value) {
+		switch (value) {
+		case Enum_v1: return "Enum_v1";
+		case Enum_v2: return "Enum_v2";
+		case Enum_v3: return "Enum_v3";
+		}
+
+		throw struct_mapping::StructMappingException("bad convert Enum '" + std::to_string(value) + "' to string");
+	});
+
+	Struct_enum result_struct;
+
+	struct_mapping::reg(&Struct_enum::value, "value");
+
+	std::istringstream json_data(R"json(
+	{
+		"value": "Enum_v2"
+	}
+	)json");
+
+	struct_mapping::map_json_to_struct(result_struct, json_data);
+
+	ASSERT_EQ(result_struct.value, Enum_v2);
+}
+
+enum class Enum_list {
+	v1,
+	v2,
+	v3
+};
+
+struct Struct_enum_list {
+	std::list<Enum_list> values;
+};
+
+TEST(struct_mapping_map_json_to_struct, enum_list) {
+	struct_mapping::MemberString<Enum_list>::set([] (const std::string & value) {
+		if (value == "v1") return Enum_list::v1;
+		if (value == "v2") return Enum_list::v2;
+		if (value == "v3") return Enum_list::v3;
+
+		throw struct_mapping::StructMappingException("bad convert '" + value + "' to Enum_list");
+	},
+	[] (Enum_list value) {
+		switch (value) {
+		case Enum_list::v1: return "v1";
+		case Enum_list::v2: return "v2";
+		default: return "v3";
+		}
+	});
+
+	Struct_enum_list result_struct;
+
+	struct_mapping::reg(&Struct_enum_list::values, "values");
+
+	std::istringstream json_data(R"json(
+	{
+		"values": ["v2", "v1", "v2"]
+	}
+	)json");
+
+	struct_mapping::map_json_to_struct(result_struct, json_data);
+
+	ASSERT_THAT(result_struct.values, ElementsAre(Enum_list::v2, Enum_list::v1, Enum_list::v2));
+}
+
+enum class Enum_map {
+	v1,
+	v2,
+	v3
+};
+
+struct Struct_enum_map {
+	std::map<std::string, Enum_map> values;
+};
+
+TEST(struct_mapping_map_json_to_struct, enum_map) {
+	struct_mapping::MemberString<Enum_map>::set([] (const std::string & value) {
+		if (value == "v1") return Enum_map::v1;
+		if (value == "v2") return Enum_map::v2;
+		if (value == "v3") return Enum_map::v3;
+
+		throw struct_mapping::StructMappingException("bad convert '" + value + "' to Enum_map");
+	},
+	[] (Enum_map value) {
+		switch (value) {
+		case Enum_map::v1: return "v1";
+		case Enum_map::v2: return "v2";
+		default: return "v3";
+		}
+	});
+
+	Struct_enum_map result_struct;
+
+	struct_mapping::reg(&Struct_enum_map::values, "values");
+
+	std::istringstream json_data(R"json(
+	{
+		"values": {
+			"first": "v2",
+			"second": "v3",
+			"third": "v2"
+		}
+	}
+	)json");
+
+	struct_mapping::map_json_to_struct(result_struct, json_data);
+
+	ASSERT_THAT(result_struct.values, ElementsAre(Pair("first", Enum_map::v2), Pair("second", Enum_map::v3), Pair("third", Enum_map::v2)));
 }
 
 }

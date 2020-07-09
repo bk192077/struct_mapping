@@ -10,6 +10,8 @@
 
 #include "f.h"
 #include "f_struct.h"
+#include "member_string.h"
+#include "options/option_not_empty.h"
 
 namespace struct_mapping::detail {
 					
@@ -24,13 +26,11 @@ public:
 	template<typename V>
 	using ValueType = typename V::value_type;
 
-	static void finish(T & o) {
-		for (auto & v : o) {
-			if constexpr (!is_integral_or_floating_point_or_string_v<ValueType<T>>) F<ValueType<T>>::finish(v);
-		}
+	static void check_not_empty(T & o, const std::string & name) {
+		NotEmpty<>::check_result(o, name);
 	}
 
-	static void init(T &) {}
+	static void init() {}
 
 	static void iterate_over(T & o, const std::string & name) {
 		F_iterate_over::start_array(name);
@@ -40,6 +40,7 @@ public:
 			else if constexpr (std::is_integral_v<ValueType<T>>) F_iterate_over::set_integral("", v);
 			else if constexpr (std::is_floating_point_v<ValueType<T>>) F_iterate_over::set_floating_point("", v);
 			else if constexpr (std::is_same_v<ValueType<T>, std::string>) F_iterate_over::set_string("", v);
+			else if constexpr (std::is_enum_v<ValueType<T>>) F_iterate_over::set_string("",MemberString<ValueType<T>>::to_string()(v));
 			else F<ValueType<T>>::iterate_over(v, "");
 		}
 
@@ -50,7 +51,7 @@ public:
 		if (!used) {
 			return true;
 		}	else {
-			if constexpr (!is_integral_or_floating_point_or_string_v<ValueType<T>>) {
+			if constexpr (is_complex_v<ValueType<T>>) {
 				if (F<ValueType<T>>::release(get_last_inserted())) {
 					used = false;
 				}
@@ -70,7 +71,7 @@ public:
 				last_inserted = insert(o, value);
 			} else throw StructMappingException("bad type (bool) '" + (value ? std::string("true") : std::string("false")) + "' in array_like at index " + std::to_string(o.size()));
 		} else {
-			if constexpr (!is_integral_or_floating_point_or_string_v<ValueType<T>>) {
+			if constexpr (is_complex_v<ValueType<T>>) {
 				F<ValueType<T>>::set_bool(get_last_inserted(), name, value);
 			}
 		}
@@ -89,7 +90,7 @@ public:
 				last_inserted = insert(o, static_cast<ValueType<T>>(value));
 			} else throw StructMappingException("bad type (floating point) '" + std::to_string(value) + "' in array_like at index " + std::to_string(o.size()));
 		} else {
-			if constexpr (!is_integral_or_floating_point_or_string_v<ValueType<T>>) {
+			if constexpr (is_complex_v<ValueType<T>>) {
 				F<ValueType<T>>::set_floating_point(get_last_inserted(), name, value);
 			}
 		}
@@ -108,7 +109,7 @@ public:
 				last_inserted = insert(o, static_cast<ValueType<T>>(value));
 			} else throw StructMappingException("bad type (integer) '" + std::to_string(value) + "' in array_like at index " + std::to_string(o.size()));
 		} else {
-			if constexpr (!is_integral_or_floating_point_or_string_v<ValueType<T>>) {
+			if constexpr (is_complex_v<ValueType<T>>) {
 				F<ValueType<T>>::set_integral(get_last_inserted(), name, value);
 			}
 		}
@@ -118,20 +119,22 @@ public:
 		if (!used) {
 			if constexpr (std::is_same_v<ValueType<T>, std::string>) {
 				last_inserted = insert(o, value);
+			} else if constexpr (std::is_enum_v<ValueType<T>>) {
+ 				last_inserted = insert(o, MemberString<ValueType<T>>::from_string()(value));
 			} else throw StructMappingException("bad type (string) '" + value + "' in array_like at index " + std::to_string(o.size()));
 		} else {
-			if constexpr (!is_integral_or_floating_point_or_string_v<ValueType<T>>) {
+			if constexpr (is_complex_v<ValueType<T>>) {
 				F<ValueType<T>>::set_string(get_last_inserted(), name, value);
 			}
 		}
 	}
 
 	static void use(T & o, const std::string & name) {
-		if constexpr (!is_integral_or_floating_point_or_string_v<ValueType<T>>) {
+		if constexpr (is_complex_v<ValueType<T>>) {
 			if (!used) {
 				used = true;
 				last_inserted = insert(o, ValueType<T>{});
-				F<ValueType<T>>::init(*last_inserted);
+				F<ValueType<T>>::init();
 			}	else {
 				F<ValueType<T>>::use(get_last_inserted(), name);
 			}
