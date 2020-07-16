@@ -1,8 +1,10 @@
 #include <iostream>
 #include <list>
 #include <map>
+#include <set>
 #include <sstream>
 #include <string>
+#include <unordered_set>
 
 #include "struct_mapping/struct_mapping.h"
 
@@ -28,6 +30,8 @@ struct Spacecraft {
 	int mass;
 	std::map<std::string, Stage> stages;
 	std::list<std::string> crew;
+	std::set<int> ids;
+	std::unordered_set<std::string> tools;
 
 	friend std::ostream & operator<<(std::ostream & os, const Spacecraft & o) {
 		os << "in_development : " << std::boolalpha << o.in_development << std::endl;
@@ -37,6 +41,10 @@ struct Spacecraft {
 		for (auto& s : o.stages) os << " " << s.first << std::endl << s.second;
 		os << "crew: " << std::endl;
 		for (auto& p : o.crew) os << " " << p << std::endl;
+		os << "ids: " << std::endl;
+		for (auto& i : o.ids) os << " " << i << std::endl;
+		os << "tools: " << std::endl;
+		for (auto& t : o.tools) os << " " << t << std::endl;
 
 		return os;
 	}
@@ -52,6 +60,8 @@ int main() {
 	sm::reg(&Spacecraft::mass, "mass", sm::Default{5000000}, sm::Bounds{100000, 10000000});
 	sm::reg(&Spacecraft::stages, "stages", sm::NotEmpty{});
 	sm::reg(&Spacecraft::crew, "crew", sm::Default{std::list<std::string>{"Arthur", "Ford", "Marvin"}});
+	sm::reg(&Spacecraft::ids, "ids", sm::Default{std::set<int>{14, 159}});
+	sm::reg(&Spacecraft::tools, "tools", sm::NotEmpty{});
 
 	Spacecraft starship;
 
@@ -66,7 +76,12 @@ int main() {
 				"length": 70
 			},
 			"second": {}
-		}
+		},
+		"tools": [
+			"Reverberating Carbonizer With Mutate Capacity",
+			"Noisy Cricket",
+			"The Series 4 De-Atomizer"
+		]
 	}
 	)json");
 

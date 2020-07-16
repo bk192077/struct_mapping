@@ -3,14 +3,15 @@
 
 #include <functional>
 #include <istream>
+#include <iostream>
 #include <ostream>
 #include <string>
 
 #include "debug.h"
 #include "f.h"
+#include "f_array_like.h"
+#include "f_map_like.h"
 #include "f_struct.h"
-#include "f_array.h"
-#include "f_map.h"
 #include "parser.h"
 
 namespace struct_mapping {

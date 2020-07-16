@@ -1,5 +1,5 @@
-#ifndef STRUCT_MAPPING_F_MAP_H
-#define STRUCT_MAPPING_F_MAP_H
+#ifndef STRUCT_MAPPING_F_ARRAY_LIKE_H
+#define STRUCT_MAPPING_F_ARRAY_LIKE_H
 
 #include <functional>
 #include <limits>
@@ -14,17 +14,17 @@
 #include "options/option_not_empty.h"
 
 namespace struct_mapping::detail {
-					
+
 template<typename T>
-class F<T, false, true> {
+class F<T, true, false> {
 public:
 	template<typename V>
 	using Member_ptr = V T::*;
 
-	using Iterator = typename T::iterator;
-
 	template<typename V>
-	using ValueType = typename V::mapped_type;
+	using ValueType = typename V::value_type;
+
+	using LastInserted = std::conditional_t<has_key_type_v<T>, ValueType<T>, typename T::iterator>;
 
 	static void check_not_empty(T & o, const std::string & name) {
 		NotEmpty<>::check_result(o, name);
@@ -33,27 +33,29 @@ public:
 	static void init() {}
 
 	static void iterate_over(T & o, const std::string & name) {
-		F_iterate_over::start_struct(name);
+		F_iterate_over::start_array(name);
 		
-		for (auto & [n, v] : o) {
-			if constexpr (std::is_same_v<ValueType<T>, bool>) F_iterate_over::set_bool(n, v);
-			else if constexpr (std::is_integral_v<ValueType<T>>) F_iterate_over::set_integral(n, v);
-			else if constexpr (std::is_floating_point_v<ValueType<T>>) F_iterate_over::set_floating_point(n, v);
-			else if constexpr (std::is_same_v<ValueType<T>, std::string>) F_iterate_over::set_string(n, v);
-			else if constexpr (std::is_enum_v<ValueType<T>>) F_iterate_over::set_string(n, MemberString<ValueType<T>>::to_string()(v));
-			else F<ValueType<T>>::iterate_over(v, n);
+		for (auto & v : o) {
+			if constexpr (std::is_same_v<ValueType<T>, bool>) F_iterate_over::set_bool("", v);
+			else if constexpr (std::is_integral_v<ValueType<T>>) F_iterate_over::set_integral("", v);
+			else if constexpr (std::is_floating_point_v<ValueType<T>>) F_iterate_over::set_floating_point("", v);
+			else if constexpr (std::is_same_v<ValueType<T>, std::string>) F_iterate_over::set_string("", v);
+			else if constexpr (std::is_enum_v<ValueType<T>>) F_iterate_over::set_string("",MemberString<ValueType<T>>::to_string()(v));
+			else if constexpr (has_key_type_v<T>) F<ValueType<T>>::iterate_over(const_cast<ValueType<T>&>(v), "");
+			else F<ValueType<T>>::iterate_over(v, "");
 		}
 
-		F_iterate_over::end_struct();
+		F_iterate_over::end_array();
 	}
 
-	static bool release(T &) {
+	static bool release(T & o) {
 		if (!used) {
 			return true;
 		}	else {
 			if constexpr (is_complex_v<ValueType<T>>) {
 				if (F<ValueType<T>>::release(get_last_inserted())) {
 					used = false;
+					if constexpr (has_key_type_v<T>) insert(o, std::move(last_inserted));
 				}
 				return false;
 			}
@@ -68,8 +70,8 @@ public:
 	static void set_bool(T & o, const std::string & name, bool value) {
 		if (!used) {
 			if constexpr (std::is_same_v<ValueType<T>, bool>) {
-				last_inserted = insert(o, name, value);
-			} else throw StructMappingException("bad type (bool) '" + (value ? std::string("true") : std::string("false")) + "' at name '" + name + "' in map_like");
+				insert(o, value);
+			} else throw StructMappingException("bad type (bool) '" + (value ? std::string("true") : std::string("false")) + "' in array_like at index " + std::to_string(o.size()));
 		} else {
 			if constexpr (is_complex_v<ValueType<T>>) {
 				F<ValueType<T>>::set_bool(get_last_inserted(), name, value);
@@ -82,13 +84,13 @@ public:
 			if constexpr (std::is_floating_point_v<ValueType<T>>) {
 				if (!detail::in_limits<ValueType<T>>(value)) {
 					throw StructMappingException(
-						"bad value '" + std::to_string(value) + "' at name '" + name + "' in map_like is out of limits of type [" +
+						"bad value '" + std::to_string(value) + "' in array_like at index " + std::to_string(o.size()) + " is out of limits of type [" +
 						std::to_string(std::numeric_limits<ValueType<T>>::lowest()) +
 						" : " +
 						std::to_string(std::numeric_limits<ValueType<T>>::max()) + "]");
 				}
-				last_inserted = insert(o, name, static_cast<ValueType<T>>(value));
-			} else throw StructMappingException("bad type (floating point) '" + std::to_string(value) + "' at name '" + name + "' in map_like");
+				insert(o, static_cast<ValueType<T>>(value));
+			} else throw StructMappingException("bad type (floating point) '" + std::to_string(value) + "' in array_like at index " + std::to_string(o.size()));
 		} else {
 			if constexpr (is_complex_v<ValueType<T>>) {
 				F<ValueType<T>>::set_floating_point(get_last_inserted(), name, value);
@@ -101,13 +103,13 @@ public:
 			if constexpr (detail::is_integer_or_floating_point_v<ValueType<T>>) {
 				if (!detail::in_limits<ValueType<T>>(value)) {
 					throw StructMappingException(
-						"bad value '" + std::to_string(value) + "' at name '" + name + "' in map_like is out of limits of type [" +
+						"bad value '" + std::to_string(value) + "' in array_like at index " + std::to_string(o.size()) + " is out of limits of type [" +
 						std::to_string(std::numeric_limits<ValueType<T>>::lowest()) +
 						" : " +
 						std::to_string(std::numeric_limits<ValueType<T>>::max()) + "]");
 				}
-				last_inserted = insert(o, name, static_cast<ValueType<T>>(value));
-			} else throw StructMappingException("bad type (integer) '" + std::to_string(value) + "' at name '" + name + "' in map_like");
+				insert(o, static_cast<ValueType<T>>(value));
+			} else throw StructMappingException("bad type (integer) '" + std::to_string(value) + "' in array_like at index " + std::to_string(o.size()));
 		} else {
 			if constexpr (is_complex_v<ValueType<T>>) {
 				F<ValueType<T>>::set_integral(get_last_inserted(), name, value);
@@ -118,10 +120,10 @@ public:
 	static void set_string(T & o, const std::string & name, const std::string & value) {
 		if (!used) {
 			if constexpr (std::is_same_v<ValueType<T>, std::string>) {
-				last_inserted = insert(o, name, value);
+				insert(o, value);
 			} else if constexpr (std::is_enum_v<ValueType<T>>) {
- 				last_inserted = insert(o, name, MemberString<ValueType<T>>::from_string()(value));
-			} else throw StructMappingException("bad type (string) '" + value + "' at name '" + name + "' in map_like");
+ 				insert(o, MemberString<ValueType<T>>::from_string()(value));
+			} else throw StructMappingException("bad type (string) '" + value + "' in array_like at index " + std::to_string(o.size()));
 		} else {
 			if constexpr (is_complex_v<ValueType<T>>) {
 				F<ValueType<T>>::set_string(get_last_inserted(), name, value);
@@ -133,7 +135,13 @@ public:
 		if constexpr (is_complex_v<ValueType<T>>) {
 			if (!used) {
 				used = true;
-				last_inserted = insert(o, name, ValueType<T>{});
+
+				if constexpr (has_key_type_v<T>) {
+					last_inserted = ValueType<T>{};
+				} else {
+					last_inserted = o.insert(o.end(), ValueType<T>{});
+				}
+
 				F<ValueType<T>>::init();
 			}	else {
 				F<ValueType<T>>::use(get_last_inserted(), name);
@@ -142,21 +150,23 @@ public:
 	}
 
 private:
-	static inline Iterator last_inserted;
+	static inline LastInserted last_inserted;
 	static inline bool used = false;
 
 	static auto & get_last_inserted() {
-		if constexpr (has_mapped_type_v<T>) return last_inserted->second;
-		else return *last_inserted;
+		if constexpr (has_key_type_v<T>) {
+			return last_inserted;
+		} else {
+			return *last_inserted;
+		}
 	}
 
 	template<typename V>
-	static Iterator insert(T & o, const std::string & name, const V & value) {
-		if constexpr (std::is_same_v<decltype(std::declval<T>().insert(typename T::value_type())), std::pair<Iterator, bool>>) {
-			auto [it, ok] = o.insert(std::make_pair(name, value));
-			return it;
-		} else if constexpr (std::is_same_v<decltype(std::declval<T>().insert(typename T::value_type())), Iterator>) {
-			return o.insert(std::make_pair(name, value));
+	static void insert(T & o, const V & value) {
+		if constexpr (has_key_type_v<T>) {
+			o.insert(value);
+		} else {
+			o.insert(o.end(), value);
 		}
 	}
 };

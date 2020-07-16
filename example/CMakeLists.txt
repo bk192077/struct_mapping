@@ -1,11 +1,11 @@
 set(EXAMPLES
-	array
+	array_like
 	containers
 	enumeration
 	how_it_work
 	in_struct_reg
 	macro_reg
-	map
+	map_like
 	options
 	options_default
 	person

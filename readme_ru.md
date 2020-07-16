@@ -90,6 +90,10 @@ StructMapping пытается решить эти задачи
 * std::string
 * std::list
 * std::vector
+* std::set (ожидается, что в json будет представлен массивом)
+* std::unordered_set (ожидается, что в json будет представлен массивом)
+* std::multiset (ожидается, что в json будет представлен массивом)
+* std::unordered_multiset (ожидается, что в json будет представлен массивом)
 * std::map (ключем может быть только std::string)
 * std::unordered_map (ключем может быть только std::string)
 * std::multimap (ключем может быть только std::string)
@@ -474,23 +478,36 @@ colors           : [dark, green], [light, red], [neutral, blue],
 
 #### пример использования последовательных контейнеров <div id="sequence_container_example"></div>
 
-[example/array](/example/array/array.cpp)
+[example/array_like](/example/array_like/array_like.cpp)
 
 ```cpp
 #include <iostream>
 #include <list>
+#include <set>
 #include <sstream>
+#include <string>
+#include <unordered_set>
 #include <vector>
 
 #include "struct_mapping/struct_mapping.h"
 
 struct Friend {
  std::string name;
- std::list<int> counters;
+ std::set<int> counters;
+
+ bool operator==(const Friend & o) const {
+  return name == o.name;
+ }
+};
+
+struct Friend_hash {
+ size_t operator()(const Friend & o) const {
+  return static_cast<size_t>(o.name.size());
+ }
 };
 
 struct MiB {
- std::list<Friend> friends;
+ std::unordered_set<Friend, Friend_hash> friends;
  std::vector<std::list<std::string>> alien_groups;
  std::vector<std::list<std::vector<std::string>>> planet_groups;
 };
@@ -640,7 +657,7 @@ mib:
 
 #### пример использования ассоциативных контейнеров <div id="associative_container_example"></div>
 
-[example/map](/example/map/map.cpp)
+[example/map_like](/example/map_like/map_like.cpp)
 
 ```cpp
 #include <iostream>
@@ -789,8 +806,10 @@ reg(&Spacecraft::name, "name", Required{}));
 #include <iostream>
 #include <list>
 #include <map>
+#include <set>
 #include <sstream>
 #include <string>
+#include <unordered_set>
 
 #include "struct_mapping/struct_mapping.h"
 
@@ -816,6 +835,8 @@ struct Spacecraft {
  int mass;
  std::map<std::string, Stage> stages;
  std::list<std::string> crew;
+ std::set<int> ids;
+ std::unordered_set<std::string> tools;
 
  friend std::ostream & operator<<(std::ostream & os, const Spacecraft & o) {
   os << "in_development : " << std::boolalpha << o.in_development << std::endl;
@@ -825,6 +846,10 @@ struct Spacecraft {
   for (auto& s : o.stages) os << " " << s.first << std::endl << s.second;
   os << "crew: " << std::endl;
   for (auto& p : o.crew) os << " " << p << std::endl;
+  os << "ids: " << std::endl;
+  for (auto& i : o.ids) os << " " << i << std::endl;
+  os << "tools: " << std::endl;
+  for (auto& t : o.tools) os << " " << t << std::endl;
 
   return os;
  }
@@ -840,6 +865,8 @@ int main() {
  sm::reg(&Spacecraft::mass, "mass", sm::Default{5000000}, sm::Bounds{100000, 10000000});
  sm::reg(&Spacecraft::stages, "stages", sm::NotEmpty{});
  sm::reg(&Spacecraft::crew, "crew", sm::Default{std::list<std::string>{"Arthur", "Ford", "Marvin"}});
+ sm::reg(&Spacecraft::ids, "ids", sm::Default{std::set<int>{14, 159}});
+ sm::reg(&Spacecraft::tools, "tools", sm::NotEmpty{});
 
  Spacecraft starship;
 
@@ -854,7 +881,12 @@ int main() {
     "length": 70
    },
    "second": {}
-  }
+  },
+  "tools": [
+   "Reverberating Carbonizer With Mutate Capacity",
+   "Noisy Cricket",
+   "The Series 4 De-Atomizer"
+  ]
  }
  )json");
 
@@ -883,6 +915,13 @@ crew:
  Arthur
  Ford
  Marvin
+ids: 
+ 14
+ 159
+tools: 
+ The Series 4 De-Atomizer
+ Noisy Cricket
+ Reverberating Carbonizer With Mutate Capacit
 ```
 
 ### Обратное отображение структуры c++ на json <div id="reverse_mapping_of_c_plus_plus_structure_to_json"></div>

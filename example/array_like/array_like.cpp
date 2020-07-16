@@ -1,18 +1,30 @@
 #include <iostream>
 #include <list>
+#include <set>
 #include <sstream>
 #include <string>
+#include <unordered_set>
 #include <vector>
 
 #include "struct_mapping/struct_mapping.h"
 
 struct Friend {
 	std::string name;
-	std::list<int> counters;
+	std::set<int> counters;
+
+	bool operator==(const Friend & o) const {
+		return name == o.name;
+	}
+};
+
+struct Friend_hash {
+	size_t operator()(const Friend & o) const {
+		return static_cast<size_t>(o.name.size());
+	}
 };
 
 struct MiB {
-	std::list<Friend> friends;
+	std::unordered_set<Friend, Friend_hash> friends;
 	std::vector<std::list<std::string>> alien_groups;
 	std::vector<std::list<std::vector<std::string>>> planet_groups;
 };

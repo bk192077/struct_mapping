@@ -1,9 +1,11 @@
 #include <cstdint>
 #include <list>
 #include <map>
+#include <set>
 #include <sstream>
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 #include "gmock/gmock.h"
@@ -654,6 +656,498 @@ TEST(struct_mapping_map_json_to_struct, enum_map) {
 	struct_mapping::map_json_to_struct(result_struct, json_data);
 
 	ASSERT_THAT(result_struct.values, ElementsAre(Pair("first", Enum_map::v2), Pair("second", Enum_map::v3), Pair("third", Enum_map::v2)));
+}
+
+struct Struct_set {
+	std::set<bool> member_set_bool;
+	std::set<int> member_set_int;
+	std::set<float> member_set_float;
+	std::set<std::string> member_set_string;
+};
+
+TEST(struct_mapping_map_json_to_struct, member_set) {
+	Struct_set result_struct;
+
+	struct_mapping::reg(&Struct_set::member_set_bool, "member_set_bool");
+	struct_mapping::reg(&Struct_set::member_set_int, "member_set_int");
+	struct_mapping::reg(&Struct_set::member_set_float, "member_set_float");
+	struct_mapping::reg(&Struct_set::member_set_string, "member_set_string");
+
+	std::istringstream json_data(R"json(
+	{
+		"member_set_bool": [true, false],
+		"member_set_int": [-10, -1, 0, 1, 10],
+		"member_set_float": [-10.5, -1, 0, 1, 10.5],
+		"member_set_string": ["first", "second"]
+	}
+	)json");
+
+	struct_mapping::map_json_to_struct(result_struct, json_data);
+
+	ASSERT_THAT(result_struct.member_set_bool, ElementsAre(false, true));
+	ASSERT_THAT(result_struct.member_set_int, ElementsAre(-10, -1, 0, 1, 10));
+	ASSERT_THAT(result_struct.member_set_float, ElementsAre(-10.5, -1, 0, 1, 10.5));
+	ASSERT_THAT(result_struct.member_set_string, ElementsAre("first", "second"));
+}
+
+struct Struct_multiset {
+	std::multiset<bool> member_set_bool;
+	std::multiset<int> member_set_int;
+	std::multiset<float> member_set_float;
+	std::multiset<std::string> member_set_string;
+};
+
+TEST(struct_mapping_map_json_to_struct, member_multiset) {
+	Struct_multiset result_struct;
+
+	struct_mapping::reg(&Struct_multiset::member_set_bool, "member_set_bool");
+	struct_mapping::reg(&Struct_multiset::member_set_int, "member_set_int");
+	struct_mapping::reg(&Struct_multiset::member_set_float, "member_set_float");
+	struct_mapping::reg(&Struct_multiset::member_set_string, "member_set_string");
+
+	std::istringstream json_data(R"json(
+	{
+		"member_set_bool": [true, false, false, true],
+		"member_set_int": [-10, -1, 0, 1, 10, -10, 0, 10],
+		"member_set_float": [-10.5, -1, 0, 1, 10.5, -10.5, -1, 0],
+		"member_set_string": ["first", "second", "first", "second"]
+	}
+	)json");
+
+	struct_mapping::map_json_to_struct(result_struct, json_data);
+
+	ASSERT_THAT(result_struct.member_set_bool, ElementsAre(false, false, true, true));
+	ASSERT_THAT(result_struct.member_set_int, ElementsAre(-10, -10, -1, 0, 0, 1, 10, 10));
+	ASSERT_THAT(result_struct.member_set_float, ElementsAre(-10.5, -10.5, -1, -1, 0, 0, 1, 10.5));
+	ASSERT_THAT(result_struct.member_set_string, ElementsAre("first", "first", "second", "second"));
+}
+
+struct Struct_unordered_set {
+	std::unordered_set<bool> member_set_bool;
+	std::unordered_set<int> member_set_int;
+	std::unordered_set<float> member_set_float;
+	std::unordered_set<std::string> member_set_string;
+};
+
+TEST(struct_mapping_map_json_to_struct, member_unordered_set) {
+	Struct_unordered_set result_struct;
+
+	struct_mapping::reg(&Struct_unordered_set::member_set_bool, "member_set_bool");
+	struct_mapping::reg(&Struct_unordered_set::member_set_int, "member_set_int");
+	struct_mapping::reg(&Struct_unordered_set::member_set_float, "member_set_float");
+	struct_mapping::reg(&Struct_unordered_set::member_set_string, "member_set_string");
+
+	std::istringstream json_data(R"json(
+	{
+		"member_set_bool": [true, false],
+		"member_set_int": [-10, -1, 0, 1, 10],
+		"member_set_float": [-10.5, -1, 0, 1, 10.5],
+		"member_set_string": ["first", "second"]
+	}
+	)json");
+
+	struct_mapping::map_json_to_struct(result_struct, json_data);
+
+	ASSERT_THAT(result_struct.member_set_bool, UnorderedElementsAre(false, true));
+	ASSERT_THAT(result_struct.member_set_int, UnorderedElementsAre(-10, -1, 0, 1, 10));
+	ASSERT_THAT(result_struct.member_set_float, UnorderedElementsAre(-10.5, -1, 0, 1, 10.5));
+	ASSERT_THAT(result_struct.member_set_string, UnorderedElementsAre("first", "second"));
+}
+
+struct Struct_unordered_multiset {
+	std::unordered_multiset<bool> member_set_bool;
+	std::unordered_multiset<int> member_set_int;
+	std::unordered_multiset<float> member_set_float;
+	std::unordered_multiset<std::string> member_set_string;
+};
+
+TEST(struct_mapping_map_json_to_struct, member_unordered_multiset) {
+	Struct_unordered_multiset result_struct;
+
+	struct_mapping::reg(&Struct_unordered_multiset::member_set_bool, "member_set_bool");
+	struct_mapping::reg(&Struct_unordered_multiset::member_set_int, "member_set_int");
+	struct_mapping::reg(&Struct_unordered_multiset::member_set_float, "member_set_float");
+	struct_mapping::reg(&Struct_unordered_multiset::member_set_string, "member_set_string");
+
+	std::istringstream json_data(R"json(
+	{
+		"member_set_bool": [true, false, false, true],
+		"member_set_int": [-10, -1, 0, 1, 10, -10, 0, 10],
+		"member_set_float": [-10.5, -1, 0, 1, 10.5, -10.5, -1, 0],
+		"member_set_string": ["first", "second", "first", "second"]
+	}
+	)json");
+
+	struct_mapping::map_json_to_struct(result_struct, json_data);
+
+	ASSERT_THAT(result_struct.member_set_bool, UnorderedElementsAre(false, false, true, true));
+	ASSERT_THAT(result_struct.member_set_int, UnorderedElementsAre(-10, -1, 0, 1, 10, -10, 0, 10));
+	ASSERT_THAT(result_struct.member_set_float, UnorderedElementsAre(-10.5, -1, 0, 1, 10.5, -10.5, -1, 0));
+	ASSERT_THAT(result_struct.member_set_string, UnorderedElementsAre("first", "second", "first", "second"));
+}
+
+struct Struct_set_struct_A {
+	std::string member_string;
+
+	bool operator<(const Struct_set_struct_A & o) const {
+		return member_string < o.member_string;
+	}
+};
+
+struct Struct_set_struct_B {
+	int member_int;
+	std::set<Struct_set_struct_A> member_set;
+
+	bool operator<(const Struct_set_struct_B & o) const {
+		return member_int < o.member_int;
+	}
+};
+
+struct Struct_set_struct_C {
+	std::set<Struct_set_struct_B> member;
+};
+
+TEST(struct_mapping_map_json_to_struct, member_set_struct) {
+	Struct_set_struct_C result_struct;
+
+	struct_mapping::reg(&Struct_set_struct_A::member_string, "member_string");
+	struct_mapping::reg(&Struct_set_struct_B::member_int, "member_int");
+	struct_mapping::reg(&Struct_set_struct_B::member_set, "member_set");
+	struct_mapping::reg(&Struct_set_struct_C::member, "member");
+
+	std::istringstream json_data(R"json(
+	{
+		"member": [
+			{
+				"member_int": 42,
+				"member_set": [
+					{
+						"member_string": "first"
+					},
+					{
+						"member_string": "second"
+					}
+				]
+			},
+			{
+				"member_int": 13,
+				"member_set": [
+					{
+						"member_string": "third"
+					}
+				]
+			}
+		]
+	}
+	)json");
+
+	struct_mapping::map_json_to_struct(result_struct, json_data);
+
+	ASSERT_EQ(result_struct.member.size(), 2);
+
+	ASSERT_NE(result_struct.member.find(
+		Struct_set_struct_B{
+			13,
+			std::set<Struct_set_struct_A>{
+				{
+					"third"
+				}
+			}
+		}
+	), result_struct.member.end());
+
+	ASSERT_NE(result_struct.member.find(
+		Struct_set_struct_B{
+			42,
+			std::set<Struct_set_struct_A>{
+				Struct_set_struct_A{
+					"first"
+				},
+				Struct_set_struct_A{
+					"second"
+				}
+			}
+		}
+	), result_struct.member.end());
+}
+
+struct Struct_unordered_set_struct_A {
+	std::string member_string;
+
+	bool operator==(const Struct_unordered_set_struct_A & o) const {
+		return member_string == o.member_string;
+	}
+};
+
+struct Struct_unordered_set_struct_A_hash {
+	size_t operator()(const Struct_unordered_set_struct_A & o) const {
+		return static_cast<size_t>(o.member_string.size());
+	}
+};
+
+struct Struct_unordered_set_struct_B {
+	int member_int;
+	std::unordered_set<Struct_unordered_set_struct_A, Struct_unordered_set_struct_A_hash> member_set;
+
+	bool operator==(const Struct_unordered_set_struct_B & o) const {
+		return member_int == o.member_int;
+	}
+};
+
+struct Struct_unordered_set_struct_B_hash {
+	size_t operator()(const Struct_unordered_set_struct_B & o) const {
+		return static_cast<size_t>(o.member_int);
+	}
+};
+
+struct Struct_unordered_set_struct_C {
+	std::unordered_set<Struct_unordered_set_struct_B, Struct_unordered_set_struct_B_hash> member;
+};
+
+TEST(struct_mapping_map_json_to_struct, member_unordered_set_struct) {
+	Struct_unordered_set_struct_C result_struct;
+
+	struct_mapping::reg(&Struct_unordered_set_struct_A::member_string, "member_string");
+	struct_mapping::reg(&Struct_unordered_set_struct_B::member_int, "member_int");
+	struct_mapping::reg(&Struct_unordered_set_struct_B::member_set, "member_set");
+	struct_mapping::reg(&Struct_unordered_set_struct_C::member, "member");
+
+	std::istringstream json_data(R"json(
+	{
+		"member": [
+			{
+				"member_int": 42,
+				"member_set": [
+					{
+						"member_string": "first"
+					},
+					{
+						"member_string": "second"
+					}
+				]
+			},
+			{
+				"member_int": 13,
+				"member_set": [
+					{
+						"member_string": "third"
+					}
+				]
+			}
+		]
+	}
+	)json");
+
+	struct_mapping::map_json_to_struct(result_struct, json_data);
+
+	ASSERT_EQ(result_struct.member.size(), 2);
+
+	ASSERT_NE(result_struct.member.find(
+		Struct_unordered_set_struct_B{
+			13,
+			std::unordered_set<Struct_unordered_set_struct_A, Struct_unordered_set_struct_A_hash>{
+				{
+					"third"
+				}
+			}
+		}
+	), result_struct.member.end());
+
+	ASSERT_NE(result_struct.member.find(
+		Struct_unordered_set_struct_B{
+			42,
+			std::unordered_set<Struct_unordered_set_struct_A, Struct_unordered_set_struct_A_hash>{
+				Struct_unordered_set_struct_A{
+					"first"
+				},
+				Struct_unordered_set_struct_A{
+					"second"
+				}
+			}
+		}
+	), result_struct.member.end());
+}
+
+struct Struct_multiset_struct_A {
+	std::string member_string;
+
+	bool operator<(const Struct_multiset_struct_A & o) const {
+		return member_string < o.member_string;
+	}
+};
+
+struct Struct_multiset_struct_B {
+	int member_int;
+	std::set<Struct_multiset_struct_A> member_set;
+
+	bool operator<(const Struct_multiset_struct_B & o) const {
+		return member_int < o.member_int;
+	}
+};
+
+struct Struct_multiset_struct_C {
+	std::set<Struct_multiset_struct_B> member;
+};
+
+TEST(struct_mapping_map_json_to_struct, member_multiset_struct) {
+	Struct_multiset_struct_C result_struct;
+
+	struct_mapping::reg(&Struct_multiset_struct_A::member_string, "member_string");
+	struct_mapping::reg(&Struct_multiset_struct_B::member_int, "member_int");
+	struct_mapping::reg(&Struct_multiset_struct_B::member_set, "member_set");
+	struct_mapping::reg(&Struct_multiset_struct_C::member, "member");
+
+	std::istringstream json_data(R"json(
+	{
+		"member": [
+			{
+				"member_int": 42,
+				"member_set": [
+					{
+						"member_string": "first"
+					},
+					{
+						"member_string": "second"
+					}
+				]
+			},
+			{
+				"member_int": 13,
+				"member_set": [
+					{
+						"member_string": "third"
+					}
+				]
+			}
+		]
+	}
+	)json");
+
+	struct_mapping::map_json_to_struct(result_struct, json_data);
+
+	ASSERT_EQ(result_struct.member.size(), 2);
+
+	ASSERT_NE(result_struct.member.find(
+		Struct_multiset_struct_B{
+			13,
+			std::set<Struct_multiset_struct_A>{
+				{
+					"third"
+				}
+			}
+		}
+	), result_struct.member.end());
+
+	ASSERT_NE(result_struct.member.find(
+		Struct_multiset_struct_B{
+			42,
+			std::set<Struct_multiset_struct_A>{
+				Struct_multiset_struct_A{
+					"first"
+				},
+				Struct_multiset_struct_A{
+					"second"
+				}
+			}
+		}
+	), result_struct.member.end());
+}
+
+struct Struct_unordered_multisetset_struct_A {
+	std::string member_string;
+
+	bool operator==(const Struct_unordered_multisetset_struct_A & o) const {
+		return member_string == o.member_string;
+	}
+};
+
+struct Struct_unordered_multisetset_struct_A_hash {
+	size_t operator()(const Struct_unordered_multisetset_struct_A & o) const {
+		return static_cast<size_t>(o.member_string.size());
+	}
+};
+
+struct Struct_unordered_multisetset_struct_B {
+	int member_int;
+	std::unordered_set<Struct_unordered_multisetset_struct_A, Struct_unordered_multisetset_struct_A_hash> member_set;
+
+	bool operator==(const Struct_unordered_multisetset_struct_B & o) const {
+		return member_int == o.member_int;
+	}
+};
+
+struct Struct_unordered_multisetset_struct_B_hash {
+	size_t operator()(const Struct_unordered_multisetset_struct_B & o) const {
+		return static_cast<size_t>(o.member_int);
+	}
+};
+
+struct Struct_unordered_multisetset_struct_C {
+	std::unordered_set<Struct_unordered_multisetset_struct_B, Struct_unordered_multisetset_struct_B_hash> member;
+};
+
+TEST(struct_mapping_map_json_to_struct, member_unordered_multiset_struct) {
+	Struct_unordered_multisetset_struct_C result_struct;
+
+	struct_mapping::reg(&Struct_unordered_multisetset_struct_A::member_string, "member_string");
+	struct_mapping::reg(&Struct_unordered_multisetset_struct_B::member_int, "member_int");
+	struct_mapping::reg(&Struct_unordered_multisetset_struct_B::member_set, "member_set");
+	struct_mapping::reg(&Struct_unordered_multisetset_struct_C::member, "member");
+
+	std::istringstream json_data(R"json(
+	{
+		"member": [
+			{
+				"member_int": 42,
+				"member_set": [
+					{
+						"member_string": "first"
+					},
+					{
+						"member_string": "second"
+					}
+				]
+			},
+			{
+				"member_int": 13,
+				"member_set": [
+					{
+						"member_string": "third"
+					}
+				]
+			}
+		]
+	}
+	)json");
+
+	struct_mapping::map_json_to_struct(result_struct, json_data);
+
+	ASSERT_EQ(result_struct.member.size(), 2);
+
+	ASSERT_NE(result_struct.member.find(
+		Struct_unordered_multisetset_struct_B{
+			13,
+			std::unordered_set<Struct_unordered_multisetset_struct_A, Struct_unordered_multisetset_struct_A_hash>{
+				{
+					"third"
+				}
+			}
+		}
+	), result_struct.member.end());
+
+	ASSERT_NE(result_struct.member.find(
+		Struct_unordered_multisetset_struct_B{
+			42,
+			std::unordered_set<Struct_unordered_multisetset_struct_A, Struct_unordered_multisetset_struct_A_hash>{
+				Struct_unordered_multisetset_struct_A{
+					"first"
+				},
+				Struct_unordered_multisetset_struct_A{
+					"second"
+				}
+			}
+		}
+	), result_struct.member.end());
 }
 
 }
