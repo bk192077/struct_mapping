@@ -23,7 +23,7 @@ struct Simple {
 	std::string h;
 };
 
-TEST(struct_mapping_mapper_map_struct_to_json, test_simple) {
+TEST(struct_mapping_mapper_map_struct_to_json, simple) {
 	Simple source;
 
 	struct_mapping::reg(&Simple::a, "a");
@@ -61,7 +61,7 @@ struct Struct {
 	Struct_A b;
 };
 
-TEST(struct_mapping_mapper_map_struct_to_json, test_struct) {
+TEST(struct_mapping_mapper_map_struct_to_json, struct) {
 	Struct source;
 	
 	struct_mapping::reg(&Struct_A::value, "value");
@@ -105,7 +105,7 @@ struct Array {
 	std::vector<int> a;
 };
 
-TEST(struct_mapping_mapper_map_struct_to_json, test_array) {
+TEST(struct_mapping_mapper_map_struct_to_json, array) {
 	Array source;
 
 	struct_mapping::reg(&Array::a, "a");
@@ -156,7 +156,7 @@ struct ComplexBook {
 	std::vector<std::string> chapters;
 };
 
-TEST(struct_mapping_mapper_map_struct_to_json, test_complex) {
+TEST(struct_mapping_mapper_map_struct_to_json, complex) {
 	ComplexBook source;
 
 	struct_mapping::reg(&ComplexAuthor::name, "name");
@@ -267,6 +267,62 @@ R"json({
 ++"value_map": {
 ++++"first": "v2",
 ++++"second": "v3"
+++}
+})json");
+
+	ASSERT_EQ(result_json.str(), expected_json);
+}
+
+struct class_from_to_string_struct_a {
+	int value;
+};
+
+struct class_from_to_string_struct_b {
+	class_from_to_string_struct_a value;
+	std::vector<class_from_to_string_struct_a> value_array;
+	std::map<std::string, class_from_to_string_struct_a> value_map;
+};
+
+TEST(struct_mapping_map_json_to_struct, test_class_from_to_string) {
+	struct_mapping::MemberString<class_from_to_string_struct_a>::set([] (const std::string & o) {
+		if (o == "value_1") return class_from_to_string_struct_a{1};
+		if (o == "value_2") return class_from_to_string_struct_a{2};
+		
+		return class_from_to_string_struct_a{0};
+	},
+	[] (class_from_to_string_struct_a o) {
+		switch (o.value) {
+		case 1: return "value_1";
+		case 2: return "value_2";
+		default: return "value_0";
+	}
+	});
+
+	struct_mapping::reg(&class_from_to_string_struct_b::value, "value");
+	struct_mapping::reg(&class_from_to_string_struct_b::value_array, "value_array");
+	struct_mapping::reg(&class_from_to_string_struct_b::value_map, "value_map");
+
+	class_from_to_string_struct_b source;
+
+	source.value = class_from_to_string_struct_a{2};
+	source.value_array.push_back(class_from_to_string_struct_a{1});
+	source.value_array.push_back(class_from_to_string_struct_a{0});
+	source.value_map["first"] = class_from_to_string_struct_a{2};
+	source.value_map["second"] = class_from_to_string_struct_a{1};
+
+	std::ostringstream result_json;
+	struct_mapping::map_struct_to_json(source, result_json, "++");
+
+	std::string expected_json(
+R"json({
+++"value": "value_2",
+++"value_array": [
+++++"value_1",
+++++"value_0"
+++],
+++"value_map": {
+++++"first": "value_2",
+++++"second": "value_1"
 ++}
 })json");
 

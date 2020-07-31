@@ -14,8 +14,10 @@ English translation provided by [translate.google.com](https://translate.google.
 	- [Implementing a scenario with a Person structure](#implementing_a_scenario_with_a_Person_structure)
 	- [Mapping json to c++ structure](#mapping_json_to_c_plus_plus_structure)
 		- [Enumeration](#mapping_json_to_c_plus_plus_structure_enumeration)
+		- [Structures represented in json as strings](#mapping_json_to_c_plus_plus_structure_class_to_from_string)
 		- [Simple types example](#simple_types_example)
 		- [Structure example](#structure_example)
+		- [An example of using structures represented in json as strings](#structure_example_class_to_from_string)
 		- [Enumeration example](#enumeration_example)
 		- [Sequence container example](#sequence_container_example)
 		- [Associative container example](#associative_container_example)
@@ -280,6 +282,45 @@ struct_mapping::MemberString<Color>::set(
  });
 ```
 
+or under [enumeration example](#enumeration_example)
+
+#### Structures represented in json as strings <div id="mapping_json_to_c_plus_plus_structure_class_to_from_string"></div>
+
+Structures in json can be represented as strings. To use this method, you need to set conversion methods from string to structure and vice versa using:
+
+```cpp
+template<typename From, typename To>
+static void MemberString::set(From function_from_string_, To function_to_string_);
+```
+
+- `function_from_string_` - conversion function from string to struct
+- `function_to_string_` - conversion function from struct to string
+
+for example
+
+```cpp
+struct Color {
+ int value;
+};
+
+struct_mapping::MemberString<Color>::set(
+ [] (const std::string & value) {
+  if (value == "red") return Color{1};
+  if (value == "blue") return Color{2};
+
+  throw struct_mapping::StructMappingException("bad convert '" + value + "' to Color");
+ },
+ [] (Color color) {
+  switch (color.value) {
+  case 1: return "red";
+  case 2: return "blue";
+  default: return "green";
+  }
+ }
+ });
+```
+or under [an example of using structures represented in json as strings](#structure_example_class_to_from_string)
+
 #### simple types example <div id="simple_types_example"></div>
 
 [example/simple](/example/simple/simple.cpp)
@@ -384,6 +425,115 @@ result
 earth.president:
  name : Agent K
  mass : 75.6
+```
+
+#### an example of using structures represented in json as strings <div id="structure_example_class_to_from_string"></div>
+
+[example/struct_from_string](/example/struct_from_string/struct_from_string.cpp)
+
+```cpp
+#include <iostream>
+#include <list>
+#include <map>
+#include <set>
+#include <sstream>
+#include <string>
+
+#include "struct_mapping/struct_mapping.h"
+
+namespace sm = struct_mapping;
+
+struct Color {
+ int value;
+
+ bool operator<(const Color & o) const {
+  return value < o.value;
+ }
+};
+
+Color color_from_string(const std::string & value) {
+ if (value == "red") return Color{1};
+ if (value == "blue") return Color{2};
+
+ return Color{0};
+}
+
+std::string color_to_string(const Color & color) {
+ switch (color.value) {
+ case 1: return "red";
+ case 2: return "blue";
+ default: return "green";
+ }
+}
+
+struct Background {
+ Color color;
+};
+
+struct Palette {
+ Color main_color;
+ Background background;
+ std::list<Color> special_colors;
+ std::set<Color> old_colors;
+ std::map<std::string, Color> new_colors;
+
+ friend std::ostream & operator<<(std::ostream & os, const Palette & o) {
+  os << "main_color         : " << color_to_string(o.main_color) << std::endl;
+  os << "background.color   : " << color_to_string(o.background.color) << std::endl;
+  os << "special_colors     : ";
+  for (auto color : o.special_colors) os << color_to_string(color) << ", ";
+  os << std::endl << "old_colors         : ";
+  for (auto color : o.old_colors) os << color_to_string(color) << ", ";
+  os << std::endl << "new_colors         : ";
+  for (auto [name, color] : o.new_colors) os << "[" << name << ", " << color_to_string(color) << "], ";
+  os << std::endl;
+
+  return os;
+ }
+};
+
+int main() {
+ sm::MemberString<Color>::set(color_from_string, color_to_string);
+
+ sm::reg(&Palette::main_color, "main_color", sm::Default{"red"});
+ sm::reg(&Palette::background, "background", sm::Required{});
+ sm::reg(&Palette::special_colors, "special_colors");
+ sm::reg(&Palette::old_colors, "old_colors");
+ sm::reg(&Palette::new_colors, "new_colors");
+
+ sm::reg(&Background::color, "color");
+
+ Palette palette;
+
+ std::istringstream json_data(R"json(
+ {
+  "background": {
+   "color": "blue"
+  },
+  "special_colors": ["red", "green", "red", "blue"],
+  "old_colors": ["red", "green", "blue"],
+  "new_colors": {
+   "dark": "green",
+   "light": "red",
+   "neutral": "blue"
+  }
+ }
+ )json");
+
+ sm::map_json_to_struct(palette, json_data);
+
+ std::cout << palette << std::endl;
+}
+```
+
+result
+
+```cpp
+main_color         : red
+background.color   : blue
+special_colors     : red, green, red, blue, 
+old_colors         : green, red, blue, 
+new_colors         : [dark, green], [light, red], [neutral, blue],
 ```
 
 #### Enumeration example <div id="enumeration_example"></div>
@@ -779,6 +929,12 @@ Example of setting an option:
 
 ```cpp
 reg(&Stage::engine_count, "engine_count", Default{3});
+```
+
+When using an option for a struct for which conversion to / from string is used ([structures represented in json as strings](#mapping_json_to_c_plus_plus_structure_class_to_from_string)), the default value must also be a string
+
+```cpp
+sm::reg(&Palette::main_color, "main_color", sm::Default{"red"});
 ```
 
 ##### NotEmpty <div id="options_not_empty"></div>

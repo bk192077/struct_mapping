@@ -8,6 +8,11 @@
 
 namespace struct_mapping {
 
+template<typename T, bool exist = false>
+struct IsMemberStringExist {
+	static inline bool value = exist;
+};
+
 template<typename T>
 class MemberString {
 public:
@@ -16,6 +21,7 @@ public:
 
 	template<typename From, typename To>
 	static void set(From function_from_string_, To function_to_string_) {
+		IsMemberStringExist<T>::value = true;
 		function_from_string = std::function<FromString>(function_from_string_);
 		function_to_string = std::function<ToString>(function_to_string_);
 	}

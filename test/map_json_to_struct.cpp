@@ -1150,4 +1150,130 @@ TEST(struct_mapping_map_json_to_struct, member_unordered_multiset_struct) {
 	), result_struct.member.end());
 }
 
+struct class_from_to_string_struct_a {
+	int value;
+};
+
+struct class_from_to_string_struct_b {
+	class_from_to_string_struct_a value;
+};
+
+TEST(struct_mapping_map_json_to_struct, class_from_to_string) {
+	struct_mapping::MemberString<class_from_to_string_struct_a>::set([] (const std::string & o) {
+		if (o == "value_1") return class_from_to_string_struct_a{1};
+		if (o == "value_2") return class_from_to_string_struct_a{2};
+		
+		return class_from_to_string_struct_a{0};
+	},
+	[] (class_from_to_string_struct_a o) {
+		switch (o.value) {
+		case 1: return "value_1";
+		case 2: return "value_2";
+		default: return "value_0";
+	}
+	});
+
+	struct_mapping::reg(&class_from_to_string_struct_b::value, "value");
+
+	class_from_to_string_struct_b result_struct;
+
+	std::istringstream json_data(R"json(
+	{
+		"value": "value_2"
+	}
+	)json");
+
+	struct_mapping::map_json_to_struct(result_struct, json_data);
+
+	ASSERT_EQ(result_struct.value.value, 2);
+}
+
+struct class_from_to_string_struct_array_a {
+	int value;
+};
+
+struct class_from_to_string_struct_array_b {
+	std::vector<class_from_to_string_struct_array_a> value;
+};
+
+TEST(struct_mapping_map_json_to_struct, class_from_to_string_array) {
+	struct_mapping::MemberString<class_from_to_string_struct_array_a>::set([] (const std::string & o) {
+		if (o == "value_1") return class_from_to_string_struct_array_a{1};
+		if (o == "value_2") return class_from_to_string_struct_array_a{2};
+		
+		return class_from_to_string_struct_array_a{0};
+	},
+	[] (class_from_to_string_struct_array_a o) {
+		switch (o.value) {
+		case 1: return "value_1";
+		case 2: return "value_2";
+		default: return "value_0";
+	}
+	});
+
+	struct_mapping::reg(&class_from_to_string_struct_array_b::value, "value");
+
+	class_from_to_string_struct_array_b result_struct;
+
+	std::istringstream json_data(R"json(
+	{
+		"value": [
+			"value_2",
+			"value_1",
+			"value_0"
+		]
+	}
+	)json");
+
+	struct_mapping::map_json_to_struct(result_struct, json_data);
+
+	ASSERT_EQ(result_struct.value[0].value, 2);
+	ASSERT_EQ(result_struct.value[1].value, 1);
+	ASSERT_EQ(result_struct.value[2].value, 0);
+}
+
+struct class_from_to_string_struct_map_a {
+	int value;
+};
+
+struct class_from_to_string_struct_map_b {
+	std::map<std::string, class_from_to_string_struct_map_a> value;
+};
+
+TEST(struct_mapping_map_json_to_struct, class_from_to_string_map) {
+	struct_mapping::MemberString<class_from_to_string_struct_map_a>::set([] (const std::string & o) {
+		if (o == "value_1") return class_from_to_string_struct_map_a{1};
+		if (o == "value_2") return class_from_to_string_struct_map_a{2};
+		
+		return class_from_to_string_struct_map_a{0};
+	},
+	[] (class_from_to_string_struct_map_a o) {
+		switch (o.value) {
+		case 1: return "value_1";
+		case 2: return "value_2";
+		default: return "value_0";
+	}
+	});
+
+	struct_mapping::reg(&class_from_to_string_struct_map_b::value, "value");
+
+	class_from_to_string_struct_map_b result_struct;
+
+	std::istringstream json_data(R"json(
+	{
+		"value": {
+			"1": "value_2",
+			"2": "value_1",
+			"3": "value_0"
+		}
+	}
+	)json");
+
+	struct_mapping::map_json_to_struct(result_struct, json_data);
+
+	ASSERT_EQ(result_struct.value["1"].value, 2);
+	ASSERT_EQ(result_struct.value["2"].value, 1);
+	ASSERT_EQ(result_struct.value["3"].value, 0);
+}
+
 }

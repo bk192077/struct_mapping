@@ -450,5 +450,48 @@ TEST(option_required, required_enum) {
 
 	FAIL() << "Expected: throws an exception of type StructMappingException\n  Actual: it throws nothing";
 }
+//////
+struct class_from_to_string_struct_a {
+	int value;
+};
+
+struct class_from_to_string_struct_b {
+	class_from_to_string_struct_a value;
+};
+
+TEST(option_default, required_class_from_to_string) {
+	struct_mapping::MemberString<class_from_to_string_struct_a>::set([] (const std::string & o) {
+		if (o == "value_1") return class_from_to_string_struct_a{1};
+		if (o == "value_2") return class_from_to_string_struct_a{2};
+		
+		return class_from_to_string_struct_a{0};
+	},
+	[] (class_from_to_string_struct_a o) {
+		switch (o.value) {
+		case 1: return "value_1";
+		case 2: return "value_2";
+		default: return "value_0";
+	}
+	});
+
+	struct_mapping::reg(&class_from_to_string_struct_b::value, "value", struct_mapping::Required{});
+
+	class_from_to_string_struct_b result_struct;
+
+	std::istringstream json_data(R"json(
+	{
+	}
+	)json");
+
+	try {
+		struct_mapping::map_json_to_struct(result_struct, json_data);
+	} catch (struct_mapping::StructMappingException& e) {
+		return;
+	} catch (...) {
+		FAIL() << "Expected: throws an exception of type StructMappingException\n  Actual: it throws a different type";
+	}
+
+	FAIL() << "Expected: throws an exception of type StructMappingException\n  Actual: it throws nothing";
+}
 
 }

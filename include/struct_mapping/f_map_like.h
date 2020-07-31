@@ -41,7 +41,10 @@ public:
 			else if constexpr (std::is_floating_point_v<ValueType<T>>) F_iterate_over::set_floating_point(n, v);
 			else if constexpr (std::is_same_v<ValueType<T>, std::string>) F_iterate_over::set_string(n, v);
 			else if constexpr (std::is_enum_v<ValueType<T>>) F_iterate_over::set_string(n, MemberString<ValueType<T>>::to_string()(v));
-			else F<ValueType<T>>::iterate_over(v, n);
+			else {
+				if (IsMemberStringExist<ValueType<T>>::value) F_iterate_over::set_string(n, MemberString<ValueType<T>>::to_string()(v));
+				else F<ValueType<T>>::iterate_over(v, n);
+			}
 		}
 
 		F_iterate_over::end_struct();
@@ -121,7 +124,10 @@ public:
 				insert(o, name, value);
 			} else if constexpr (std::is_enum_v<ValueType<T>>) {
  				insert(o, name, MemberString<ValueType<T>>::from_string()(value));
-			} else throw StructMappingException("bad type (string) '" + value + "' at name '" + name + "' in map_like");
+			} else {
+				if (is_complex_v<ValueType<T>> && IsMemberStringExist<ValueType<T>>::value) insert(o, name, MemberString<ValueType<T>>::from_string()(value));
+				else throw StructMappingException("bad type (string) '" + value + "' at name '" + name + "' in map_like");
+			}
 		} else {
 			if constexpr (is_complex_v<ValueType<T>>) {
 				F<ValueType<T>>::set_string(get_last_inserted(), name, value);

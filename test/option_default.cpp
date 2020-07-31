@@ -519,4 +519,41 @@ TEST(option_default, enum_default) {
 	ASSERT_EQ(result_struct.value, Enum_default::v3);
 }
 
+struct class_from_to_string_struct_a {
+	int value;
+};
+
+struct class_from_to_string_struct_b {
+	class_from_to_string_struct_a value;
+};
+
+TEST(option_default, class_from_to_string_default) {
+	struct_mapping::MemberString<class_from_to_string_struct_a>::set([] (const std::string & o) {
+		if (o == "value_1") return class_from_to_string_struct_a{1};
+		if (o == "value_2") return class_from_to_string_struct_a{2};
+		
+		return class_from_to_string_struct_a{0};
+	},
+	[] (class_from_to_string_struct_a o) {
+		switch (o.value) {
+		case 1: return "value_1";
+		case 2: return "value_2";
+		default: return "value_0";
+	}
+	});
+
+	struct_mapping::reg(&class_from_to_string_struct_b::value, "value", struct_mapping::Default{"value_2"});
+
+	class_from_to_string_struct_b result_struct;
+
+	std::istringstream json_data(R"json(
+	{
+	}
+	)json");
+
+	struct_mapping::map_json_to_struct(result_struct, json_data);
+
+	ASSERT_EQ(result_struct.value.value, 2);
+}
+
 }

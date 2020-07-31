@@ -73,30 +73,10 @@ public:
 			reg_reset<V>();			
 
 			members_name_index.emplace(name, static_cast<Index>(members.size()));
-			Member member(name, MemberType<V>{}, std::forward<Options<U>>(options)...);
+			Member member(name, ptr, MemberType<V>{}, std::forward<Options<U>>(options)...);
 
-			if constexpr (Member::template get_member_type<V>() == Member::Type::Complex) {
-				member.ptr_index = static_cast<Index>(members_ptr<V>.size());
-				member.deep_index = functions.add(ptr);
-				members.push_back(std::move(member));
-				members_ptr<V>.push_back(ptr);
-			} else {
-				member.ptr_index = static_cast<Index>(members_ptr<V>.size());
-				member.deep_index = NO_INDEX;
-
-				if constexpr (Member::template get_member_type<V>() == Member::Type::Enum) {
-					member.enum_index = static_cast<Index>(enum_from_string.size());
-					enum_from_string.push_back([ptr, name] (T & o, const std::string & value_) {
-						o.*ptr = MemberString<V>::from_string(name)(value_);
-					});
-					enum_to_string.push_back([ptr, name] (T & o) {
-						return MemberString<V>::to_string(name)(o.*ptr);
-					});
-				}
-
-				members.push_back(std::move(member));
-				members_ptr<V>.push_back(ptr);
-			}
+			members.push_back(std::move(member));
+			members_ptr<V>.push_back(ptr);
 		}
 	}
 
@@ -179,9 +159,9 @@ public:
 		if (member_deep_index == NO_INDEX) {
 			if (auto it = members_name_index.find(name); it == members_name_index.end()) {
 				throw StructMappingException("bad member: " + name);
-			}	else if (members[it->second].type == Member::Type::Enum) {
+			}	else if (members[it->second].type == Member::Type::Enum || (members[it->second].type == Member::Type::Complex && members[it->second].member_string_index != NO_INDEX)) {
 				members[it->second].changed = true;
-				enum_from_string[members[it->second].enum_index](o, value);
+				member_string_from_string[members[it->second].member_string_index](o, value);
 			}	else if (members[it->second].type != Member::Type::String) {
 				throw StructMappingException("bad type (string) for member: " + name);
 			}	else {
@@ -226,8 +206,32 @@ private:
 		};
 
 		template<typename V, typename ... U, template<typename> typename ... Options>
-		Member(Name name_, MemberType<V>, Options<U>&& ... options)
+		Member(Name name_, Member_ptr<V> ptr_, MemberType<V>, Options<U>&& ... options)
 			:	name(name_), type(get_member_type<V>()) {
+
+			ptr_index = static_cast<Index>(members_ptr<V>.size());
+
+			if constexpr (Member::template get_member_type<V>() == Member::Type::Complex) {
+				if (!IsMemberStringExist<V>::value) {
+					deep_index = functions.add(ptr_);
+					(add_option<V>(std::forward<Options<U>>(options)), ...);
+					return;
+				}
+			}
+
+			deep_index = NO_INDEX;
+
+			if (Member::template get_member_type<V>() == Member::Type::Enum ||
+					(Member::template get_member_type<V>() == Member::Type::Complex && IsMemberStringExist<V>::value)) {
+				member_string_index = static_cast<Index>(member_string_from_string.size());
+				member_string_from_string.push_back([ptr_, name_] (T & o, const std::string & value_) {
+					o.*ptr_ = MemberString<V>::from_string(name_)(value_);
+				});
+				member_string_to_string.push_back([ptr_, name_] (T & o) {
+					return MemberString<V>::to_string(name_)(o.*ptr_);
+				});
+			}
+
 			(add_option<V>(std::forward<Options<U>>(options)), ...);
 		}
 
@@ -268,8 +272,14 @@ private:
 			case Member::Type::Float: F_iterate_over::set_floating_point(name, o.*members_ptr<float>[ptr_index]); break;
 			case Member::Type::Double: F_iterate_over::set_floating_point(name, o.*members_ptr<double>[ptr_index]); break;
 			case Member::Type::String: F_iterate_over::set_string(name, o.*members_ptr<std::string>[ptr_index]); break;
-			case Member::Type::Enum: F_iterate_over::set_string(name, enum_to_string[enum_index](o)); break;
-			case Member::Type::Complex: functions.f_iterate_over[deep_index](o, name); break;
+			case Member::Type::Enum: F_iterate_over::set_string(name, member_string_to_string[member_string_index](o)); break;
+			case Member::Type::Complex:
+				if (member_string_index != NO_INDEX) {
+					F_iterate_over::set_string(name, member_string_to_string[member_string_index](o));
+				} else {
+					functions.f_iterate_over[deep_index](o, name);
+				}
+ 				break;
 			}
 		}
 
@@ -285,7 +295,7 @@ private:
 		bool changed = false;
 		Index default_index = NO_INDEX;
 		Index deep_index;
-		Index enum_index = NO_INDEX;
+		Index member_string_index = NO_INDEX;
 		Index ptr_index;
 		bool option_not_empty = false;
 		bool option_required = false;
@@ -322,6 +332,11 @@ private:
 			}	else if constexpr (std::is_enum_v<V>) {
 				default_index = static_cast<Index>(members_default<std::string>.size());
 				members_default<std::string>.push_back(MemberString<V>::to_string(name)(op.get_value()));
+			}	else if constexpr (std::is_class_v<V> && (std::is_same_v<U, std::string> || std::is_same_v<U, const char *>)) {
+				if (member_string_index != NO_INDEX) {
+					default_index = static_cast<Index>(members_default<std::string>.size());
+					members_default<std::string>.push_back(op.get_value());
+				}
 			}	else if constexpr (std::is_same_v<V, U> || (is_integer_or_floating_point_v<V> && is_integer_or_floating_point_v<U>)) {
 				default_index = static_cast<Index>(members_default<V>.size());
 				members_default<V>.push_back(static_cast<V>(op.get_value()));
@@ -354,10 +369,13 @@ private:
 				case Member::Type::Double: set_default<double>(o); break;
 				case Member::Type::String: set_default<std::string>(o); break;
 				case Member::Type::Enum:
-					if (default_index != NO_INDEX) enum_from_string[enum_index](o, members_default<std::string>[default_index]);
+					if (default_index != NO_INDEX) member_string_from_string[member_string_index](o, members_default<std::string>[default_index]);
 					break;
 				case Member::Type::Complex:
-					if (default_index != NO_INDEX) functions.f_set_default[deep_index](o, default_index);
+					if (default_index != NO_INDEX) {
+						if (member_string_index != NO_INDEX) member_string_from_string[member_string_index](o, members_default<std::string>[default_index]);
+						else functions.f_set_default[deep_index](o, default_index);
+					}
 					break;
 				}
 			}
@@ -374,7 +392,9 @@ private:
 		}
 
 		void process_required() {
-			if (option_required) Required<>::check_result(changed, name); 
+			if (option_required) {
+				Required<>::check_result(changed, name);
+			}
 		}
 
 		template<typename V>
@@ -386,8 +406,8 @@ private:
 	static inline constexpr Index NO_INDEX = std::numeric_limits<Index>::max();
 
 	static inline Functions functions;
-	static inline std::vector<std::function<void(T&, const std::string &)>> enum_from_string{};
-	static inline std::vector<std::function<std::string (T&)>> enum_to_string{};
+	static inline std::vector<std::function<void(T&, const std::string &)>> member_string_from_string{};
+	static inline std::vector<std::function<std::string (T&)>> member_string_to_string{};
 	static inline Index member_deep_index = NO_INDEX;
 	static inline std::vector<Member> members;
 	

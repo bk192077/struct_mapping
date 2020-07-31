@@ -40,9 +40,14 @@ public:
 			else if constexpr (std::is_integral_v<ValueType<T>>) F_iterate_over::set_integral("", v);
 			else if constexpr (std::is_floating_point_v<ValueType<T>>) F_iterate_over::set_floating_point("", v);
 			else if constexpr (std::is_same_v<ValueType<T>, std::string>) F_iterate_over::set_string("", v);
-			else if constexpr (std::is_enum_v<ValueType<T>>) F_iterate_over::set_string("",MemberString<ValueType<T>>::to_string()(v));
-			else if constexpr (has_key_type_v<T>) F<ValueType<T>>::iterate_over(const_cast<ValueType<T>&>(v), "");
-			else F<ValueType<T>>::iterate_over(v, "");
+			else if constexpr (std::is_enum_v<ValueType<T>>) F_iterate_over::set_string("", MemberString<ValueType<T>>::to_string()(v));
+			else {
+				if (IsMemberStringExist<ValueType<T>>::value) F_iterate_over::set_string("", MemberString<ValueType<T>>::to_string()(v));
+				else {
+					if constexpr (has_key_type_v<T>) F<ValueType<T>>::iterate_over(const_cast<ValueType<T>&>(v), "");
+					else F<ValueType<T>>::iterate_over(v, "");
+				}
+			}
 		}
 
 		F_iterate_over::end_array();
@@ -123,7 +128,10 @@ public:
 				insert(o, value);
 			} else if constexpr (std::is_enum_v<ValueType<T>>) {
  				insert(o, MemberString<ValueType<T>>::from_string()(value));
-			} else throw StructMappingException("bad type (string) '" + value + "' in array_like at index " + std::to_string(o.size()));
+			} else {
+				if (is_complex_v<ValueType<T>> && IsMemberStringExist<ValueType<T>>::value) insert(o, MemberString<ValueType<T>>::from_string()(value));
+				else throw StructMappingException("bad type (string) '" + value + "' in array_like at index " + std::to_string(o.size()));
+			}
 		} else {
 			if constexpr (is_complex_v<ValueType<T>>) {
 				F<ValueType<T>>::set_string(get_last_inserted(), name, value);

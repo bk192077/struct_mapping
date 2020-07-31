@@ -11,6 +11,7 @@ set(EXAMPLES
 	person
 	simple
 	struct
+	struct_from_string
 	struct_to_json
 )
 
