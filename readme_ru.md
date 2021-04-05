@@ -1296,10 +1296,11 @@ int main() {
 }
 ```
 
-Для упрощения использования такого способа определены три макроса
+Для упрощения использования такого способа определены четыре макроса
 
 - BEGIN_STRUCT
 - MEMBER
+- MEMBER_OPTIONS
 - END_STRUCT
 
 #### BEGIN_STRUCT
@@ -1323,6 +1324,19 @@ MEMBER(double, mass)
 MEMBER(std::vector<std::string>, satellites)
 ```
 
+#### MEMBER_OPTIONS
+Добавляет поле и регистрирует его. Вы можете установить опции для поля. Должно быть установлено не менее одной опции:
+
+MEMBER_OPTIONS(тип, название, опция_1, ...)
+
+```cpp
+MEMBER_OPTIONS(
+	int,
+	count,
+	struct_mapping::Bounds{23, 47},
+	struct_mapping::Default{35})
+```
+
 #### END_STRUCT
 Задает конец структуры
 
@@ -1337,6 +1351,7 @@ END_STRUCT
 ```cpp
 #include <iostream>
 #include <sstream>
+#include <string>
 #include <vector>
 
 #include "struct_mapping/struct_mapping.h"
@@ -1345,19 +1360,22 @@ BEGIN_STRUCT(Planet)
 
 MEMBER(bool, giant)
 MEMBER(long long, surface_area)
-MEMBER(double, mass)
+MEMBER_OPTIONS(
+ double,
+ mass,
+ struct_mapping::Bounds{1.0e23, 1.0e27},
+ struct_mapping::Default{1.0e25})
 MEMBER(std::vector<std::string>, satellites)
 
 END_STRUCT
 
 int main() {
  std::istringstream json_data(R"json(
-  {
-   "giant": false,
-   "surface_area": 510072000000000,
-   "mass": 5.97237e24,
-   "satellites": ["Moon", "R24"]
-  }
+ {
+  "giant": false,
+  "surface_area": 510072000000000,
+  "satellites": ["Moon", "R24"]
+ }
  )json");
 
  Planet earth;

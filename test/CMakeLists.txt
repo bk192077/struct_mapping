@@ -56,6 +56,7 @@ target_compile_features(${TARGET} PRIVATE cxx_std_17)
 target_include_directories(${TARGET} PRIVATE SYSTEM
 	${CMAKE_SOURCE_DIR}/include
 	${GTEST_INCLUDE_DIRS}
+	${GMOCK_INCLUDE_DIRS}
 )
 
 target_link_libraries(${TARGET}

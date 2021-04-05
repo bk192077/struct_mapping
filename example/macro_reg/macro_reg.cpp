@@ -9,7 +9,11 @@ BEGIN_STRUCT(Planet)
 
 MEMBER(bool, giant)
 MEMBER(long long, surface_area)
-MEMBER(double, mass)
+MEMBER_OPTIONS(
+	double,
+	mass,
+	struct_mapping::Bounds{1.0e23, 1.0e27},
+	struct_mapping::Default{1.0e25})
 MEMBER(std::vector<std::string>, satellites)
 
 END_STRUCT
@@ -19,7 +23,6 @@ int main() {
 	{
 		"giant": false,
 		"surface_area": 510072000000000,
-		"mass": 5.97237e24,
 		"satellites": ["Moon", "R24"]
 	}
 	)json");

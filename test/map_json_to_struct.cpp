@@ -120,7 +120,7 @@ TEST(struct_mapping_map_json_to_struct, member_list) {
 	struct_mapping::map_json_to_struct(result_struct, json_data);
 
 	ASSERT_THAT(result_struct.member_list_int, ElementsAre(-10, -1, 0, 1, 10));
-	ASSERT_THAT(result_struct.member_list_float, ElementsAre(-10.5, -1, 0, 1, 10.5));
+	ASSERT_THAT(result_struct.member_list_float, ElementsAre(-10.5f, -1.0f, 0.0f, 1.0f, 10.5f));
 	ASSERT_THAT(result_struct.member_list_string, ElementsAre("first", "second"));
 }
 
@@ -148,7 +148,7 @@ TEST(struct_mapping_map_json_to_struct, member_vector) {
 	struct_mapping::map_json_to_struct(result_struct, json_data);
 
 	ASSERT_THAT(result_struct.member_vector_int, ElementsAre(-10, -1, 0, 1, 10));
-	ASSERT_THAT(result_struct.member_vector_float, ElementsAre(-10.5, -1, 0, 1, 10.5));
+	ASSERT_THAT(result_struct.member_vector_float, ElementsAre(-10.5f, -1.0f, 0.0f, 1.0f, 10.5f));
 	ASSERT_THAT(result_struct.member_vector_string, ElementsAre("first", "second"));
 }
 
@@ -188,7 +188,7 @@ TEST(struct_mapping_map_json_to_struct, member_map) {
 	struct_mapping::map_json_to_struct(result_struct, json_data);
 
 	ASSERT_THAT(result_struct.member_map_int, ElementsAre(Pair("first", -10), Pair("second", 0), Pair("third", 10)));
-	ASSERT_THAT(result_struct.member_map_float, ElementsAre(Pair("first", -10.5), Pair("second", 1), Pair("third", 10.5)));
+	ASSERT_THAT(result_struct.member_map_float, ElementsAre(Pair("first", -10.5f), Pair("second", 1.0f), Pair("third", 10.5f)));
 	ASSERT_THAT(result_struct.member_map_string, ElementsAre(Pair("first", "first_string"), Pair("second", "second_string"), Pair("third", "third_string")));
 }
 
@@ -228,7 +228,7 @@ TEST(struct_mapping_map_json_to_struct, member_unordered_map) {
 	struct_mapping::map_json_to_struct(result_struct, json_data);
 
 	ASSERT_THAT(result_struct.member_unordered_map_int, UnorderedElementsAre(Pair("first", -10), Pair("second", 0), Pair("third", 10)));
-	ASSERT_THAT(result_struct.member_unordered_map_float, UnorderedElementsAre(Pair("first", -10.5), Pair("second", 1), Pair("third", 10.5)));
+	ASSERT_THAT(result_struct.member_unordered_map_float, UnorderedElementsAre(Pair("first", -10.5f), Pair("second", 1.0f), Pair("third", 10.5f)));
 	ASSERT_THAT(result_struct.member_unordered_map_string, UnorderedElementsAre(Pair("first", "first_string"), Pair("second", "second_string"), Pair("third", "third_string")));
 }
 
@@ -269,7 +269,7 @@ TEST(struct_mapping_map_json_to_struct, member_multimap) {
 	struct_mapping::map_json_to_struct(result_struct, json_data);
 
 	ASSERT_THAT(result_struct.member_multimap_int, ElementsAre(Pair("first", -10), Pair("first", 20), Pair("second", 0), Pair("third", 10)));
-	ASSERT_THAT(result_struct.member_multimap_float, ElementsAre(Pair("first", -10.5), Pair("second", 1), Pair("third", 10.5)));
+	ASSERT_THAT(result_struct.member_multimap_float, ElementsAre(Pair("first", -10.5f), Pair("second", 1.0f), Pair("third", 10.5f)));
 	ASSERT_THAT(result_struct.member_multimap_string, ElementsAre(Pair("first", "first_string"), Pair("second", "second_string"), Pair("third", "third_string")));
 }
 
@@ -310,7 +310,7 @@ TEST(struct_mapping_map_json_to_struct, member_unordered_multimap) {
 	struct_mapping::map_json_to_struct(result_struct, json_data);
 
 	ASSERT_THAT(result_struct.member_unordered_multimap_int, UnorderedElementsAre(Pair("first", -10), Pair("first", 20), Pair("second", 0), Pair("third", 10)));
-	ASSERT_THAT(result_struct.member_unordered_multimap_float, UnorderedElementsAre(Pair("first", -10.5), Pair("second", 1), Pair("third", 10.5)));
+	ASSERT_THAT(result_struct.member_unordered_multimap_float, UnorderedElementsAre(Pair("first", -10.5f), Pair("second", 1.0f), Pair("third", 10.5f)));
 	ASSERT_THAT(result_struct.member_unordered_multimap_string, UnorderedElementsAre(Pair("first", "first_string"), Pair("second", "second_string"), Pair("third", "third_string")));
 }
 
@@ -686,7 +686,7 @@ TEST(struct_mapping_map_json_to_struct, member_set) {
 
 	ASSERT_THAT(result_struct.member_set_bool, ElementsAre(false, true));
 	ASSERT_THAT(result_struct.member_set_int, ElementsAre(-10, -1, 0, 1, 10));
-	ASSERT_THAT(result_struct.member_set_float, ElementsAre(-10.5, -1, 0, 1, 10.5));
+	ASSERT_THAT(result_struct.member_set_float, ElementsAre(-10.5f, -1.0f, 0.0f, 1.0f, 10.5f));
 	ASSERT_THAT(result_struct.member_set_string, ElementsAre("first", "second"));
 }
 
@@ -718,7 +718,7 @@ TEST(struct_mapping_map_json_to_struct, member_multiset) {
 
 	ASSERT_THAT(result_struct.member_set_bool, ElementsAre(false, false, true, true));
 	ASSERT_THAT(result_struct.member_set_int, ElementsAre(-10, -10, -1, 0, 0, 1, 10, 10));
-	ASSERT_THAT(result_struct.member_set_float, ElementsAre(-10.5, -10.5, -1, -1, 0, 0, 1, 10.5));
+	ASSERT_THAT(result_struct.member_set_float, ElementsAre(-10.5f, -10.5f, -1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 10.5f));
 	ASSERT_THAT(result_struct.member_set_string, ElementsAre("first", "first", "second", "second"));
 }
 
@@ -750,7 +750,7 @@ TEST(struct_mapping_map_json_to_struct, member_unordered_set) {
 
 	ASSERT_THAT(result_struct.member_set_bool, UnorderedElementsAre(false, true));
 	ASSERT_THAT(result_struct.member_set_int, UnorderedElementsAre(-10, -1, 0, 1, 10));
-	ASSERT_THAT(result_struct.member_set_float, UnorderedElementsAre(-10.5, -1, 0, 1, 10.5));
+	ASSERT_THAT(result_struct.member_set_float, UnorderedElementsAre(-10.5f, -1.0f, 0.0f, 1.0f, 10.5f));
 	ASSERT_THAT(result_struct.member_set_string, UnorderedElementsAre("first", "second"));
 }
 
@@ -782,7 +782,7 @@ TEST(struct_mapping_map_json_to_struct, member_unordered_multiset) {
 
 	ASSERT_THAT(result_struct.member_set_bool, UnorderedElementsAre(false, false, true, true));
 	ASSERT_THAT(result_struct.member_set_int, UnorderedElementsAre(-10, -1, 0, 1, 10, -10, 0, 10));
-	ASSERT_THAT(result_struct.member_set_float, UnorderedElementsAre(-10.5, -1, 0, 1, 10.5, -10.5, -1, 0));
+	ASSERT_THAT(result_struct.member_set_float, UnorderedElementsAre(-10.5f, -1.0f, 0.0f, 1.0f, 10.5f, -10.5f, -1.0f, 0.0f));
 	ASSERT_THAT(result_struct.member_set_string, UnorderedElementsAre("first", "second", "first", "second"));
 }
 

@@ -163,7 +163,7 @@ std::istringstream json_data(R"json(
 pass the person instance to the mapping method along with json data
 
 ```cpp
-mapper::map_json_to_struct(person, json_data);
+map_json_to_struct(person, json_data);
 ```
 
 use
@@ -1298,10 +1298,11 @@ int main() {
 }
 ```
 
-To simplify the use of this method, three macros are defined
+To simplify the use of this method, four macros are defined
 
 - BEGIN_STRUCT
 - MEMBER
+- MEMBER_OPTIONS
 - END_STRUCT
 
 #### BEGIN_STRUCT
@@ -1325,6 +1326,19 @@ MEMBER(double, mass)
 MEMBER(std::vector<std::string>, satellites)
 ```
 
+#### MEMBER_OPTIONS
+Adds a data member and registers it. You can set field options. At least one option must be setted:
+
+MEMBER_OPTIONS(type, name, option_1, ...)
+
+```cpp
+MEMBER_OPTIONS(
+	int,
+	count,
+	struct_mapping::Bounds{23, 47},
+	struct_mapping::Default{35})
+```
+
 #### END_STRUCT
 Defines the end of the structure
 
@@ -1339,6 +1353,7 @@ END_STRUCT
 ```cpp
 #include <iostream>
 #include <sstream>
+#include <string>
 #include <vector>
 
 #include "struct_mapping/struct_mapping.h"
@@ -1347,19 +1362,22 @@ BEGIN_STRUCT(Planet)
 
 MEMBER(bool, giant)
 MEMBER(long long, surface_area)
-MEMBER(double, mass)
+MEMBER_OPTIONS(
+ double,
+ mass,
+ struct_mapping::Bounds{1.0e23, 1.0e27},
+ struct_mapping::Default{1.0e25})
 MEMBER(std::vector<std::string>, satellites)
 
 END_STRUCT
 
 int main() {
  std::istringstream json_data(R"json(
-  {
-   "giant": false,
-   "surface_area": 510072000000000,
-   "mass": 5.97237e24,
-   "satellites": ["Moon", "R24"]
-  }
+ {
+  "giant": false,
+  "surface_area": 510072000000000,
+  "satellites": ["Moon", "R24"]
+ }
  )json");
 
  Planet earth;
