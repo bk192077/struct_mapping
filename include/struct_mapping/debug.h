@@ -1,7 +1,8 @@
 #ifndef STRUCT_MAPPING_DEBUG_H
 #define STRUCT_MAPPING_DEBUG_H
 
-namespace struct_mapping {
+namespace struct_mapping
+{
 
 #ifdef DEBUG_OUTPUT
 	constexpr bool debug = true;
@@ -9,7 +10,7 @@ namespace struct_mapping {
 	constexpr bool debug = false;
 #endif
 
-}
+} // struct_mapping
 
 #endif
 

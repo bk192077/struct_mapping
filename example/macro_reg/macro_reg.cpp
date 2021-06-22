@@ -18,7 +18,8 @@ MEMBER(std::vector<std::string>, satellites)
 
 END_STRUCT
 
-int main() {
+int main()
+{
 	std::istringstream json_data(R"json(
 	{
 		"giant": false,
@@ -31,11 +32,17 @@ int main() {
 
 	struct_mapping::map_json_to_struct(earth, json_data);
 
-	std::cout << "earth" << std::endl;
-	std::cout << " giant        : " << std::boolalpha << earth.giant << std::endl;
-	std::cout << " surface_area : " << earth.surface_area << std::endl;
-	std::cout << " mass         : " << earth.mass << std::endl;
-	std::cout << " satellite    : [ ";
-	for (auto & s : earth.satellites) std::cout << s << ", ";
+	std::cout
+		<< "earth" << std::endl
+		<< " giant        : " << std::boolalpha << earth.giant << std::endl
+		<< " surface_area : " << earth.surface_area << std::endl
+		<< " mass         : " << earth.mass << std::endl
+		<< " satellite    : [ ";
+
+	for (const auto& s : earth.satellites)
+	{
+		std::cout << s << ", ";
+	}
+
 	std::cout << "]" << std::endl;
 }

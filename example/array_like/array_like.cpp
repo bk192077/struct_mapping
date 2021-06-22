@@ -8,28 +8,34 @@
 
 #include "struct_mapping/struct_mapping.h"
 
-struct Friend {
+struct Friend
+{
 	std::string name;
 	std::set<int> counters;
 
-	bool operator==(const Friend & o) const {
+	bool operator==(const Friend& o) const
+	{
 		return name == o.name;
 	}
 };
 
-struct Friend_hash {
-	size_t operator()(const Friend & o) const {
+struct FriendHash
+{
+	size_t operator()(const Friend& o) const
+	{
 		return static_cast<size_t>(o.name.size());
 	}
 };
 
-struct MiB {
-	std::unordered_set<Friend, Friend_hash> friends;
+struct MiB
+{
+	std::unordered_set<Friend, FriendHash> friends;
 	std::vector<std::list<std::string>> alien_groups;
 	std::vector<std::list<std::vector<std::string>>> planet_groups;
 };
 
-int main() {
+int main()
+{
 	struct_mapping::reg(&Friend::name, "name");
 	struct_mapping::reg(&Friend::counters, "counters");
 
@@ -104,27 +110,34 @@ int main() {
 	std::cout << "mib:" << std::endl;
 
 	std::cout << " friends :" << std::endl;
-	for (auto& f : mib.friends) {
+	for (const auto& f : mib.friends)
+	{
 		std::cout << "  name: [ " << f.name << " ], counters: [";
-		for (auto& c : f.counters) {
+		for (const auto& c : f.counters)
+		{
 			std::cout << c << ", ";
 		}
 		std::cout << "]" << std::endl;
 	}
 
 	std::cout << std::endl << " aliens_groups :" << std::endl;
-	for (auto& alien : mib.alien_groups) {
-		for (auto& name : alien) {
+	for (const auto& alien : mib.alien_groups)
+	{
+		for (const auto& name : alien)
+		{
 			std::cout << "  " << name << std::endl;
 		}
 		std::cout << std::endl;
 	}
 
 	std::cout << " planets_groups :" << std::endl;
-	for (auto& group : mib.planet_groups) {
+	for (const auto& group : mib.planet_groups)
+	{
 		std::cout << "  ---" << std::endl;
-		for (auto& category : group) {
-			for (auto& planet : category) {
+		for (const auto& category : group)
+		{
+			for (const auto& planet : category)
+			{
 				std::cout << "   " << planet << std::endl;
 			}
 			std::cout << std::endl;

@@ -8,25 +8,30 @@
 
 namespace sm = struct_mapping;
 
-struct Reentry_module {
+struct Reentry_module
+{
 	double total_mass;
 };
 
-struct Stage {
+struct Stage
+{
 	unsigned short engine_count;
 	std::string fuel;
 	long length;
 
-	friend std::ostream & operator<<(std::ostream & os, const Stage & o) {
-		os << "  engine_count : " << o.engine_count << std::endl;
-		os << "  fuel         : " << o.fuel << std::endl;
-		os << "  length       : " << o.length << std::endl;
+	friend std::ostream& operator<<(std::ostream& os, const Stage& o)
+	{
+		os
+			<< "  engine_count : " << o.engine_count << std::endl
+			<< "  fuel         : " << o.fuel << std::endl
+			<< "  length       : " << o.length << std::endl;
 
 		return os;
 	}
 };
 
-struct Spacecraft {
+struct Spacecraft
+{
 	bool in_development;
 	std::string name;
 	int mass;
@@ -34,22 +39,34 @@ struct Spacecraft {
 	std::map<std::string, Stage> stages;
 	std::list<std::string> crew;
 
-	friend std::ostream & operator<<(std::ostream & os, const Spacecraft & o) {
-		os << "in_development : " << std::boolalpha << o.in_development << std::endl;
-		os << "name           : " << o.name << std::endl;
-		os << "mass           : " << o.mass << std::endl;
-		os << "reentry_module : " << std::endl;
-		os << " total_mass : " << o.reentry_module.total_mass << std::endl;
-		os << "stages: " << std::endl;
-		for (auto& s : o.stages) os << " " << s.first << std::endl << s.second;
+	friend std::ostream& operator<<(std::ostream& os, const Spacecraft& o)
+	{
+		os
+			<< "in_development : " << std::boolalpha << o.in_development << std::endl
+			<< "name           : " << o.name << std::endl
+			<< "mass           : " << o.mass << std::endl
+			<< "reentry_module : " << std::endl
+			<< " total_mass : " << o.reentry_module.total_mass << std::endl
+			<< "stages: " << std::endl;
+
+		for (const auto& s : o.stages)
+		{
+			os << " " << s.first << std::endl << s.second;
+		}
+
 		os << "crew: " << std::endl;
-		for (auto& p : o.crew) os << " " << p << std::endl;
+
+		for (const auto& p : o.crew)
+		{
+			os << " " << p << std::endl;
+		}
 
 		return os;
 	}
 };
 
-int main() {
+int main()
+{
 	sm::reg(&Reentry_module::total_mass, "total_mass", sm::Default{145});
 
 	sm::reg(&Stage::engine_count, "engine_count", sm::Default{6});

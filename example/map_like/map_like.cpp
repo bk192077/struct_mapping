@@ -6,12 +6,19 @@
 
 #include "struct_mapping/struct_mapping.h"
 
-struct Library {
-	std::unordered_map<std::string, std::multimap<std::string, int>> counters;
-	std::multimap<std::string, std::unordered_multimap<std::string, std::string>> books;
+struct Library
+{
+	std::unordered_map<
+		std::string,
+		std::multimap<std::string, int>> counters;
+
+	std::multimap<
+		std::string,
+		std::unordered_multimap<std::string, std::string>> books;
 };
 
-int main() {
+int main()
+{
 	struct_mapping::reg(&Library::counters, "counters");
 	struct_mapping::reg(&Library::books, "books");
 
@@ -51,18 +58,23 @@ int main() {
 	std::cout << "library:" << std::endl;
 
 	std::cout << " counters :" << std::endl;
-	for (auto [n1, v] : library.counters) {
+
+	for (const auto& [n1, v] : library.counters)
+	{
 		std::cout << "  " << n1 << " : ";
-		for (auto [n2, c] : v) {
+		for (const auto& [n2, c] : v)
+		{
 			std::cout << "[" << n2 << ", " << c << "], ";
 		}
 		std::cout << std::endl;
 	}
 
 	std::cout << " books :" << std::endl;
-	for (auto [n1, v] : library.books) {
+	for (const auto& [n1, v] : library.books)
+	{
 		std::cout << "  " << n1 << " : ";
-		for (auto [n2, b] : v) {
+		for (const auto& [n2, b] : v)
+		{
 			std::cout << "[" << n2 << ", " << b << "], ";
 		}
 		std::cout << std::endl;

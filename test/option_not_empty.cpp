@@ -13,13 +13,16 @@
 using ::testing::ElementsAre;
 using ::testing::Pair;
 
-namespace {
+namespace
+{
 
-struct Struct_not_empty {
+struct Struct_not_empty
+{
 	std::string name;
 };
 
-TEST(option_not_empty, not_empty_value) {
+TEST(option_not_empty, not_empty_value)
+{
 	Struct_not_empty result_struct;
 	
 	struct_mapping::reg(&Struct_not_empty::name, "name", struct_mapping::NotEmpty{});
@@ -35,11 +38,13 @@ TEST(option_not_empty, not_empty_value) {
 	ASSERT_EQ(result_struct.name, "Frank");
 }
 
-struct Struct_empty {
+struct Struct_empty
+{
 	std::string name;
 };
 
-TEST(option_not_empty, empty_value) {
+TEST(option_not_empty, empty_value)
+{
 	Struct_empty result_struct;
 	
 	struct_mapping::reg(&Struct_empty::name, "name", struct_mapping::NotEmpty{});
@@ -50,22 +55,29 @@ TEST(option_not_empty, empty_value) {
 	)json");
 
 
-	try {
+	try
+	{
 		struct_mapping::map_json_to_struct(result_struct, json_data);
-	} catch (struct_mapping::StructMappingException& e) {
+	}
+	catch (struct_mapping::StructMappingException& e)
+	{
 		return;
-	} catch (...) {
+	}
+	catch (...)
+	{
 		FAIL() << "Expected: throws an exception of type StructMappingException\n  Actual: it throws a different type";
 	}
 
 	FAIL() << "Expected: throws an exception of type StructMappingException\n  Actual: it throws nothing";
 }
 
-struct Struct_list_not_empty {
+struct Struct_list_not_empty
+{
 	std::list<int> values;
 };
 
-TEST(option_not_empty, list_not_empty) {
+TEST(option_not_empty, list_not_empty)
+{
 	Struct_list_not_empty result_struct;
 	
 	struct_mapping::reg(&Struct_list_not_empty::values, "values", struct_mapping::NotEmpty{});
@@ -81,11 +93,13 @@ TEST(option_not_empty, list_not_empty) {
 	ASSERT_THAT(result_struct.values, ElementsAre(1,2,3));
 }
 
-struct Struct_list_empty {
+struct Struct_list_empty
+{
 	std::list<int> values;
 };
 
-TEST(option_not_empty, list_empty) {
+TEST(option_not_empty, list_empty)
+{
 	Struct_list_empty result_struct;
 	
 	struct_mapping::reg(&Struct_list_empty::values, "values", struct_mapping::NotEmpty{});
@@ -96,22 +110,29 @@ TEST(option_not_empty, list_empty) {
 	}
 	)json");
 
-	try {
+	try
+	{
 		struct_mapping::map_json_to_struct(result_struct, json_data);
-	} catch (struct_mapping::StructMappingException& e) {
+	}
+	catch (struct_mapping::StructMappingException& e)
+	{
 		return;
-	} catch (...) {
+	}
+	catch (...)
+	{
 		FAIL() << "Expected: throws an exception of type StructMappingException\n  Actual: it throws a different type";
 	}
 
 	FAIL() << "Expected: throws an exception of type StructMappingException\n  Actual: it throws nothing";
 }
 
-struct Struct_list_not_exist {
+struct Struct_list_not_exist
+{
 	std::list<int> values;
 };
 
-TEST(option_not_empty, list_not_exist) {
+TEST(option_not_empty, list_not_exist)
+{
 	Struct_list_not_exist result_struct;
 	
 	struct_mapping::reg(&Struct_list_not_exist::values, "values", struct_mapping::NotEmpty{});
@@ -121,22 +142,29 @@ TEST(option_not_empty, list_not_exist) {
 	}
 	)json");
 
-	try {
+	try
+	{
 		struct_mapping::map_json_to_struct(result_struct, json_data);
-	} catch (struct_mapping::StructMappingException& e) {
+	}
+	catch (struct_mapping::StructMappingException& e)
+	{
 		return;
-	} catch (...) {
+	}
+	catch (...)
+	{
 		FAIL() << "Expected: throws an exception of type StructMappingException\n  Actual: it throws a different type";
 	}
 
 	FAIL() << "Expected: throws an exception of type StructMappingException\n  Actual: it throws nothing";
 }
 
-struct Struct_map_not_empty {
+struct Struct_map_not_empty
+{
 	std::map<std::string, int> values;
 };
 
-TEST(option_not_empty, map_not_empty) {
+TEST(option_not_empty, map_not_empty)
+{
 	Struct_map_not_empty result_struct;
 	
 	struct_mapping::reg(&Struct_map_not_empty::values, "values", struct_mapping::NotEmpty{});
@@ -156,11 +184,13 @@ TEST(option_not_empty, map_not_empty) {
 	ASSERT_THAT(result_struct.values, ElementsAre(Pair("1", 1), Pair("2", 2), Pair("3", 3)));
 }
 
-struct Struct_map_empty {
+struct Struct_map_empty
+{
 	std::map<std::string, int> values;
 };
 
-TEST(option_not_empty, map_empty) {
+TEST(option_not_empty, map_empty)
+{
 	Struct_map_empty result_struct;
 	
 	struct_mapping::reg(&Struct_map_empty::values, "values", struct_mapping::NotEmpty{});
@@ -171,22 +201,29 @@ TEST(option_not_empty, map_empty) {
 	}
 	)json");
 
-	try {
+	try
+	{
 		struct_mapping::map_json_to_struct(result_struct, json_data);
-	} catch (struct_mapping::StructMappingException& e) {
+	}
+	catch (struct_mapping::StructMappingException& e)
+	{
 		return;
-	} catch (...) {
+	}
+	catch (...)
+	{
 		FAIL() << "Expected: throws an exception of type StructMappingException\n  Actual: it throws a different type";
 	}
 
 	FAIL() << "Expected: throws an exception of type StructMappingException\n  Actual: it throws nothing";
 }
 
-struct Struct_map_not_exist {
+struct Struct_map_not_exist
+{
 	std::map<std::string, int> values;
 };
 
-TEST(option_not_empty, map_not_exist) {
+TEST(option_not_empty, map_not_exist)
+{
 	Struct_map_not_exist result_struct;
 	
 	struct_mapping::reg(&Struct_map_not_exist::values, "values", struct_mapping::NotEmpty{});
@@ -196,15 +233,20 @@ TEST(option_not_empty, map_not_exist) {
 	}
 	)json");
 
-	try {
+	try
+	{
 		struct_mapping::map_json_to_struct(result_struct, json_data);
-	} catch (struct_mapping::StructMappingException& e) {
+	}
+	catch (struct_mapping::StructMappingException& e)
+	{
 		return;
-	} catch (...) {
+	}
+	catch (...)
+	{
 		FAIL() << "Expected: throws an exception of type StructMappingException\n  Actual: it throws a different type";
 	}
 
 	FAIL() << "Expected: throws an exception of type StructMappingException\n  Actual: it throws nothing";
 }
 
-}
+} // namespace

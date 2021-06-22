@@ -7,19 +7,22 @@
 
 #include "struct_mapping/struct_mapping.h"
 
-struct Satellite {
+struct Satellite
+{
 	std::string name;
 	long radius;
 };
 
-struct Planet {
+struct Planet
+{
 	std::string name;
 	bool populated;
 	long radius;
 	std::vector<Satellite> satellites;
 };
 
-struct PhotosphericComposition {
+struct PhotosphericComposition
+{
 	double Hydrogen;
 	double Helium;
 	double Oxygen;
@@ -32,14 +35,16 @@ struct PhotosphericComposition {
 	double Sulphur;
 };
 
-struct Star {
+struct Star
+{
 	std::string name;
 	long long age;
 	long radius;
 	PhotosphericComposition photospheric_composition;
 };
 
-struct PlanetSystem {
+struct PlanetSystem
+{
 	std::string name;
 	long long age;
 	long long major_axis;
@@ -49,7 +54,8 @@ struct PlanetSystem {
 	std::map<std::string, std::list<std::string>> missions;
 };
 
-static void load(PlanetSystem & planet_system) {
+static void load(PlanetSystem& planet_system)
+{
 	std::istringstream json_data(R"json(
 	{
 		"name": "solar system",
@@ -215,55 +221,65 @@ static void load(PlanetSystem & planet_system) {
 	struct_mapping::map_json_to_struct(planet_system, json_data);
 }
 
-static void print(PlanetSystem & planet_system) {
-	std::cout << "PlanetSystem:" << std::endl;
-	std::cout << " name       : " << planet_system.name << std::endl;
-	std::cout << " age        : " << planet_system.age << std::endl;
-	std::cout << " major_axis : " << planet_system.major_axis << std::endl;
-	std::cout << " populated  : " << std::boolalpha << planet_system.populated << std::endl;
-	std::cout << " star:" << std::endl;
-	std::cout << "  name   : " << planet_system.star.name << std::endl;
-	std::cout << "  age    : " << planet_system.star.age << std::endl;
-	std::cout << "  radius : " << planet_system.star.radius << std::endl;
-	std::cout << "  photospheric_composition:" << std::endl;
-	std::cout << "   Hydrogen  : " << planet_system.star.photospheric_composition.Hydrogen << std::endl;
-	std::cout << "   Helium    : " << planet_system.star.photospheric_composition.Helium << std::endl;
-	std::cout << "   Oxygen    : " << planet_system.star.photospheric_composition.Oxygen << std::endl;
-	std::cout << "   Carbon    : " << planet_system.star.photospheric_composition.Carbon << std::endl;
-	std::cout << "   Iron      : " << planet_system.star.photospheric_composition.Iron << std::endl;
-	std::cout << "   Neon      : " << planet_system.star.photospheric_composition.Neon << std::endl;
-	std::cout << "   Nitrogen  : " << planet_system.star.photospheric_composition.Nitrogen << std::endl;
-	std::cout << "   Silicon   : " << planet_system.star.photospheric_composition.Silicon << std::endl;
-	std::cout << "   Magnesium : " << planet_system.star.photospheric_composition.Magnesium << std::endl;
-	std::cout << "   Sulphur   : " << planet_system.star.photospheric_composition.Sulphur << std::endl;
-	std::cout << " planets:" << std::endl;
+static void print(PlanetSystem& planet_system)
+{
+	std::cout
+		<< "PlanetSystem:" << std::endl
+		<< " name       : " << planet_system.name << std::endl
+		<< " age        : " << planet_system.age << std::endl
+		<< " major_axis : " << planet_system.major_axis << std::endl
+		<< " populated  : " << std::boolalpha << planet_system.populated << std::endl
+		<< " star:" << std::endl
+		<< "  name   : " << planet_system.star.name << std::endl
+		<< "  age    : " << planet_system.star.age << std::endl
+		<< "  radius : " << planet_system.star.radius << std::endl
+		<< "  photospheric_composition:" << std::endl
+		<< "   Hydrogen  : " << planet_system.star.photospheric_composition.Hydrogen << std::endl
+		<< "   Helium    : " << planet_system.star.photospheric_composition.Helium << std::endl
+		<< "   Oxygen    : " << planet_system.star.photospheric_composition.Oxygen << std::endl
+		<< "   Carbon    : " << planet_system.star.photospheric_composition.Carbon << std::endl
+		<< "   Iron      : " << planet_system.star.photospheric_composition.Iron << std::endl
+		<< "   Neon      : " << planet_system.star.photospheric_composition.Neon << std::endl
+		<< "   Nitrogen  : " << planet_system.star.photospheric_composition.Nitrogen << std::endl
+		<< "   Silicon   : " << planet_system.star.photospheric_composition.Silicon << std::endl
+		<< "   Magnesium : " << planet_system.star.photospheric_composition.Magnesium << std::endl
+		<< "   Sulphur   : " << planet_system.star.photospheric_composition.Sulphur << std::endl
+		<< " planets:" << std::endl;
 
-	for (auto& planet : planet_system.planets) {
-		std::cout << "  [" << std::endl;
-		std::cout << "   name      : " << planet.name << std::endl;
-		std::cout << "   populated : " << planet.populated << std::endl;
-		std::cout << "   radius    : " << planet.radius << std::endl;
-		std::cout << "   satellites:" << std::endl;
-		for (auto& satellite : planet.satellites) {
-			std::cout << "    {" << std::endl;
-			std::cout << "     name   : " << satellite.name << std::endl;
-			std::cout << "     radius : " << satellite.radius << std::endl;
-			std::cout << "    }" << std::endl;
+	for (const auto& planet : planet_system.planets)
+	{
+		std::cout
+			<< "  [" << std::endl
+			<< "   name      : " << planet.name << std::endl
+			<< "   populated : " << planet.populated << std::endl
+			<< "   radius    : " << planet.radius << std::endl
+			<< "   satellites:" << std::endl;
+
+		for (const auto& satellite : planet.satellites)
+		{
+			std::cout
+				<< "    {" << std::endl
+				<< "     name   : " << satellite.name << std::endl
+				<< "     radius : " << satellite.radius << std::endl
+				<< "    }" << std::endl;
 		}
 		std::cout << "  ]" << std::endl;
 	}
 
 	std::cout << " missions:" << std::endl;
-	for (auto& [name, missions] : planet_system.missions) {
+	for (const auto& [name, missions] : planet_system.missions)
+	{
 		std::cout << "  " << name << " : [ ";
-		for (auto& mission : missions) {
+		for (const auto& mission : missions)
+		{
 			std::cout << mission << ", ";
 		}
 		std::cout << "]" << std::endl;
 	}
 }
 
-int main() {
+int main()
+{
 	struct_mapping::reg(&Satellite::name, "name");
 	struct_mapping::reg(&Satellite::radius, "radius");
 

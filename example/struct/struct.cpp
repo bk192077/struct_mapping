@@ -4,16 +4,19 @@
 
 #include "struct_mapping/struct_mapping.h"
 
-struct President {
+struct President
+{
 	std::string name;
 	double mass;
 };
 
-struct Earth {
+struct Earth
+{
 	President president;
 };
 
-int main() {
+int main()
+{
 	struct_mapping::reg(&President::name, "name");
 	struct_mapping::reg(&President::mass, "mass");
 
@@ -32,7 +35,8 @@ int main() {
 
 	struct_mapping::map_json_to_struct(earth, json_data);
 
-	std::cout << "earth.president:" << std::endl;
-	std::cout << " name : " << earth.president.name << std::endl;
-	std::cout << " mass : " << earth.president.mass << std::endl;
+	std::cout
+		<< "earth.president:" << std::endl
+		<< " name : " << earth.president.name << std::endl
+		<< " mass : " << earth.president.mass << std::endl;
 }

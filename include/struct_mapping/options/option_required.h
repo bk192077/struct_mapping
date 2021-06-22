@@ -3,19 +3,25 @@
 
 #include <string>
 
-namespace struct_mapping {
+namespace struct_mapping
+{
 
 template<typename T = void>
-class Required {
+class Required
+{
 public:
 	template<typename M>
 	void check_option() const {}
 
-	static void check_result(bool changed, const std::string & name) {
-		if (!changed) throw StructMappingException("no value has been set for the required member '" + name + "'");
+	static void check_result(bool changed, const std::string& name)
+	{
+		if (!changed)
+		{
+			throw StructMappingException("no value has been set for the required member '" + name + "'");
+		}
 	}
 };
 
-}
+} // struct_mapping
 
 #endif

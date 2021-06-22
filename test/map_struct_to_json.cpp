@@ -10,9 +10,11 @@
 
 #include "struct_mapping/struct_mapping.h"
 
-namespace {
+namespace
+{
 
-struct Simple {
+struct Simple
+{
 	bool a;
 	int b;
 	double c;
@@ -23,7 +25,8 @@ struct Simple {
 	std::string h;
 };
 
-TEST(struct_mapping_mapper_map_struct_to_json, simple) {
+TEST(struct_mapping_mapper_map_struct_to_json, simple)
+{
 	Simple source;
 
 	struct_mapping::reg(&Simple::a, "a");
@@ -47,21 +50,25 @@ TEST(struct_mapping_mapper_map_struct_to_json, simple) {
 	std::ostringstream result_json;
 	struct_mapping::map_struct_to_json(source, result_json);
 
-	std::string expected_json(R"json({"a":false,"b":1975,"c":14.768,"d":"Apollo","e":true,"f":1975,"g":6.79,"h":"Soyuz"})json");
+	std::string expected_json(
+		R"json({"a":false,"b":1975,"c":14.768,"d":"Apollo","e":true,"f":1975,"g":6.79,"h":"Soyuz"})json");
 
 	ASSERT_EQ(result_json.str(), expected_json);
 }
 
-struct Struct_A {
+struct Struct_A
+{
 	int value;
 };
 
-struct Struct {
+struct Struct
+{
 	Struct_A a;
 	Struct_A b;
 };
 
-TEST(struct_mapping_mapper_map_struct_to_json, struct) {
+TEST(struct_mapping_mapper_map_struct_to_json, struct)
+{
 	Struct source;
 	
 	struct_mapping::reg(&Struct_A::value, "value");
@@ -79,7 +86,8 @@ TEST(struct_mapping_mapper_map_struct_to_json, struct) {
 	ASSERT_EQ(result_json.str(), expected_json);
 }
 
-TEST(struct_mapping_mapper_map_struct_to_json_pretty, test_struct) {
+TEST(struct_mapping_mapper_map_struct_to_json_pretty, test_struct)
+{
 	Struct source;
 
 	source.a.value = 42;
@@ -101,11 +109,13 @@ R"json({
 	ASSERT_EQ(result_json.str(), expected_json);
 }
 
-struct Array {
+struct Array
+{
 	std::vector<int> a;
 };
 
-TEST(struct_mapping_mapper_map_struct_to_json, array) {
+TEST(struct_mapping_mapper_map_struct_to_json, array)
+{
 	Array source;
 
 	struct_mapping::reg(&Array::a, "a");
@@ -122,7 +132,8 @@ TEST(struct_mapping_mapper_map_struct_to_json, array) {
 	ASSERT_EQ(result_json.str(), expected_json);
 }
 
-TEST(struct_mapping_mapper_map_struct_to_json_pretty, test_array) {
+TEST(struct_mapping_mapper_map_struct_to_json_pretty, test_array)
+{
 	Array source;
 
 	source.a.push_back(1);
@@ -144,19 +155,22 @@ R"json({
 	ASSERT_EQ(result_json.str(), expected_json);
 }
 
-struct ComplexAuthor {
+struct ComplexAuthor
+{
 	std::string name;
 	int birth_year;
 };
 
-struct ComplexBook {
+struct ComplexBook
+{
 	double price;
 	bool free;
 	ComplexAuthor author;
 	std::vector<std::string> chapters;
 };
 
-TEST(struct_mapping_mapper_map_struct_to_json, complex) {
+TEST(struct_mapping_mapper_map_struct_to_json, complex)
+{
 	ComplexBook source;
 
 	struct_mapping::reg(&ComplexAuthor::name, "name");
@@ -177,12 +191,14 @@ TEST(struct_mapping_mapper_map_struct_to_json, complex) {
 	std::ostringstream result_json;
 	struct_mapping::map_struct_to_json(source, result_json);
 
-	std::string expected_json(R"json({"price":12.35,"free":false,"author":{"name":"Gogol","birth_year":1809},"chapters":["B 1999","M 1998","E 1997"]})json");
+	std::string expected_json(
+		R"json({"price":12.35,"free":false,"author":{"name":"Gogol","birth_year":1809},"chapters":["B 1999","M 1998","E 1997"]})json");
 
 	ASSERT_EQ(result_json.str(), expected_json);
 }
 
-TEST(struct_mapping_mapper_map_struct_to_json_pretty, test_complex) {
+TEST(struct_mapping_mapper_map_struct_to_json_pretty, test_complex)
+{
 	ComplexBook source;
 
 	source.price = 12.35;
@@ -214,33 +230,49 @@ R"json({
 	ASSERT_EQ(result_json.str(), expected_json);
 }
 
-enum class Enum_reverse {
+enum class Enum_reverse
+{
 	v1,
 	v2,
 	v3
 };
 
-struct Struct_enum_reverse {
+struct Struct_enum_reverse
+{
 	Enum_reverse value;
 	std::list<Enum_reverse> value_list;
 	std::map<std::string, Enum_reverse> value_map;
 };
 
-TEST(struct_mapping_map_json_to_struct, test_enum) {
-	struct_mapping::MemberString<Enum_reverse>::set([] (const std::string & value) {
-		if (value == "v1") return Enum_reverse::v1;
-		if (value == "v2") return Enum_reverse::v2;
-		if (value == "v3") return Enum_reverse::v3;
+TEST(struct_mapping_map_json_to_struct, test_enum)
+{
+	struct_mapping::MemberString<Enum_reverse>::set(
+		[] (const std::string& value)
+		{
+			if (value == "v1")
+			{
+				return Enum_reverse::v1;
+			}
+			else if (value == "v2")
+			{
+				return Enum_reverse::v2;
+			}
+			else if (value == "v3")
+			{
+				return Enum_reverse::v3;
+			} 
 
-		throw struct_mapping::StructMappingException("bad convert '" + value + "' to Enum_reverse");
-	},
-	[] (Enum_reverse value) {
-		switch (value) {
-		case Enum_reverse::v1: return "v1";
-		case Enum_reverse::v2: return "v2";
-		default: return "v3";
-		}
-	});
+			throw struct_mapping::StructMappingException("bad convert '" + value + "' to Enum_reverse");
+		},
+		[] (Enum_reverse value)
+		{
+			switch (value)
+			{
+			case Enum_reverse::v1: return "v1";
+			case Enum_reverse::v2: return "v2";
+			default: return "v3";
+			}
+		});
 
 	struct_mapping::reg(&Struct_enum_reverse::value, "value");
 	struct_mapping::reg(&Struct_enum_reverse::value_list, "value_list");
@@ -273,30 +305,43 @@ R"json({
 	ASSERT_EQ(result_json.str(), expected_json);
 }
 
-struct class_from_to_string_struct_a {
+struct class_from_to_string_struct_a
+{
 	int value;
 };
 
-struct class_from_to_string_struct_b {
+struct class_from_to_string_struct_b
+{
 	class_from_to_string_struct_a value;
 	std::vector<class_from_to_string_struct_a> value_array;
 	std::map<std::string, class_from_to_string_struct_a> value_map;
 };
 
-TEST(struct_mapping_map_json_to_struct, test_class_from_to_string) {
-	struct_mapping::MemberString<class_from_to_string_struct_a>::set([] (const std::string & o) {
-		if (o == "value_1") return class_from_to_string_struct_a{1};
-		if (o == "value_2") return class_from_to_string_struct_a{2};
-		
-		return class_from_to_string_struct_a{0};
-	},
-	[] (class_from_to_string_struct_a o) {
-		switch (o.value) {
-		case 1: return "value_1";
-		case 2: return "value_2";
-		default: return "value_0";
-	}
-	});
+TEST(struct_mapping_map_json_to_struct, test_class_from_to_string)
+{
+	struct_mapping::MemberString<class_from_to_string_struct_a>::set(
+		[] (const std::string& o)
+		{
+			if (o == "value_1")
+			{
+				return class_from_to_string_struct_a{1};
+			}
+			else if (o == "value_2")
+			{
+				return class_from_to_string_struct_a{2};
+			}
+			
+			return class_from_to_string_struct_a{0};
+		},
+		[] (class_from_to_string_struct_a o)
+		{
+			switch (o.value)
+			{
+			case 1: return "value_1";
+			case 2: return "value_2";
+			default: return "value_0";
+			}
+		});
 
 	struct_mapping::reg(&class_from_to_string_struct_b::value, "value");
 	struct_mapping::reg(&class_from_to_string_struct_b::value_array, "value_array");
@@ -329,4 +374,4 @@ R"json({
 	ASSERT_EQ(result_json.str(), expected_json);
 }
 
-}
+} // namespace

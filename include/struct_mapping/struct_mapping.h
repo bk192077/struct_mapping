@@ -2,9 +2,10 @@
 #define STRUCT_MAPPING_STRUCT_MAPPING_H
 
 #include <string>
+#include <utility>
 
 #include "exception.h"
-#include "f_struct.h"
+#include "object.h"
 #include "member_string.h"
 #include "mapper.h"
 #include "options/option_bounds.h"
@@ -12,14 +13,20 @@
 #include "options/option_not_empty.h"
 #include "options/option_required.h"
 
-namespace struct_mapping {
+namespace struct_mapping
+{
 
-template<typename T, typename V, typename ... U, template<typename> typename ... Options>
-inline void reg(V T::* ptr, std::string const & name, Options<U>&& ... options) {
-	detail::F<T>::reg(ptr, name, std::forward<Options<U>>(options)...);
+template<
+	typename T,
+	typename V,
+	typename ... U,
+	template<typename> typename ... Options>
+inline void reg(V T::* ptr, const std::string& name, Options<U>&& ... options)
+{
+	detail::Object<T>::reg(ptr, name, std::forward<Options<U>>(options)...);
 }
 
-}
+} // struct_mapping
 
 #define BEGIN_STRUCT(STRUCT_NAME) struct STRUCT_NAME {using Self_Q5w6E7r8 = STRUCT_NAME;
 

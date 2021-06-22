@@ -10,21 +10,25 @@
 
 namespace sm = struct_mapping;
 
-struct Stage {
+struct Stage
+{
 	unsigned short engine_count;
 	std::string fuel;
 	long length;
 
-	friend std::ostream & operator<<(std::ostream & os, const Stage & o) {
-		os << "  engine_count : " << o.engine_count << std::endl;
-		os << "  fuel         : " << o.fuel << std::endl;
-		os << "  length       : " << o.length << std::endl;
+	friend std::ostream& operator<<(std::ostream& os, const Stage& o)
+	{
+		os
+			<< "  engine_count : " << o.engine_count << std::endl
+			<< "  fuel         : " << o.fuel << std::endl
+			<< "  length       : " << o.length << std::endl;
 
 		return os;
 	}
 };
 
-struct Spacecraft {
+struct Spacecraft
+{
 	bool in_development;
 	std::string name;
 	int mass;
@@ -33,24 +37,46 @@ struct Spacecraft {
 	std::set<int> ids;
 	std::unordered_set<std::string> tools;
 
-	friend std::ostream & operator<<(std::ostream & os, const Spacecraft & o) {
-		os << "in_development : " << std::boolalpha << o.in_development << std::endl;
-		os << "name           : " << o.name << std::endl;
-		os << "mass           : " << o.mass << std::endl;
-		os << "stages: " << std::endl;
-		for (auto& s : o.stages) os << " " << s.first << std::endl << s.second;
+	friend std::ostream& operator<<(std::ostream& os, const Spacecraft& o)
+	{
+		os
+			<< "in_development : " << std::boolalpha << o.in_development << std::endl
+			<< "name           : " << o.name << std::endl
+			<< "mass           : " << o.mass << std::endl
+			<< "stages: " << std::endl;
+
+		for (const auto& s : o.stages)
+		{
+			os << " " << s.first << std::endl << s.second;
+		}
+
 		os << "crew: " << std::endl;
-		for (auto& p : o.crew) os << " " << p << std::endl;
+
+		for (const auto& p : o.crew)
+		{
+			os << " " << p << std::endl;
+		}
+
 		os << "ids: " << std::endl;
-		for (auto& i : o.ids) os << " " << i << std::endl;
+
+		for (const auto& i : o.ids)
+		{
+			os << " " << i << std::endl;
+		}
+
 		os << "tools: " << std::endl;
-		for (auto& t : o.tools) os << " " << t << std::endl;
+
+		for (const auto& t : o.tools)
+		{
+			os << " " << t << std::endl;
+		}
 
 		return os;
 	}
 };
 
-int main() {
+int main()
+{
 	sm::reg(&Stage::engine_count, "engine_count", sm::Default{6}, sm::Bounds{1, 31});
 	sm::reg(&Stage::fuel, "fuel", sm::Default{"subcooled"});
 	sm::reg(&Stage::length, "length", sm::Default{50});

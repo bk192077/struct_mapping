@@ -5,17 +5,20 @@
 
 #include "struct_mapping/struct_mapping.h"
 
-struct OceanPart {
+struct OceanPart
+{
 	std::string name;
 	double average_depth;
 	std::vector<int> temperature;
 };
 
-struct OceanColor {
+struct OceanColor
+{
 	std::string name;
 };
 
-struct Ocean {
+struct Ocean
+{
 	double water_volume;
 	long long surface_area;
 	bool liquid;
@@ -26,7 +29,8 @@ struct Ocean {
 	std::vector<OceanPart> parts;
 };
 
-struct Planet {
+struct Planet
+{
 	bool giant;
 	long long surface_area;
 	double mass;
@@ -39,7 +43,8 @@ struct Planet {
 	Ocean ocean;
 };
 
-int main() {
+int main()
+{
 	struct_mapping::reg(&OceanPart::name, "name");
 	struct_mapping::reg(&OceanPart::average_depth, "average_depth");
 	struct_mapping::reg(&OceanPart::temperature, "temperature");

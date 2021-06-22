@@ -7,9 +7,11 @@
 
 #include "struct_mapping/struct_mapping.h"
 
-namespace {
+namespace
+{
 
-struct Struct_bounds {
+struct Struct_bounds
+{
 	char member_char;
 	unsigned char member_unsigned_char;
 	short member_short;
@@ -22,7 +24,8 @@ struct Struct_bounds {
 	double member_double;
 };
 
-TEST(option_bounds, successful_bounds) {
+TEST(option_bounds, successful_bounds)
+{
 	Struct_bounds result_struct;
 	
 	struct_mapping::reg(&Struct_bounds::member_char, "member_char", struct_mapping::Bounds{-1, 10});
@@ -65,11 +68,13 @@ TEST(option_bounds, successful_bounds) {
 	ASSERT_EQ(result_struct.member_double, 80.5);
 }
 
-struct Struct_less_than_lowest {
+struct Struct_less_than_lowest
+{
 	int value;
 };
 
-TEST(option_bounds, less_than_lowest) {
+TEST(option_bounds, less_than_lowest)
+{
 	Struct_less_than_lowest result_struct;
 
 	std::istringstream json_data(R"json(
@@ -78,23 +83,30 @@ TEST(option_bounds, less_than_lowest) {
 	}
 	)json");
 
-	try {
+	try
+	{
 		struct_mapping::reg(&Struct_less_than_lowest::value, "value", struct_mapping::Bounds{-36, 42});
 		struct_mapping::map_json_to_struct(result_struct, json_data);
-	} catch (struct_mapping::StructMappingException& e) {
+	}
+	catch (struct_mapping::StructMappingException& e)
+	{
 		return;
-	} catch (...) {
+	}
+	catch (...)
+	{
 		FAIL() << "Expected: throws an exception of type StructMappingException\n  Actual: it throws a different type";
 	}
 
 	FAIL() << "Expected: throws an exception of type StructMappingException\n  Actual: it throws nothing";
 }
 
-struct Struct_more_than_upper {
+struct Struct_more_than_upper
+{
 	int value;
 };
 
-TEST(option_bounds, more_than_upper) {
+TEST(option_bounds, more_than_upper)
+{
 	Struct_more_than_upper result_struct;
 
 	std::istringstream json_data(R"json(
@@ -103,30 +115,48 @@ TEST(option_bounds, more_than_upper) {
 	}
 	)json");
 
-	try {
+	try
+	{
 		struct_mapping::reg(&Struct_more_than_upper::value, "value", struct_mapping::Bounds{-36, 42});
 		struct_mapping::map_json_to_struct(result_struct, json_data);
-	} catch (struct_mapping::StructMappingException& e) {
+	}
+	catch (struct_mapping::StructMappingException& e)
+	{
 		return;
-	} catch (...) {
+	}
+	catch (...)
+	{
 		FAIL() << "Expected: throws an exception of type StructMappingException\n  Actual: it throws a different type";
 	}
 
 	FAIL() << "Expected: throws an exception of type StructMappingException\n  Actual: it throws nothing";
 }
 
-struct Struct_multiple_members_of_the_same_type {
+struct Struct_multiple_members_of_the_same_type
+{
 	int member_int_1;
 	int member_int_2;
 	int member_int_3;
 };
 
-TEST(option_bounds, multiple_members_of_the_same_type) {
+TEST(option_bounds, multiple_members_of_the_same_type)
+{
 	Struct_multiple_members_of_the_same_type result_struct;
 	
-	struct_mapping::reg(&Struct_multiple_members_of_the_same_type::member_int_1, "member_int_1", struct_mapping::Bounds{1, 3});
-	struct_mapping::reg(&Struct_multiple_members_of_the_same_type::member_int_2, "member_int_2", struct_mapping::Bounds{10, 30});
-	struct_mapping::reg(&Struct_multiple_members_of_the_same_type::member_int_3, "member_int_3", struct_mapping::Bounds{100, 300});
+	struct_mapping::reg(
+		&Struct_multiple_members_of_the_same_type::member_int_1,
+		"member_int_1",
+		struct_mapping::Bounds{1, 3});
+
+	struct_mapping::reg(
+		&Struct_multiple_members_of_the_same_type::member_int_2,
+		"member_int_2",
+		struct_mapping::Bounds{10, 30});
+
+	struct_mapping::reg(
+		&Struct_multiple_members_of_the_same_type::member_int_3,
+		"member_int_3",
+		struct_mapping::Bounds{100, 300});
 
 	std::istringstream json_data(R"json(
 	{
@@ -143,4 +173,4 @@ TEST(option_bounds, multiple_members_of_the_same_type) {
 	ASSERT_EQ(result_struct.member_int_3, 200);
 }
 
-}
+} // namespace

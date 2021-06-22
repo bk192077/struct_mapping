@@ -4,13 +4,15 @@
 
 #include "struct_mapping/struct_mapping.h"
 
-struct Person {
+struct Person
+{
 	std::string name;
 	int age;
 	bool student;
 };
 
-int main() {
+int main()
+{
 	struct_mapping::reg(&Person::name, "name");
 	struct_mapping::reg(&Person::age, "age");
 	struct_mapping::reg(&Person::student, "student");

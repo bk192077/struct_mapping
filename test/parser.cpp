@@ -9,27 +9,32 @@
 
 #include "struct_mapping/parser.h"
 
-namespace {
+namespace
+{
 
-struct TestCase {
+struct TestCase
+{
 	std::string title;
 	std::string source;
 	std::vector<std::string> expected;
 };
 
-struct TestCaseExceptionEndOfData {
+struct TestCaseExceptionEndOfData
+{
 	std::string title;
 	std::string source;
 	std::string exception_message;
 };
 
-struct TestCaseExceptionUnexpectedCharacter {
+struct TestCaseExceptionUnexpectedCharacter
+{
 	std::string title;
 	std::string source;
 	std::string exception_message;
 };
 
-std::vector<TestCase> test_cases {
+std::vector<TestCase> test_cases
+{
 	{
 		"empty top struct",
 		R"json(
@@ -542,7 +547,8 @@ std::vector<TestCase> test_cases {
 	},
 };
 
-std::vector<TestCaseExceptionEndOfData> test_cases_exception_end_of_data {
+std::vector<TestCaseExceptionEndOfData> test_cases_exception_end_of_data
+{
 	{
 		"end of data",
 		R"json(
@@ -563,7 +569,8 @@ std::vector<TestCaseExceptionEndOfData> test_cases_exception_end_of_data {
 	},
 };
 
-std::vector<TestCaseExceptionUnexpectedCharacter> test_cases_exception_unexpected_character {
+std::vector<TestCaseExceptionUnexpectedCharacter> test_cases_exception_unexpected_character
+{
 	{
 		"unexpected character after begin of the struct",
 		R"json(
@@ -592,43 +599,58 @@ std::vector<TestCaseExceptionUnexpectedCharacter> test_cases_exception_unexpecte
 	},
 };
 
-std::string trim_zero(std::string && number) {
+std::string trim_zero(std::string&& number)
+{
 	size_t length;
 	for (length = number.size() - 1; number[length] == '0'; --length);
 
-	if (number[length] == '.') number = number.substr(0, length + 2);
-	else number = number.substr(0, length + 1);
+	if (number[length] == '.')
+	{
+		number = number.substr(0, length + 2);
+	}
+	else
+	{
+		number = number.substr(0, length + 1);
+	}
 
 	return std::move(number);
 }
 
-TEST(parser, test_cases) {
-	for(auto t : test_cases) {
+TEST(parser, test_cases)
+{
+	for(const auto& t : test_cases)
+	{
 		std::cout << "TEST CASE [" << t.title << "] : RUN" << std::endl;
 		std::vector<std::string> result;
 		std::istringstream data(t.source);
 
-		auto set_bool = [&result] (std::string const & name, bool value) {
+		auto set_bool = [&result] (const std::string& name, bool value)
+		{
 			result.push_back("set_bool:" + name + ":" + (value ? "true" : "false"));
 		};
 
-		auto set_integral = [&result] (std::string const & name, long long value) {
+		auto set_integral = [&result] (const std::string& name, long long value)
+		{
 			result.push_back("set_integral:" + name + ":" + std::to_string(value));
 		};
 
-		auto set_floating_point = [&result] (std::string const & name, double value) {
+		auto set_floating_point = [&result] (const std::string& name, double value)
+		{
 			result.push_back("set_floating_point:" + name + ":" + trim_zero(std::to_string(value)));
 		};
 
-		auto set_string = [&result] (std::string const & name, std::string const & value) {
+		auto set_string = [&result] (const std::string& name, const std::string& value)
+		{
 			result.push_back("set_string:" + name + ":" + value);
 		};
 
-		auto set_null = [&result] (std::string const & name) {
+		auto set_null = [&result] (const std::string& name)
+		{
 			result.push_back("null:" + name);
 		};
 
-		auto start_struct = [&result] (std::string const & name) {
+		auto start_struct = [&result] (const std::string& name)
+		{
 			result.push_back("start_struct:" + name);
 		};
 
@@ -636,11 +658,13 @@ TEST(parser, test_cases) {
 			result.push_back("end_struct");
 		};
 
-		auto start_array = [&result] (std::string const & name) {
+		auto start_array = [&result] (const std::string& name)
+		{
 			result.push_back("start_array:" + name);
 		};
 
-		auto end_array = [&result] {
+		auto end_array = [&result]
+		{
 			result.push_back("end_array");
 		};
 
@@ -660,22 +684,25 @@ TEST(parser, test_cases) {
 	}
 }
 
-TEST(parser, test_cases_exception_end_of_data) {
-	for(auto t : test_cases_exception_end_of_data) {
+TEST(parser, test_cases_exception_end_of_data)
+{
+	for(const auto& t : test_cases_exception_end_of_data)
+	{
 		std::cout << "TEST CASE [" << t.title << "] : RUN" << std::endl;
 		std::istringstream data(t.source);
 
-		auto set_bool = [] (std::string const &, bool) {};
-		auto set_integral = [] (std::string const &, long long) {};
-		auto set_floating_point = [] (std::string const &, double) {};
-		auto set_string = [] (std::string const &, std::string const &) {};
-		auto set_null = [] (std::string const &) {};
-		auto start_struct = [] (std::string const &) {};
+		auto set_bool = [] (const std::string&, bool) {};
+		auto set_integral = [] (const std::string&, long long) {};
+		auto set_floating_point = [] (const std::string&, double) {};
+		auto set_string = [] (const std::string&, const std::string&) {};
+		auto set_null = [] (const std::string&) {};
+		auto start_struct = [] (const std::string&) {};
 		auto end_struct = [] {};
-		auto start_array = [] (std::string const &) {};
+		auto start_array = [] (const std::string&) {};
 		auto end_array = [] {};
 
-		try {
+		try
+		{
 			struct_mapping::detail::Parser jp(
 				set_bool,
 				set_integral,
@@ -687,13 +714,22 @@ TEST(parser, test_cases_exception_end_of_data) {
 				start_array,
 				end_array);
 			jp.parse(&data); 
-		} catch (struct_mapping::StructMappingException& e) {
-			if (t.exception_message.compare(e.what()) != 0) {
-				FAIL() << "Expected: exception message: " << t.exception_message << "\n  Actual: exception message: " << e.what();
+		}
+		catch (struct_mapping::StructMappingException& e)
+		{
+			if (t.exception_message.compare(e.what()) != 0)
+			{
+				FAIL()
+					<< "Expected: exception message: "
+					<< t.exception_message
+					<< "\n  Actual: exception message: "
+					<< e.what();
 			}
 
 			continue;
-		} catch (...) {
+		}
+		catch (...)
+		{
 			FAIL() << "Expected: throws an exception of type ExceptionEndOfData\n  Actual: it throws a different type";
 		}
 
@@ -701,22 +737,25 @@ TEST(parser, test_cases_exception_end_of_data) {
 	}
 }
 
-TEST(parser, test_cases_exception_unexpected_character) {
-	for(auto t : test_cases_exception_unexpected_character) {
+TEST(parser, test_cases_exception_unexpected_character)
+{
+	for(const auto& t : test_cases_exception_unexpected_character)
+	{
 		std::cout << "TEST CASE [" << t.title << "] : RUN" << std::endl;
 		std::istringstream data(t.source);
 
-		auto set_bool = [] (std::string const &, bool) {};
-		auto set_integral = [] (std::string const &, long long) {};
-		auto set_floating_point = [] (std::string const &, double) {};
-		auto set_string = [] (std::string const &, std::string const &) {};
-		auto set_null = [] (std::string const &) {};
-		auto start_struct = [] (std::string const &) {};
+		auto set_bool = [] (const std::string&, bool) {};
+		auto set_integral = [] (const std::string&, long long) {};
+		auto set_floating_point = [] (const std::string&, double) {};
+		auto set_string = [] (const std::string&, const std::string&) {};
+		auto set_null = [] (const std::string&) {};
+		auto start_struct = [] (const std::string&) {};
 		auto end_struct = [] {};
-		auto start_array = [] (std::string const &) {};
+		auto start_array = [] (const std::string&) {};
 		auto end_array = [] {};
 
-		try {
+		try
+		{
 			struct_mapping::detail::Parser jp(
 				set_bool,
 				set_integral,
@@ -728,21 +767,32 @@ TEST(parser, test_cases_exception_unexpected_character) {
 				start_array,
 				end_array);
 			jp.parse(&data); 
-		} catch (struct_mapping::StructMappingException& e) {
-			if (t.exception_message.compare(e.what()) != 0) {
-				FAIL() << "Expected: exception message: " << t.exception_message << "\n  Actual: exception message: " << e.what();
+		}
+		catch (struct_mapping::StructMappingException& e)
+		{
+			if (t.exception_message.compare(e.what()) != 0)
+			{
+				FAIL()
+					<< "Expected: exception message: "
+					<< t.exception_message
+					<< "\n  Actual: exception message: "
+					<< e.what();
 			}
 
 			continue;
-		} catch (...) {
-			FAIL() << "Expected: throws an exception of type ExceptionUnexpectedCharacter\n  Actual: it throws a different type";
+		}
+		catch (...)
+		{
+			FAIL()
+				<< "Expected: throws an exception of type ExceptionUnexpectedCharacter\n  Actual: it throws a different type";
 		}
 
 		FAIL() << "Expected: throws an exception of type ExceptionUnexpectedCharacter\n  Actual: it throws nothing";
 	}
 }
 
-TEST(parser, positive_floating_point_with_positive_exponent) {
+TEST(parser, positive_floating_point_with_positive_exponent)
+{
 	std::istringstream data(
 		R"json(
 			{
@@ -751,18 +801,19 @@ TEST(parser, positive_floating_point_with_positive_exponent) {
 		)json"
 	);
 
-	auto set_bool = [] (std::string const &, bool) {};
-	auto set_integral = [] (std::string const &, long long) {};
+	auto set_bool = [] (const std::string&, bool) {};
+	auto set_integral = [] (const std::string&, long long) {};
 
-	auto set_floating_point = [] (std::string const &, double value) {
+	auto set_floating_point = [] (const std::string&, double value)
+	{
 		ASSERT_DOUBLE_EQ(value, 19.345e156);
 	};
 
-	auto set_string = [] (std::string const &, std::string const &) {};
-	auto set_null = [] (std::string const &) {};
-	auto start_struct = [] (std::string const &) {};
+	auto set_string = [] (const std::string&, const std::string&) {};
+	auto set_null = [] (const std::string&) {};
+	auto start_struct = [] (const std::string&) {};
 	auto end_struct = [] {};
-	auto start_array = [] (std::string const &) {};
+	auto start_array = [] (const std::string&) {};
 	auto end_array = [] {};
 
 	struct_mapping::detail::Parser jp(
@@ -778,7 +829,8 @@ TEST(parser, positive_floating_point_with_positive_exponent) {
 	jp.parse(&data);
 }
 
-TEST(parser, negative_floating_point_with_negative_exponent) {
+TEST(parser, negative_floating_point_with_negative_exponent)
+{
 	std::istringstream data(
 		R"json(
 			{
@@ -787,18 +839,19 @@ TEST(parser, negative_floating_point_with_negative_exponent) {
 		)json"
 	);
 
-	auto set_bool = [] (std::string const &, bool) {};
-	auto set_integral = [] (std::string const &, long long) {};
+	auto set_bool = [] (const std::string&, bool) {};
+	auto set_integral = [] (const std::string&, long long) {};
 
-	auto set_floating_point = [] (std::string const &, double value) {
+	auto set_floating_point = [] (const std::string&, double value)
+	{
 		ASSERT_DOUBLE_EQ(value, -19.345E-156);
 	};
 
-	auto set_string = [] (std::string const &, std::string const &) {};
-	auto set_null = [] (std::string const &) {};
-	auto start_struct = [] (std::string const &) {};
+	auto set_string = [] (const std::string&, const std::string&) {};
+	auto set_null = [] (const std::string&) {};
+	auto start_struct = [] (const std::string&) {};
 	auto end_struct = [] {};
-	auto start_array = [] (std::string const &) {};
+	auto start_array = [] (const std::string&) {};
 	auto end_array = [] {};
 
 	struct_mapping::detail::Parser jp(
@@ -814,7 +867,8 @@ TEST(parser, negative_floating_point_with_negative_exponent) {
 	jp.parse(&data);
 }
 
-TEST(parser, exception_bad_number_invalid_argument) {
+TEST(parser, exception_bad_number_invalid_argument)
+{
 	std::istringstream data(
 		R"json(
 			{
@@ -823,17 +877,18 @@ TEST(parser, exception_bad_number_invalid_argument) {
 		)json"
 	);
 
-	auto set_bool = [] (std::string const &, bool) {};
-	auto set_integral = [] (std::string const &, long long) {};
-	auto set_floating_point = [] (std::string const &, double) {};
-	auto set_string = [] (std::string const &, std::string const &) {};
-	auto set_null = [] (std::string const &) {};
-	auto start_struct = [] (std::string const &) {};
+	auto set_bool = [] (const std::string&, bool) {};
+	auto set_integral = [] (const std::string&, long long) {};
+	auto set_floating_point = [] (const std::string&, double) {};
+	auto set_string = [] (const std::string&, const std::string&) {};
+	auto set_null = [] (const std::string&) {};
+	auto start_struct = [] (const std::string&) {};
 	auto end_struct = [] {};
-	auto start_array = [] (std::string const &) {};
+	auto start_array = [] (const std::string&) {};
 	auto end_array = [] {};
 
-	try {
+	try
+	{
 		struct_mapping::detail::Parser jp(
 			set_bool,
 			set_integral,
@@ -845,21 +900,29 @@ TEST(parser, exception_bad_number_invalid_argument) {
 			start_array,
 			end_array);
 		jp.parse(&data); 
-	} catch (struct_mapping::StructMappingException& e) {
-		if (std::string("parser: bad number [-...99999] at line 4").compare(e.what()) != 0) {
-			FAIL() << "Expected: exception message: parser: bad number [-...99999] at line 4\n  Actual: exception message: " << e.what();
+	}
+	catch (struct_mapping::StructMappingException& e)
+	{
+		if (std::string("parser: bad number [-...99999] at line 4").compare(e.what()) != 0)
+		{
+			FAIL()
+				<< "Expected: exception message: parser: bad number [-...99999] at line 4\n  Actual: exception message: "
+				<< e.what();
 		}
 
 		SUCCEED();
 		return;
-	} catch (...) {
+	}
+	catch (...)
+	{
 		FAIL() << "Expected: throws an exception of type ExceptionBadNumber\n  Actual: it throws a different type";
 	}
 
 	FAIL() << "Expected: throws an exception of type ExceptionBadNumber\n  Actual: it throws nothing";
 }
 
-TEST(parser, exception_bad_number_out_of_range) {
+TEST(parser, exception_bad_number_out_of_range)
+{
 	std::istringstream data(
 		R"json(
 			{
@@ -868,17 +931,18 @@ TEST(parser, exception_bad_number_out_of_range) {
 		)json"
 	);
 
-	auto set_bool = [] (std::string const &, bool) {};
-	auto set_integral = [] (std::string const &, long long) {};
-	auto set_floating_point = [] (std::string const &, double) {};
-	auto set_string = [] (std::string const &, std::string const &) {};
-	auto set_null = [] (std::string const &) {};
-	auto start_struct = [] (std::string const &) {};
+	auto set_bool = [] (const std::string&, bool) {};
+	auto set_integral = [] (const std::string&, long long) {};
+	auto set_floating_point = [] (const std::string&, double) {};
+	auto set_string = [] (const std::string&, const std::string&) {};
+	auto set_null = [] (const std::string&) {};
+	auto start_struct = [] (const std::string&) {};
 	auto end_struct = [] {};
-	auto start_array = [] (std::string const &) {};
+	auto start_array = [] (const std::string&) {};
 	auto end_array = [] {};
 
-	try {
+	try
+	{
 		struct_mapping::detail::Parser jp(
 			set_bool,
 			set_integral,
@@ -890,18 +954,25 @@ TEST(parser, exception_bad_number_out_of_range) {
 			start_array,
 			end_array);
 		jp.parse(&data); 
-	} catch (struct_mapping::StructMappingException& e) {
-		if (std::string("parser: bad number [10.0e99999] at line 4").compare(e.what()) != 0) {
-			FAIL() << "Expected: exception message: parser: bad number [10.0e99999] at line 4\n  Actual: exception message: " << e.what();
+	}
+	catch (struct_mapping::StructMappingException& e)
+	{
+		if (std::string("parser: bad number [10.0e99999] at line 4").compare(e.what()) != 0)
+		{
+			FAIL()
+				<< "Expected: exception message: parser: bad number [10.0e99999] at line 4\n  Actual: exception message: "
+				<< e.what();
 		}
 
 		SUCCEED();
 		return;
-	} catch (...) {
+	}
+	catch (...)
+	{
 		FAIL() << "Expected: throws an exception of type ExceptionBadNumber\n  Actual: it throws a different type";
 	}
 
 	FAIL() << "Expected: throws an exception of type ExceptionBadNumber\n  Actual: it throws nothing";
 }
 
-}
+} // namespace

@@ -6,27 +6,32 @@
 
 #include "struct_mapping/struct_mapping.h"
 
-struct Student {
+struct Student
+{
 	std::string name;
 	int age;
 };
 
-struct Library {
+struct Library
+{
 	int book_count;
 };
 
-struct School {
+struct School
+{
 	bool college;
 	Library library;
 	std::list<Student> students;
 };
 
-struct City {
+struct City
+{
 	std::string name;
 	std::map<std::string, School> schools;
 };
 
-int main() {
+int main()
+{
 	struct_mapping::reg(&Student::name, "name");
 	struct_mapping::reg(&Student::age, "age");
 
@@ -87,14 +92,18 @@ int main() {
 	std::cout << "name :" << city.name << std::endl;
 
 	std::cout << "schools :" << std::endl;
-	for (auto& [ name, school ] : city.schools) {
-		std::cout << std::endl << " name    : " << name << std::endl;
-		std::cout << " college : " << std::boolalpha << school.college << std::endl;
-		std::cout << " library : " << std::endl;
-		std::cout << "  book_count : " << school.library.book_count << std::endl;
-		std::cout << " students : " << std::endl;
 
-		for (auto& student : school.students) {
+	for (const auto& [ name, school ] : city.schools)
+	{
+		std::cout << std::endl
+			<< " name    : " << name << std::endl
+			<< " college : " << std::boolalpha << school.college << std::endl
+			<< " library : " << std::endl
+			<< "  book_count : " << school.library.book_count << std::endl
+			<< " students : " << std::endl;
+
+		for (const auto& student : school.students)
+		{
 			std::cout << "  [ " << student.name << ", " << student.age << " ]" << std::endl;
 		}
 	}

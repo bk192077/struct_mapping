@@ -6,7 +6,8 @@
 
 #include "exception.h"
 
-namespace struct_mapping::detail {
+namespace struct_mapping::detail
+{
 
 template<
 	typename SetBool,
@@ -18,7 +19,8 @@ template<
 	typename EndStruct,
 	typename StartArray,
 	typename EndArray>
-class Parser {
+class Parser
+{
 public:
 	using stream_type = std::basic_istream<char>;
 
@@ -40,10 +42,11 @@ public:
 			start_struct(start_struct_),
 			end_struct(end_struct_),
 			start_array(start_array_),
-			end_array(end_array_) {
-	}
+			end_array(end_array_)
+	{}
 
-	void parse(stream_type * data_) {
+	void parse(stream_type* data_)
+	{
 		data = data_;
 
 		wait("{");
@@ -62,28 +65,38 @@ private:
 	StartArray start_array;
 	EndArray end_array;
 
-	stream_type * data;
+	stream_type* data;
 	size_t line_number = 1;
 	char wait_char = '\0';
 
-	stream_type & get_next_char(char & ch) {
-		if (wait_char != '\0') {
+	stream_type& get_next_char(char& ch)
+	{
+		if (wait_char != '\0')
+		{
 			ch = wait_char;
 			wait_char = '\0';
-		} else {
+		}
+		else
+		{
 			data->get(ch);
 		}
 
 		return *data;
 	}
 
-	std::string get_string() {
+	std::string get_string()
+	{
 		std::string result;
 		char next_ch;
-		while (data->get(next_ch)) {
-			if (next_ch != '\"') {
+
+		while (data->get(next_ch))
+		{
+			if (next_ch != '\"')
+			{
 				result += next_ch;
-			} else if (next_ch == '\"') {
+			}
+			else if (next_ch == '\"')
+			{
 				return result;
 			}
 		}
@@ -91,145 +104,207 @@ private:
 		throw StructMappingException("parser: unexpected end of data");
 	}
 
-	bool is_empty_char(char ch) const {
+	bool is_empty_char(char ch) const
+	{
 		return ch == ' ' || ch == '\t' || ch == '\r';
 	}
 
-	bool is_new_line_char(char ch) const {
+	bool is_new_line_char(char ch) const
+	{
 		return ch == '\n';
 	}
 
-	void parse_array() {
-		constexpr const char * EXPECTED_AFTER_START = "]{[\"tf-.0123456789n";
-		constexpr const char * EXPECTED_AFTER_VALUE = "]{[\"tf,-.0123456789n";
-		constexpr const char * EXPECTED_AFTER_COMMA = "{[\"tf-.0123456789n";
-		const char * expected_characters = EXPECTED_AFTER_START;
+	void parse_array()
+	{
+		constexpr const char* EXPECTED_AFTER_START = "]{[\"tf-.0123456789n";
+		constexpr const char* EXPECTED_AFTER_VALUE = "]{[\"tf,-.0123456789n";
+		constexpr const char* EXPECTED_AFTER_COMMA = "{[\"tf-.0123456789n";
+		const char* expected_characters = EXPECTED_AFTER_START;
 
-		for (;;) {
+		for (;;)
+		{
 			char ch = wait(expected_characters);
 
-			if (ch == ']') {
+			if (ch == ']')
+			{
 				end_array();
 				return;
 			} 
 
-			if (ch == ',') {
+			if (ch == ',')
+			{
 				expected_characters = EXPECTED_AFTER_COMMA;
-			} else {
+			}
+			else
+			{
 				parse_array_value(ch);
 				expected_characters = EXPECTED_AFTER_VALUE;
 			}
 		}
 	}
 
-	void parse_array_value(char start_ch) {
+	void parse_array_value(char start_ch)
+	{
 		std::string name("");
-		if (start_ch == '{') {
+		if (start_ch == '{')
+		{
 			start_struct(name);
 			parse_struct();
-		} else if (start_ch == '[') {
+		}
+		else if (start_ch == '[')
+		{
 			start_array(name);
 			parse_array();
-		} else if (start_ch == 't') {
+		}
+		else if (start_ch == 't')
+		{
 			wait("r");
 			wait("u");
 			wait("e");
 			set_bool(name, true);
-		} else if (start_ch == 'f') {
+		}
+		else if (start_ch == 'f')
+		{
 			wait("a");
 			wait("l");
 			wait("s");
 			wait("e");
 			set_bool(name, false);
-		} else if (start_ch == 'n') {
+		}
+		else if (start_ch == 'n')
+		{
 			wait("u");
 			wait("l");
 			wait("l");
 			set_null(name);
-		} else if (start_ch == '\"') {
+		}
+		else if (start_ch == '\"')
+		{
 			set_string(name, get_string());
-		} else {
+		}
+		else
+		{
 			set_number(name, start_ch);
 		}
 	}
 
-	void parse_struct() {
-		constexpr const char * EXPECTED_AFTER_START = "\"}";
-		constexpr const char * EXPECTED_AFTER_VALUE = ",}";
-		constexpr const char * EXPECTED_AFTER_COMMA = "\"";
-		const char * expected_characters = EXPECTED_AFTER_START;
+	void parse_struct()
+	{
+		constexpr const char* EXPECTED_AFTER_START = "\"}";
+		constexpr const char* EXPECTED_AFTER_VALUE = ",}";
+		constexpr const char* EXPECTED_AFTER_COMMA = "\"";
+		const char* expected_characters = EXPECTED_AFTER_START;
 
-		for (;;) {
+		for (;;)
+		{
 			char ch = wait(expected_characters);
 
-			if (ch == '}') {
+			if (ch == '}')
+			{
 				end_struct();
 				return;
 			}
 
-			if (ch == ',') {
+			if (ch == ',')
+			{
 				expected_characters = EXPECTED_AFTER_COMMA;
-			} else {
+			}
+			else
+			{
 				parse_struct_value();
 				expected_characters = EXPECTED_AFTER_VALUE;
 			}
 		}
 	}
 
-	void parse_struct_value() {
+	void parse_struct_value()
+	{
 		auto name = get_string();
 		wait(":");
 
 		char value_start_ch = wait("\"{[tf-0123456789n");
 
-		if (value_start_ch == '{') {
+		if (value_start_ch == '{')
+		{
 			start_struct(name);
 			parse_struct();
-		} else if (value_start_ch == '[') {
+		}
+		else if (value_start_ch == '[')
+		{
 			start_array(name);
 			parse_array();
-		} else if (value_start_ch == 't') {
+		}
+		else if (value_start_ch == 't')
+		{
 			wait("r");
 			wait("u");
 			wait("e");
 			set_bool(name, true);
-		} else if (value_start_ch == 'f') {
+		}
+		else if (value_start_ch == 'f')
+		{
 			wait("a");
 			wait("l");
 			wait("s");
 			wait("e");
 			set_bool(name, false);
-		} else if (value_start_ch == 'n') {
+		}
+		else if (value_start_ch == 'n')
+		{
 			wait("u");
 			wait("l");
 			wait("l");
 			set_null(name);
-		} else if (value_start_ch == '\"') {
+		}
+		else if (value_start_ch == '\"')
+		{
 			set_string(name, get_string());
-		} else {
+		}
+		else
+		{
 			set_number(name, value_start_ch);
 		}
 	}
 
-	void set_number(std::string & name, char start_ch) {
+	void set_number(std::string& name, char start_ch)
+	{
 		std::string value{start_ch};
 		char next_ch;
 		bool is_floating_point_number = false;
 
-		for (;;) {
+		for (;;)
+		{
 			next_ch = wait("}],.0123456789eE+-");
-			if (next_ch == '.') is_floating_point_number = true;
+			if (next_ch == '.')
+			{
+				is_floating_point_number = true;
+			}
 
-			if (next_ch == ',' || next_ch == '}' || next_ch == ']') {
+			if (next_ch == ',' || next_ch == '}' || next_ch == ']')
+			{
 				wait_char = next_ch;
-				try {
-					if (is_floating_point_number) set_floating_point(name, std::stod(value));
-					else set_integral(name, std::stoll(value));
-				} catch (std::invalid_argument&) {
-					throw StructMappingException(std::string("parser: bad number [") + value + std::string("] at line ") + std::to_string(line_number));
-				} catch (std::out_of_range&) {
-					throw StructMappingException(std::string("parser: bad number [") + value + std::string("] at line ") + std::to_string(line_number));
+				try
+				{
+					if (is_floating_point_number)
+					{
+						set_floating_point(name, std::stod(value));
+					}
+					else
+					{
+						set_integral(name, std::stoll(value));
+					}
 				}
+				catch (std::invalid_argument&)
+				{
+					throw StructMappingException(
+						std::string("parser: bad number [") + value + std::string("] at line ") + std::to_string(line_number));
+				}
+				catch (std::out_of_range&)
+				{
+					throw StructMappingException(
+						std::string("parser: bad number [") + value + std::string("] at line ") + std::to_string(line_number));
+				}
+
 				return;
 			}
 
@@ -237,21 +312,33 @@ private:
 		}
 	}
 
-	char wait(char const * characters_) {
+	char wait(char const* characters_)
+	{
 		char test_ch;
-		while (get_next_char(test_ch)) {
-			char const * characters = characters_;
-			while (*characters) {
-				if (test_ch == *characters) {
+		while (get_next_char(test_ch))
+		{
+			char const* characters = characters_;
+			while (*characters)
+			{
+				if (test_ch ==*characters)
+				{
 					return test_ch;
 				}
+
 				++characters;
 			}
  			
-			if (is_new_line_char(test_ch)) {
+			if (is_new_line_char(test_ch))
+			{
 				++line_number;
-			} else if (!is_empty_char(test_ch)) {
-				throw StructMappingException(std::string("parser: unexpected character '") + std::string(1, test_ch) + std::string("' at line ") + std::to_string(line_number));
+			}
+			else if (!is_empty_char(test_ch))
+			{
+				throw StructMappingException(
+					std::string("parser: unexpected character '")
+						+ std::string(1, test_ch)
+						+ std::string("' at line ")
+						+ std::to_string(line_number));
 			}
 		}
 
@@ -259,6 +346,6 @@ private:
 	}
 };
 
-}
+} // struct_mapping::detail
 
 #endif

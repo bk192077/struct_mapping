@@ -111,12 +111,15 @@ StructMapping is a header-only C++ library. All library files are in the `includ
 
 To build examples and run tests proceed with the steps below ([cmake](https://cmake.org/download/) required):
 
-1. create directory called `build` in StructMapping source directory
-2. change to `build` directory
-3. run `cmake ..` command to configure your build
-4. run `cmake --build .` command. On successful build you will find binary files for examples and tests (under windows tests are not build) in the `bin` directory
-5. (not for windows) to run the tests run `ctest` (you can get detailed output using `ctest -V`)
-6. it is possible to install library system-wide by running `cmake --install .` command from the build  tree with administrative privileges. This will install all files according to system preferences.
+1. (if necessary) set the environment variables CC и CXX:
+* `export CC=/usr/bin/gcc`
+* `export CXX=/usr/bin/g++`
+2. create directory called `build` in StructMapping source directory
+3. change to `build` directory
+4. run `cmake ..` command to configure your build
+5. run `cmake --build .` command. On successful build you will find binary files for examples and tests (under windows tests are not build) in the `bin` directory
+6. (not for windows) to run the tests run `ctest` (you can get detailed output using `ctest -V`)
+7. it is possible to install library system-wide by running `cmake --install .` command from the build  tree with administrative privileges. This will install all files according to system preferences.
 
 ## Usage <div id="usage"></div>
 
