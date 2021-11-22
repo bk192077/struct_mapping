@@ -19,7 +19,7 @@ struct Color
 	}
 };
 
-Color color_from_string(const std::string & value)
+static Color color_from_string(const std::string & value)
 {
 	if (value == "red")
 	{
@@ -33,7 +33,7 @@ Color color_from_string(const std::string & value)
 	return Color{0};
 }
 
-std::string color_to_string(const Color& color)
+static std::string color_to_string(const Color& color)
 {
 	switch (color.value)
 	{

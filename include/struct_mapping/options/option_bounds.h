@@ -21,18 +21,20 @@ public:
 	void check_option(const std::string& name) const
 	{
 		static_assert(
-			detail::is_integer_or_floating_point_v<M>,
+			detail::is_integer_or_floating_point_v<detail::remove_optional_t<M>>,
 			"bad option (Bounds): option can only be applied to types: integer or floating point");
+
 		static_assert(
-			!detail::is_integer_v<M> || detail::is_integer_v<T>,
+			!detail::is_integer_v<detail::remove_optional_t<M>> || detail::is_integer_v<T>,
 			"bad option (Bounds): type error, expected integer");
+
 		static_assert(
-			!std::is_floating_point_v<M> || detail::is_integer_or_floating_point_v<T>,
+			!std::is_floating_point_v<detail::remove_optional_t<M>> || detail::is_integer_or_floating_point_v<T>,
 			"bad option (Bounds): type error, expected integer or floating point");
 
-		if constexpr (detail::is_integer_or_floating_point_v<M>)
+		if constexpr (detail::is_integer_or_floating_point_v<detail::remove_optional_t<M>>)
 		{
-			if (!in_limits<M>(lower))
+			if (!in_limits<detail::remove_optional_t<M>>(lower))
 			{
 				throw StructMappingException(
 					"bad option (Bounds) for '"
@@ -40,12 +42,12 @@ public:
 						+ "': lower = "
 						+ std::to_string(lower)
 						+ " is out of limits of type ["
-						+	std::to_string(std::numeric_limits<M>::lowest())
+						+	std::to_string(std::numeric_limits<detail::remove_optional_t<M>>::lowest())
 						+	" : "
-						+	std::to_string(std::numeric_limits<M>::max()) + "]");
+						+	std::to_string(std::numeric_limits<detail::remove_optional_t<M>>::max()) + "]");
 			}
 
-			if (!in_limits<M>(upper))
+			if (!in_limits<detail::remove_optional_t<M>>(upper))
 			{
 				throw StructMappingException(
 					"bad option (Bounds) for '"
@@ -53,9 +55,9 @@ public:
 						+ "': upper = "
 						+ std::to_string(upper)
 						+ " is out of limits of type ["
-						+	std::to_string(std::numeric_limits<M>::lowest())
+						+	std::to_string(std::numeric_limits<detail::remove_optional_t<M>>::lowest())
 						+	" : "
-						+	std::to_string(std::numeric_limits<M>::max()) + "]");
+						+	std::to_string(std::numeric_limits<detail::remove_optional_t<M>>::max()) + "]");
 			}
 
 			if (lower > upper)
@@ -74,14 +76,25 @@ public:
 	template<typename V>
 	void operator()(V value, const std::string& name) const
 	{
+		detail::remove_optional_t<V> value_;
+
+		if constexpr (detail::is_optional_v<V>)
+		{
+			value_ = value.value();
+		}
+		else
+		{
+			value_ = value;
+		}
+
 		if constexpr (detail::is_integer_v<T>)
 		{
-			if (static_cast<long long>(value) < static_cast<long long>(lower)
-					|| static_cast<long long>(value) > static_cast<long long>(upper))
+			if (static_cast<long long>(value_) < static_cast<long long>(lower)
+					|| static_cast<long long>(value_) > static_cast<long long>(upper))
 			{
 				throw StructMappingException(
 					"value "
-						+ std::to_string(value)
+						+ std::to_string(value_)
 						+ " for '"
 						+ name
 						+ "' is out of bounds ["
@@ -93,12 +106,12 @@ public:
 		}
 		else if constexpr (std::is_floating_point_v<T>)
 		{
-			if (static_cast<double>(value) < static_cast<double>(lower)
-				|| static_cast<double>(value) > static_cast<double>(upper))
+			if (static_cast<double>(value_) < static_cast<double>(lower)
+				|| static_cast<double>(value_) > static_cast<double>(upper))
 			{
 				throw StructMappingException(
 					"value "
-					+ std::to_string(value)
+					+ std::to_string(value_)
 					+ " for '"
 					+ name
 					+ "' is out of bounds ["

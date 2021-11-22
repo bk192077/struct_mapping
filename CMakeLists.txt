@@ -7,9 +7,13 @@ set(LIB_MINOR_VERSION "5")
 set(LIB_PATCH_VERSION "0")
 set(LIB_VERSION "${LIB_MAJOR_VERSION}.${LIB_MINOR_VERSION}.${LIB_PATCH_VERSION}")
 
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND CMAKE_BUILD_TYPE STREQUAL "Debug")
+	add_definitions("-fno-limit-debug-info")
+endif()
+
 set(WARNINGS "")
 
-if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 
 	set(WARNINGS "${WARNINGS} -Weverything")
 	set(WARNINGS "${WARNINGS} -Wno-c++98-compat-pedantic")
@@ -22,6 +26,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 	set(WARNINGS "${WARNINGS} -Wno-ctad-maybe-unsupported")
 	set(WARNINGS "${WARNINGS} -Wno-undef")
 	set(WARNINGS "${WARNINGS} -Wno-double-promotion")
+	set(WARNINGS "${WARNINGS} -Wno-switch-enum")
 
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 
@@ -42,6 +47,8 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 	set(WARNINGS "${WARNINGS} -Wduplicated-branches")
 	set(WARNINGS "${WARNINGS} -Wlogical-op")
 	set(WARNINGS "${WARNINGS} -Wno-sign-compare")
+	set(WARNINGS "${WARNINGS} -Wno-stringop-overflow")
+	set(WARNINGS "${WARNINGS} -Wno-array-bounds")
 
 endif()
 

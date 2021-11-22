@@ -29,7 +29,7 @@ public:
 		NotEmpty<>::check_result(o, name);
 	}
 
-	static void init() {}
+	static void init(T&) {}
 
 	static void iterate_over(T& o, const std::string& name)
 	{
@@ -242,7 +242,7 @@ public:
 			{
 				used = true;
 				last_inserted = insert(o, name, ValueType<T>{});
-				Object<ValueType<T>>::init();
+				Object<ValueType<T>>::init(get_last_inserted());
 			}
 			else
 			{

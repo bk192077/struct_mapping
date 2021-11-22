@@ -2,12 +2,39 @@
 #define STRUCT_MAPPING_UTILITY_H
 
 #include <limits>
+#include <optional>
 #include <string>
 #include <type_traits>
 #include <utility>
 
 namespace struct_mapping::detail
 {
+
+template<typename>
+struct is_optional : std::false_type {};
+
+template<typename T>
+struct is_optional<std::optional<T>> : std::true_type {};
+
+template<typename T>
+constexpr bool is_optional_v = is_optional<T>::value;
+
+
+template<typename T>
+struct remove_optional
+{
+	using Type = T;
+};
+
+template<typename T>
+struct remove_optional<std::optional<T>>
+{
+	using Type = T;
+};
+
+template<typename T>
+using remove_optional_t = typename remove_optional<T>::Type;
+
 
 template<typename T>
 static constexpr bool is_integer_v = !std::is_same_v<T, bool>&& std::is_integral_v<T>;
@@ -81,9 +108,6 @@ template<
 	typename T,
 	typename V>
 using MemberPtr = V T::*;
-
-template<typename T>
-struct TypeHolder {};
 
 template<
 	typename U,

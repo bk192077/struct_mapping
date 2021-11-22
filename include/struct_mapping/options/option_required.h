@@ -11,7 +11,11 @@ class Required
 {
 public:
 	template<typename M>
-	void check_option() const {}
+	void check_option() const 
+	{
+		static_assert(!detail::is_optional_v<M>,
+			"bad option (Required): the option cannot be set for an optional type");
+	}
 
 	static void check_result(bool changed, const std::string& name)
 	{

@@ -17,7 +17,7 @@ class Functions
 {
 public:
 	using CheckNotEmpty = void (T&, const std::string&);
-	using Init = void ();
+	using Init = void (T&);
 	using IterateOver = void (T&, const std::string&);
 	using Release = bool (T&);
 	using SetBool = void (T&, const std::string&, bool);
@@ -35,46 +35,55 @@ public:
 			{
 				ObjectType<V>::check_not_empty(o.*ptr, name_);
 			});
+
 		init.emplace_back(
-			[]
+			[ptr] (T& o)
 			{
-				ObjectType<V>::init();
+				ObjectType<V>::init(o.*ptr);
 			});
+
 		iterate_over.emplace_back(
 			[ptr] (T& o, const std::string& name_)
 			{
 				ObjectType<V>::iterate_over(o.*ptr, name_);
 			});
+
 		release.emplace_back(
 			[ptr] (T& o)
 			{
 				return ObjectType<V>::release(o.*ptr);
 			});
+
 		set_bool.emplace_back(
 			[ptr] (T& o, const std::string& name_, bool value_)
 			{
 				ObjectType<V>::set_bool(o.*ptr, name_, value_);
 			});
+
 		set_default.emplace_back(
 			[ptr] (T& o, Index index_)
 			{
 				o.*ptr = ObjectType<T>::template members_default<V>[index_];
 			});
+
 		set_floating_point.emplace_back(
 			[ptr] (T& o, const std::string& name_, double value_)
 			{
 				ObjectType<V>::set_floating_point(o.*ptr, name_, value_);
 			});
+
 		set_integral.emplace_back(
 			[ptr] (T& o, const std::string& name_, long long value_)
 			{
 				ObjectType<V>::set_integral(o.*ptr, name_, value_);
 			});
+
 		set_string.emplace_back(
 			[ptr] (T& o, const std::string& name_, const std::string& value_)
 			{
 				ObjectType<V>::set_string(o.*ptr, name_, value_);
 			});
+
 		use.emplace_back(
 			[ptr] (T& o, const std::string& name_)
 			{

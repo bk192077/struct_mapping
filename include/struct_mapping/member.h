@@ -48,13 +48,14 @@ public:
 		typename ... U,
 		template<typename> typename ... Options>
 	Member(Name name_, MemberPtr<T, V> ptr_, Options<U>&& ... options)
-		:	name(name_), type(get_member_type<V>())
+		:	name(name_), type(get_member_type<remove_optional_t<V>>())
 	{
+		is_optional = is_optional_v<V>;
 		ptr_index = static_cast<Index>(ObjectType::template members_ptr<V>.size());
 
-		if constexpr (get_member_type<V>() == Type::Complex)
+		if constexpr (get_member_type<remove_optional_t<V>>() == Type::Complex)
 		{
-			if (!IsMemberStringExist<V>::value)
+			if (!IsMemberStringExist<remove_optional_t<V>>::value)
 			{
 				deep_index = ObjectType::functions.add(ptr_);
 				(add_option<V>(std::forward<Options<U>>(options)), ...);
@@ -64,19 +65,36 @@ public:
 
 		deep_index = NO_INDEX;
 
-		if (get_member_type<V>() == Type::Enum
-			|| (get_member_type<V>() == Type::Complex && IsMemberStringExist<V>::value))
+		if (get_member_type<remove_optional_t<V>>() == Type::Enum
+			|| (get_member_type<remove_optional_t<V>>() == Type::Complex
+				&& IsMemberStringExist<remove_optional_t<V>>::value))
 		{
 			member_string_index = static_cast<Index>(ObjectType::member_string_from_string.size());
+
 			ObjectType::member_string_from_string.push_back(
 				[ptr_, name_] (T& o, const std::string& value_)
 				{
-					o.*ptr_ = MemberString<V>::from_string(name_)(value_);
+						o.*ptr_ = MemberString<remove_optional_t<V>>::from_string(name_)(value_);
 				});
+
 			ObjectType::member_string_to_string.push_back(
-				[ptr_, name_] (T& o)
+				[ptr_, name_] (T& o) -> std::optional<std::string>
 				{
-					return MemberString<V>::to_string(name_)(o.*ptr_);
+					if constexpr (!is_optional_v<V>)
+					{
+						return MemberString<V>::to_string(name_)(o.*ptr_);
+					}
+					else
+					{
+						if ((o.*ptr_).has_value())
+						{
+							return MemberString<remove_optional_t<V>>::to_string(name_)((o.*ptr_).value());
+						}
+						else
+						{
+							return std::nullopt;
+						}
+					}
 				});
 		}
 
@@ -113,48 +131,62 @@ public:
 		switch (type)
 		{
 		case Type::Bool:
-			IterateOver::set<bool>(name, o.*ObjectType::template members_ptr<bool>[ptr_index]);
+			iterate_over_impl<bool, bool>(o);
 			break;
 		case Type::Char:
-			IterateOver::set<long long>(name, o.*ObjectType::template members_ptr<char>[ptr_index]);
+			iterate_over_impl<long long, char>(o);
 			break;
 		case Type::UnsignedChar:
-			IterateOver::set<long long>(name, o.*ObjectType::template members_ptr<unsigned char>[ptr_index]);
+			iterate_over_impl<long long, unsigned char>(o);
 			break;
 		case Type::Short:
-			IterateOver::set<long long>(name, o.*ObjectType::template members_ptr<short>[ptr_index]);
+			iterate_over_impl<long long, short>(o);
 			break;
 		case Type::UnsignedShort:
-			IterateOver::set<long long>(name, o.*ObjectType::template members_ptr<unsigned short>[ptr_index]);
+			iterate_over_impl<long long, unsigned short>(o);
 			break;
 		case Type::Int:
-			IterateOver::set<long long>(name, o.*ObjectType::template members_ptr<int>[ptr_index]);
+			iterate_over_impl<long long, int>(o);
 			break;
 		case Type::UnsignedInt:
-			IterateOver::set<long long>(name, o.*ObjectType::template members_ptr<unsigned int>[ptr_index]);
+			iterate_over_impl<long long, unsigned int>(o);
 			break;
 		case Type::Long:
-			IterateOver::set<long long>(name, o.*ObjectType::template members_ptr<long>[ptr_index]);
+			iterate_over_impl<long long, long>(o);
 			break;
 		case Type::LongLong:
-			IterateOver::set<long long>(name, o.*ObjectType::template members_ptr<long long>[ptr_index]);
+			iterate_over_impl<long long, long long>(o);
 			break;
 		case Type::Float:
-			IterateOver::set<double>(name, o.*ObjectType::template members_ptr<float>[ptr_index]);
+			iterate_over_impl<double, float>(o);
 			break;
 		case Type::Double:
-			IterateOver::set<double>(name, o.*ObjectType::template members_ptr<double>[ptr_index]);
+			iterate_over_impl<double, double>(o);
 			break;
 		case Type::String:
-			IterateOver::set<std::string>(name, o.*ObjectType::template members_ptr<std::string>[ptr_index]);
+			iterate_over_impl<std::string, std::string>(o);
 			break;
 		case Type::Enum:
-			IterateOver::set<std::string>(name, ObjectType::member_string_to_string[member_string_index](o));
+			if (const auto& value_string = ObjectType::member_string_to_string[member_string_index](o))
+			{
+				IterateOver::set<std::string>(name, value_string.value());
+			}
+			else
+			{
+				IterateOver::set_null(name);
+			}
 			break;
 		case Type::Complex:
 			if (member_string_index != NO_INDEX)
 			{
-				IterateOver::set<std::string>(name, ObjectType::member_string_to_string[member_string_index](o));
+				if (const auto& value_string = ObjectType::member_string_to_string[member_string_index](o))
+				{
+					IterateOver::set<std::string>(name, value_string.value());
+				}
+				else
+				{
+					IterateOver::set_null(name);
+				}
 			}
 			else
 			{
@@ -176,6 +208,7 @@ public:
 	bool changed = false;
 	Index default_index = NO_INDEX;
 	Index deep_index;
+	bool is_optional;
 	Index member_string_index = NO_INDEX;
 	Name name;
 	Index ptr_index;
@@ -188,7 +221,7 @@ private:
 		typename V,
 		typename U,
 		template<typename> typename Op>
-	void add_option(Op<U>&& op)
+	void add_option(Op<U> && op)
 	{
 		if constexpr (std::is_same_v<Bounds<U>, std::decay_t<Op<U>>>)
 		{
@@ -207,6 +240,7 @@ private:
 		}
 		else if constexpr (std::is_same_v<Required<U>, std::decay_t<Op<U>>>)
 		{
+			op.template check_option<V>();
 			add_option_required<V>();
 		}
 	}
@@ -223,18 +257,29 @@ private:
 	template<
 		typename V,
 		typename U>
-	void add_option_default(Default<U>& op){
-		if constexpr (std::is_same_v<V, std::string>&& std::is_same_v<U, const char*>)
+	void add_option_default(Default<U>& op)
+	{
+		if constexpr (std::is_same_v<remove_optional_t<V>, std::string> && std::is_same_v<U, const char*>)
+		{
+			if constexpr (is_optional_v<V>)
+			{
+				default_index = static_cast<Index>(ObjectType::template members_default<std::optional<std::string>>.size());
+				ObjectType::template members_default<std::optional<std::string>>.push_back(op.get_value());
+			}
+			else
+			{
+				default_index = static_cast<Index>(ObjectType::template members_default<std::string>.size());
+				ObjectType::template members_default<std::string>.push_back(op.get_value());
+			}
+		}
+		else if constexpr (std::is_enum_v<remove_optional_t<V>>)
 		{
 			default_index = static_cast<Index>(ObjectType::template members_default<std::string>.size());
-			ObjectType::template members_default<std::string>.push_back(op.get_value());
+			ObjectType::template members_default<std::string>.push_back(
+				MemberString<remove_optional_t<V>>::to_string(name)(op.get_value()));
 		}
-		else if constexpr (std::is_enum_v<V>)
-		{
-			default_index = static_cast<Index>(ObjectType::template members_default<std::string>.size());
-			ObjectType::template members_default<std::string>.push_back(MemberString<V>::to_string(name)(op.get_value()));
-		}
-		else if constexpr (std::is_class_v<V>&& (std::is_same_v<U, std::string> || std::is_same_v<U, const char*>))
+		else if constexpr (std::is_class_v<remove_optional_t<V>>
+			&& (std::is_same_v<U, std::string> || std::is_same_v<U, const char*>))
 		{
 			if (member_string_index != NO_INDEX)
 			{
@@ -242,10 +287,11 @@ private:
 				ObjectType::template members_default<std::string>.push_back(op.get_value());
 			}
 		}
-		else if constexpr (std::is_same_v<V, U> || (is_integer_or_floating_point_v<V>&& is_integer_or_floating_point_v<U>))
+		else if constexpr (std::is_same_v<remove_optional_t<V>, U>
+			|| (is_integer_or_floating_point_v<remove_optional_t<V>> && is_integer_or_floating_point_v<U>))
 		{
 			default_index = static_cast<Index>(ObjectType::template members_default<V>.size());
-			ObjectType::template members_default<V>.push_back(static_cast<V>(op.get_value()));
+			ObjectType::template members_default<V>.push_back(static_cast<remove_optional_t<V>>(op.get_value()));
 		}
 	}
 
@@ -259,6 +305,28 @@ private:
 	void add_option_required()
 	{
 		option_required = true;
+	}
+
+	template<
+		typename ValueType,
+		typename MemberType>
+	void iterate_over_impl(T& o)
+	{
+		if (!is_optional)
+		{
+			IterateOver::set<ValueType>(name, o.*ObjectType::template members_ptr<MemberType>[ptr_index]);
+		}
+		else
+		{
+			if (const auto& member_value = o.*ObjectType::template members_ptr<std::optional<MemberType>>[ptr_index])
+			{
+				IterateOver::set<ValueType>(name, member_value.value());
+			}
+			else
+			{
+				IterateOver::set_null(name);
+			}
+		}
 	}
 
 	void process_default(T& o)
@@ -313,7 +381,14 @@ private:
 			switch (type)
 			{
 			case Type::String:
-				NotEmpty<>::check_result(o.*ObjectType::template members_ptr<std::string>[ptr_index], name);
+				if (is_optional)
+				{
+					NotEmpty<>::check_result(o.*ObjectType::template members_ptr<std::optional<std::string>>[ptr_index], name);
+				}
+				else
+				{
+					NotEmpty<>::check_result(o.*ObjectType::template members_ptr<std::string>[ptr_index], name);
+				}
 				break;
 			case Type::Complex:
 				ObjectType::functions.check_not_empty[deep_index](o, name);
@@ -337,7 +412,15 @@ private:
 	{
 		if (default_index != NO_INDEX)
 		{
-			o.*ObjectType::template members_ptr<V>[ptr_index] = ObjectType::template members_default<V>[default_index];
+			if (is_optional)
+			{
+				o.*ObjectType::template members_ptr<std::optional<V>>[ptr_index] = 
+					ObjectType::template members_default<std::optional<V>>[default_index];
+			}
+			else
+			{
+				o.*ObjectType::template members_ptr<V>[ptr_index] = ObjectType::template members_default<V>[default_index];
+			}
 		}
 	}
 };

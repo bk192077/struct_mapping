@@ -53,7 +53,7 @@ inline void map_json_to_struct(T& result_struct, std::basic_istream<char>& json_
 	{
 		if constexpr (debug)
 		{
-			std::cout << "struct_mapping: map_json_to_struct.set_loating_point: " << name << " : " << value << std::endl;
+			std::cout << "struct_mapping: map_json_to_struct.set_floating_point: " << name << " : " << value << std::endl;
 		}
 
 		detail::Object<T>::set_floating_point(result_struct, name, value);
@@ -86,7 +86,7 @@ inline void map_json_to_struct(T& result_struct, std::basic_istream<char>& json_
 
 		if (++struct_level == 1)
 		{
-			detail::Object<T>::init();
+			detail::Object<T>::init(result_struct);
 		}
 		else
 		{
@@ -140,220 +140,17 @@ inline void map_json_to_struct(T& result_struct, std::basic_istream<char>& json_
 }
 
 template<typename T>
-inline void map_struct_to_json(T& source_struct, std::basic_ostream<char>& json_data)
-{
-	bool first_element = true;
-
-	detail::IterateOver::set_null = [&json_data, &first_element] (const std::string& name)
-	{
-		if constexpr (debug)
-		{
-			std::cout
-				<< "struct_mapping: map_struct_to_json.set_null: "
-				<< name
-				<< std::endl;
-		}
-
-		if (!first_element)
-		{
-			json_data << ",";
-		}
-
-		if (name.empty())
-		{
-			json_data << "null";
-		}
-		else
-		{
-			json_data << "\"" << name << "\":" << "null";
-		}
-
-		first_element = false;
-	};
-
-	detail::IterateOver::set<bool> = [&json_data, &first_element] (const std::string& name, bool value)
-	{
-		if constexpr (debug)
-		{
-			std::cout
-				<< "struct_mapping: map_struct_to_json.set<bool>: "
-				<< name
-				<< " : "
-				<< std::boolalpha
-				<< value
-				<< std::endl;
-		}
-
-		if (!first_element)
-		{
-			json_data << ",";
-		}
-
-		if (name.empty())
-		{
-			json_data << std::boolalpha << value;
-		}
-		else
-		{
-			json_data << "\"" << name << "\":" << std::boolalpha << value;
-		}
-
-		first_element = false;
-	};
-
-	detail::IterateOver::set<long long> = [&json_data, &first_element] (const std::string& name, long long value)
-	{
-		if constexpr (debug)
-		{
-			std::cout << "struct_mapping: map_struct_to_json.set<long long>: " << name << " : " << value << std::endl;
-		}
-
-		if (!first_element)
-		{
-			json_data << ",";
-		}
-
-		if (name.empty())
-		{
-			json_data << value;
-		}
-		else
-		{
-			json_data << "\"" << name << "\":" << value;
-		}
-
-		first_element = false;
-	};
-
-	detail::IterateOver::set<double> = [&json_data, &first_element] (const std::string& name, double value)
-	{
-		if constexpr (debug)
-		{
-			std::cout << "struct_mapping: map_struct_to_json.set<double>: " << name << " : " << value << std::endl;
-		}
-
-		if (!first_element)
-		{
-			json_data << ",";
-		}
-
-		if (name.empty())
-		{
-			json_data << value;
-		}
-		else
-		{
-			json_data << "\"" << name << "\":" << value;
-		}
-
-		first_element = false;
-	};
-
-	detail::IterateOver::set<std::string> = [&json_data, &first_element] (const std::string& name, std::string value)
-	{
-		if constexpr (debug)
-		{
-			std::cout << "struct_mapping: map_struct_to_json.set<std::string>: " << name << " : " << value << std::endl;
-		}
-
-		if (!first_element)
-		{
-			json_data << ",";
-		}
-
-		if (name.empty())
-		{
-			json_data << "\"" << value << "\"";
-		}
-		else
-		{
-			json_data << "\"" << name << "\":\"" << value << "\"";
-		}
-
-		first_element = false;
-	};
-
-	detail::IterateOver::start_struct = [&json_data, &first_element] (const std::string& name)
-	{
-		if constexpr (debug)
-		{
-			std::cout << "struct_mapping: map_struct_to_json.start_struct: " << name << std::endl;
-		}
-
-		if (!first_element)
-		{
-			json_data << ",";
-		}
-
-		first_element = true;
-
-		if (name.empty())
-		{
-			json_data << "{";
-		}
-		else
-		{
-			json_data << "\"" << name << "\":{";
-		}
-	};
-
-	detail::IterateOver::end_struct = [&json_data, &first_element] ()
-	{
-		if constexpr (debug)
-		{
-			std::cout << "struct_mapping: map_struct_to_json.end_struct:" << std::endl;
-		}
-
-		json_data << "}";
-		first_element = false;
-	};
-
-	detail::IterateOver::start_array = [&json_data, &first_element] (const std::string& name)
-	{
-		if constexpr (debug)
-		{
-			std::cout << "struct_mapping: map_struct_to_json.start_array: " << name << std::endl;
-		}
-
-		if (!first_element)
-		{
-			json_data << ",";
-		}
-
-		first_element = true;
-
-		if (name.empty())
-		{
-			json_data << "[";
-		}
-		else
-		{
-			json_data << "\"" << name << "\":[";
-		}
-	};
-
-	detail::IterateOver::end_array = [&json_data, &first_element] ()
-	{
-		if constexpr (debug)
-		{
-			std::cout << "struct_mapping: map_struct_to_json.end_array:" << std::endl;
-		}
-
-		json_data << "]";
-		first_element = false;
-	};
-
-	detail::Object<T>::iterate_over(source_struct, "");
-}
-
-template<typename T>
-inline void map_struct_to_json(T& source_struct, std::basic_ostream<char>& json_data, std::string indent)
+inline void map_struct_to_json(
+	T& source_struct,
+	std::basic_ostream<char>& json_data,
+	std::string indent = "",
+	bool hide_null = true)
 {
 	bool first_element = true;
 	int indent_count = 0;
 
 	detail::IterateOver::set_null =
-		[&json_data, &first_element, &indent_count, &indent] (const std::string& name)
+		[&json_data, &first_element, &indent_count, &indent, hide_null] (const std::string& name)
 		{
 			if constexpr (debug)
 			{
@@ -363,24 +160,38 @@ inline void map_struct_to_json(T& source_struct, std::basic_ostream<char>& json_
 					<< std::endl;
 			}
 
-			if (!first_element)
+			if (!hide_null)
 			{
-				json_data << ",";
-			}
+				if (!first_element)
+				{
+					json_data << ",";
+				}
 
-			json_data << "\n";
-			for (int i = indent_count; i != 0; --i)
-			{
-				json_data << indent; 
-			}
+				if (!indent.empty())
+				{
+					json_data << "\n";
+				}
 
-			if (name.empty())
-			{
-				json_data << "null";
-			}
-			else
-			{
-				json_data << "\"" << name << "\": " << "null";
+				for (int i = indent_count; i != 0; --i)
+				{
+					json_data << indent; 
+				}
+
+				if (name.empty())
+				{
+					json_data << "null";
+				}
+				else
+				{
+					json_data << "\"" << name << "\":";
+					
+					if (!indent.empty())
+					{
+						json_data << " ";
+					}
+
+ 					json_data << "null";
+				}
 			}
 
 			first_element = false;
@@ -405,7 +216,11 @@ inline void map_struct_to_json(T& source_struct, std::basic_ostream<char>& json_
 				json_data << ",";
 			}
 
-			json_data << "\n";
+			if (!indent.empty())
+			{
+				json_data << "\n";
+			}
+
 			for (int i = indent_count; i != 0; --i)
 			{
 				json_data << indent; 
@@ -417,7 +232,14 @@ inline void map_struct_to_json(T& source_struct, std::basic_ostream<char>& json_
 			}
 			else
 			{
-				json_data << "\"" << name << "\": " << std::boolalpha << value;
+				json_data << "\"" << name << "\":";
+					
+				if (!indent.empty())
+				{
+					json_data << " ";
+				}
+
+				json_data << std::boolalpha << value;
 			}
 
 			first_element = false;
@@ -437,7 +259,11 @@ inline void map_struct_to_json(T& source_struct, std::basic_ostream<char>& json_
 				json_data << ",";
 			}
 
-			json_data << "\n";
+			if (!indent.empty())
+			{
+				json_data << "\n";
+			}
+
 			for (int i = indent_count; i != 0; --i)
 			{
 				json_data << indent; 
@@ -449,7 +275,14 @@ inline void map_struct_to_json(T& source_struct, std::basic_ostream<char>& json_
 			}
 			else
 			{
-				json_data << "\"" << name << "\": " << value;
+				json_data << "\"" << name << "\":";
+					
+				if (!indent.empty())
+				{
+					json_data << " ";
+				}
+
+				json_data << value;
 			}
 
 			first_element = false;
@@ -468,7 +301,11 @@ inline void map_struct_to_json(T& source_struct, std::basic_ostream<char>& json_
 				json_data << ",";
 			}
 
-			json_data << "\n";
+			if (!indent.empty())
+			{
+				json_data << "\n";
+			}
+
 			for (int i = indent_count; i != 0; --i)
 			{
 				json_data << indent; 
@@ -480,7 +317,14 @@ inline void map_struct_to_json(T& source_struct, std::basic_ostream<char>& json_
 			}
 			else
 			{
-				json_data << "\"" << name << "\": " << value;
+				json_data << "\"" << name << "\":";
+					
+				if (!indent.empty())
+				{
+					json_data << " ";
+				}
+
+				json_data << value;
 			}
 
 			first_element = false;
@@ -504,7 +348,11 @@ inline void map_struct_to_json(T& source_struct, std::basic_ostream<char>& json_
 				json_data << ",";
 			}
 
-			json_data << "\n";
+			if (!indent.empty())
+			{
+				json_data << "\n";
+			}
+
 			for (int i = indent_count; i != 0; --i)
 			{
 				json_data << indent; 
@@ -516,7 +364,14 @@ inline void map_struct_to_json(T& source_struct, std::basic_ostream<char>& json_
 			}
 			else
 			{
-				json_data << "\"" << name << "\": \"" << value << "\"";
+				json_data << "\"" << name << "\":";
+					
+				if (!indent.empty())
+				{
+					json_data << " ";
+				}
+
+				json_data << "\"" << value << "\"";
 			}
 
 			first_element = false;
@@ -537,7 +392,10 @@ inline void map_struct_to_json(T& source_struct, std::basic_ostream<char>& json_
 
 			if (indent_count != 0)
 			{
-				json_data << "\n";
+				if (!indent.empty())
+				{
+					json_data << "\n";
+				}
 			}
 
 			for (int i = indent_count; i != 0; --i)
@@ -552,7 +410,14 @@ inline void map_struct_to_json(T& source_struct, std::basic_ostream<char>& json_
 			}
 			else
 			{
-				json_data << "\"" << name << "\": {";
+				json_data << "\"" << name << "\":";
+					
+				if (!indent.empty())
+				{
+					json_data << " ";
+				}
+
+				json_data << "{";
 			}
 
 			++indent_count;
@@ -567,7 +432,12 @@ inline void map_struct_to_json(T& source_struct, std::basic_ostream<char>& json_
 			}
 
 			--indent_count;
-			json_data << "\n";
+
+			if (!indent.empty())
+			{
+				json_data << "\n";
+			}
+
 			for (int i = indent_count; i != 0; --i)
 			{
 				json_data << indent; 
@@ -590,7 +460,11 @@ inline void map_struct_to_json(T& source_struct, std::basic_ostream<char>& json_
 				json_data << ",";
 			}
 
-			json_data << "\n";
+			if (!indent.empty())
+			{
+				json_data << "\n";
+			}
+
 			for (int i = indent_count; i != 0; --i)
 			{
 				json_data << indent; 
@@ -603,7 +477,14 @@ inline void map_struct_to_json(T& source_struct, std::basic_ostream<char>& json_
 			}
 			else
 			{
-				json_data << "\"" << name << "\": [";
+				json_data << "\"" << name << "\":";
+					
+				if (!indent.empty())
+				{
+					json_data << " ";
+				}
+
+				json_data << "[";
 			}
 
 			++indent_count;
@@ -618,7 +499,12 @@ inline void map_struct_to_json(T& source_struct, std::basic_ostream<char>& json_
 			}
 
 			--indent_count;
-			json_data << "\n";
+
+			if (!indent.empty())
+			{
+				json_data << "\n";
+			}
+
 			for (int i = indent_count; i != 0; --i)
 			{
 				json_data << indent; 

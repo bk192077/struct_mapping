@@ -6,6 +6,7 @@ set(EXAMPLES
 	in_struct_reg
 	macro_reg
 	map_like
+	optional
 	options
 	options_default
 	person

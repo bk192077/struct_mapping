@@ -21,27 +21,37 @@ public:
 	void check_option(const std::string& name) const
 	{
 		static_assert(
-			!std::is_same_v<M, bool> || std::is_same_v<T, bool>,
+			!std::is_same_v<detail::remove_optional_t<M>, bool> || std::is_same_v<T, bool>,
 			"bad option (Default): type error, expected bool");
+
 		static_assert(
-			!detail::is_integer_v<M> || detail::is_integer_v<T>,
+			!detail::is_integer_v<detail::remove_optional_t<M>> || detail::is_integer_v<T>,
 			"bad option (Default): type error, expected integer");
+
 		static_assert(
-			!std::is_floating_point_v<M> || detail::is_integer_or_floating_point_v<T>,
+			!std::is_floating_point_v<detail::remove_optional_t<M>> || detail::is_integer_or_floating_point_v<T>,
 			"bad option (Default): type error, expected integer or floating point");
+
 		static_assert(
-			!std::is_same_v<M, std::string> || std::is_same_v<T, std::string> || std::is_same_v<T, const char*>,
+			!std::is_same_v<detail::remove_optional_t<M>, std::string>
+				|| std::is_same_v<T, std::string>
+				|| std::is_same_v<T, const char*>,
 			"bad option (Default): type error, expected string");
-		static_assert(!std::is_enum_v<M> || std::is_enum_v<T>, "bad option (Default): type error, expected enumeration");
+
 		static_assert(
-			detail::is_integral_or_floating_point_or_string_v<M>
-				|| std::is_same_v<M, T>
-				|| (std::is_class_v<M>&& (std::is_same_v<T, std::string> || std::is_same_v<T, const char*>)),
+			!std::is_enum_v<detail::remove_optional_t<M>>
+				|| std::is_enum_v<T>, "bad option (Default): type error, expected enumeration");
+
+		static_assert(
+			detail::is_integral_or_floating_point_or_string_v<detail::remove_optional_t<M>>
+				|| std::is_same_v<detail::remove_optional_t<M>, T>
+				|| (std::is_class_v<detail::remove_optional_t<M>>
+				&& (std::is_same_v<T, std::string> || std::is_same_v<T, const char*>)),
 			"bad option (Default): type error");
 
-		if constexpr (detail::is_integer_or_floating_point_v<M>)
+		if constexpr (detail::is_integer_or_floating_point_v<detail::remove_optional_t<M>>)
 		{
-			if (!in_limits<M>())
+			if (!in_limits<detail::remove_optional_t<M>>())
 			{
 				throw StructMappingException(
 					"bad option (Default) for '"
@@ -49,17 +59,17 @@ public:
 						+ "': "
 						+ std::to_string(value)
 						+ " is out of limits of type ["
-						+ std::to_string(std::numeric_limits<M>::lowest())
+						+ std::to_string(std::numeric_limits<detail::remove_optional_t<M>>::lowest())
 						+	" : "
-						+	std::to_string(std::numeric_limits<M>::max()) + "]");
+						+	std::to_string(std::numeric_limits<detail::remove_optional_t<M>>::max()) + "]");
 			}
 		}
 
-		if constexpr (std::is_class_v<M>
-			&& !std::is_same_v<M, std::string>
+		if constexpr (std::is_class_v<detail::remove_optional_t<M>>
+			&& !std::is_same_v<detail::remove_optional_t<M>, std::string>
 			&& (std::is_same_v<T, std::string> || std::is_same_v<T, const char*>))
 		{
-			if (!IsMemberStringExist<M>::value)
+			if (!IsMemberStringExist<detail::remove_optional_t<M>>::value)
 			{
 				throw StructMappingException(
 					"bad option (Default) for '"

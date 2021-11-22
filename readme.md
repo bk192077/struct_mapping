@@ -13,6 +13,7 @@ English translation provided by [translate.google.com](https://translate.google.
 - [Usage](#usage)
 	- [Implementing a scenario with a Person structure](#implementing_a_scenario_with_a_Person_structure)
 	- [Mapping json to c++ structure](#mapping_json_to_c_plus_plus_structure)
+		- [Optional fields](#mapping_json_to_c_plus_plus_structure_optional)
 		- [Enumeration](#mapping_json_to_c_plus_plus_structure_enumeration)
 		- [Structures represented in json as strings](#mapping_json_to_c_plus_plus_structure_class_to_from_string)
 		- [Simple types example](#simple_types_example)
@@ -88,6 +89,7 @@ Compiler | platform combinations on which StructMapping has been tested:
 
 As types of member-data can be used
 
+* std::optional (with any supported type)
 * bool
 * char, unsigned char, short, unsigned short, int unsigned int, long, long long
 * float, double
@@ -246,6 +248,72 @@ void map_json_to_struct(T & result_struct, std::basic_istream<char> & json_data)
 - `json_data` - reference to json data input stream
 
 During the mapping process, the correspondence between the types of data members and the types of set value is checked, and (for numbers) the set value is checked to get out of the range of values of the data member type. In case of type mismatch or out of range values [exceptions](#exceptions) are generated.
+
+#### Optional fields <div id="mapping_json_to_c_plus_plus_structure_optional"></div>
+
+[example/optional](/example/optional/optional.cpp)
+
+Any of the supported types can be used in combination with std::optional. For example:
+
+```cpp
+#include <iostream>
+#include <optional>
+#include <sstream>
+#include <string>
+
+#include "struct_mapping/struct_mapping.h"
+
+struct Engine
+{
+ int age;
+};
+
+struct Car
+{
+ std::optional<Engine> engine;
+ std::optional<std::string> name;
+ std::optional<int> max_speed;
+};
+
+int main()
+{
+ struct_mapping::reg(&Engine::age, "age");
+
+ struct_mapping::reg(&Car::engine, "engine");
+ struct_mapping::reg(&Car::name, "name", struct_mapping::NotEmpty{});
+ struct_mapping::reg(&Car::max_speed, "max_speed", struct_mapping::Bounds{0, 100});
+
+std::istringstream json_data(R"json(
+ {
+  "engine": 
+  {
+   "age": 42
+  },
+  "name": "Mercedes"
+ }
+ )json");
+
+ Car car;
+
+ struct_mapping::map_json_to_struct(car, json_data);
+
+ std::ostringstream out_json_data;
+ struct_mapping::map_struct_to_json(car, out_json_data, "  ", false);
+ std::cout << out_json_data.str() << std::endl;
+}
+```
+
+result
+
+```cpp
+{
+  "engine": {
+    "age": 42
+  },
+  "name": "Mercedes",
+  "max_speed": null
+}
+```
 
 #### Enumeration <div id="mapping_json_to_c_plus_plus_structure_enumeration"></div>
 
@@ -446,56 +514,87 @@ earth.president:
 
 namespace sm = struct_mapping;
 
-struct Color {
+struct Color
+{
  int value;
 
- bool operator<(const Color & o) const {
+ bool operator<(const Color& o) const
+ {
   return value < o.value;
  }
 };
 
-Color color_from_string(const std::string & value) {
- if (value == "red") return Color{1};
- if (value == "blue") return Color{2};
+Color color_from_string(const std::string & value)
+{
+ if (value == "red")
+ {
+  return Color{1};
+ }
+ else if (value == "blue")
+ {
+  return Color{2};
+ }
 
  return Color{0};
 }
 
-std::string color_to_string(const Color & color) {
- switch (color.value) {
+std::string color_to_string(const Color& color)
+{
+ switch (color.value)
+ {
  case 1: return "red";
  case 2: return "blue";
  default: return "green";
  }
 }
 
-struct Background {
+struct Background
+{
  Color color;
 };
 
-struct Palette {
+struct Palette
+{
  Color main_color;
  Background background;
  std::list<Color> special_colors;
  std::set<Color> old_colors;
  std::map<std::string, Color> new_colors;
 
- friend std::ostream & operator<<(std::ostream & os, const Palette & o) {
-  os << "main_color         : " << color_to_string(o.main_color) << std::endl;
-  os << "background.color   : " << color_to_string(o.background.color) << std::endl;
-  os << "special_colors     : ";
-  for (auto color : o.special_colors) os << color_to_string(color) << ", ";
+ friend std::ostream& operator<<(std::ostream& os, const Palette& o)
+ {
+  os
+   << "main_color         : " << color_to_string(o.main_color) << std::endl
+   << "background.color   : " << color_to_string(o.background.color) << std::endl
+   << "special_colors     : ";
+
+  for (const auto& color : o.special_colors)
+  {
+   os << color_to_string(color) << ", ";
+  }
+
   os << std::endl << "old_colors         : ";
-  for (auto color : o.old_colors) os << color_to_string(color) << ", ";
+
+  for (const auto& color : o.old_colors)
+  {
+   os << color_to_string(color) << ", ";
+  }
+
   os << std::endl << "new_colors         : ";
-  for (auto [name, color] : o.new_colors) os << "[" << name << ", " << color_to_string(color) << "], ";
+
+  for (const auto& [name, color] : o.new_colors)
+  {
+   os << "[" << name << ", " << color_to_string(color) << "], ";
+  }
+
   os << std::endl;
 
   return os;
  }
 };
 
-int main() {
+int main()
+{
  sm::MemberString<Color>::set(color_from_string, color_to_string);
 
  sm::reg(&Palette::main_color, "main_color", sm::Default{"red"});
@@ -908,7 +1007,7 @@ When registering a data member, you can specify one or more options that will cu
 
 ##### Bounds <div id="options_bounds"></div>
 
-Sets the range of values in which (including the limits of the range) the value to be set is located. Applicable for integer types and floating point types. The option accepts two parameters - the range limits. Throws an [exception](#exceptions) when the set during the mapping of the value goes out of bounds.
+Sets the range of values in which (including the limits of the range) the value to be set is located. Applicable for integer types and floating point types. The option accepts two parameters - the range limits. Throws an [exception](#exceptions) when the set during the mapping of the value goes out of bounds. For std::optional, the option refers to the value that is contained in std::optional.
 
 ```cpp
 Bounds{lower, upper}
@@ -922,7 +1021,7 @@ reg(&Stage::engine_count, "engine_count", Bounds{1, 31});
 
 ##### Default <div id="options_default"></div>
 
-Sets the default value for the data member. Applicable for bool, integer types, floating point types, strings, containers, cpp structures and enumerations. The option accepts one parameter - the default value.
+Sets the default value for the data member. Applicable for bool, integer types, floating point types, strings, containers, cpp structures and enumerations. The option accepts one parameter - the default value. For std::optional, the option refers to the value that is contained in std::optional.
 
 ```cpp
 Default{default_value}
@@ -942,7 +1041,7 @@ sm::reg(&Palette::main_color, "main_color", sm::Default{"red"});
 
 ##### NotEmpty <div id="options_not_empty"></div>
 
-Notes that a data member cannot be set to an empty value. Applicable for strings and containers. The option does not accept parameters. Throws an [exception](#exceptions) if, after completion of the mapping, the field value is an empty string or an empty container.
+Notes that a data member cannot be set to an empty value. Applicable for strings and containers. The option does not accept parameters. Throws an [exception](#exceptions) if, after completion of the mapping, the field value is an empty string or an empty container. For std::optional, the option refers to the value that is contained in std::optional.
 
 Example of setting an option:
 
@@ -952,7 +1051,7 @@ reg(&Spacecraft::name, "name", NotEmpty{}));
 
 ##### Required <div id="options_required"></div>
 
-Notes that a data member must be set to a value. Applicable for bool, integer types, floating point types, strings, containers, cpp structures and enumerations. The option does not accept parameters. Throws an [exception](#exceptions) if, after completion of the mapping, value for the field has not been set.
+Notes that a data member must be set to a value. Applicable for bool, integer types, floating point types, strings, containers, cpp structures and enumerations. The option does not accept parameters. Throws an [exception](#exceptions) if, after completion of the mapping, value for the field has not been set. The option cannot be used for std::optional.
 
 Example of setting an option:
 
@@ -977,21 +1076,25 @@ reg(&Spacecraft::name, "name", Required{}));
 
 namespace sm = struct_mapping;
 
-struct Stage {
+struct Stage
+{
  unsigned short engine_count;
  std::string fuel;
  long length;
 
- friend std::ostream & operator<<(std::ostream & os, const Stage & o) {
-  os << "  engine_count : " << o.engine_count << std::endl;
-  os << "  fuel         : " << o.fuel << std::endl;
-  os << "  length       : " << o.length << std::endl;
+ friend std::ostream& operator<<(std::ostream& os, const Stage& o)
+ {
+  os
+   << "  engine_count : " << o.engine_count << std::endl
+   << "  fuel         : " << o.fuel << std::endl
+   << "  length       : " << o.length << std::endl;
 
   return os;
  }
 };
 
-struct Spacecraft {
+struct Spacecraft
+{
  bool in_development;
  std::string name;
  int mass;
@@ -1000,24 +1103,46 @@ struct Spacecraft {
  std::set<int> ids;
  std::unordered_set<std::string> tools;
 
- friend std::ostream & operator<<(std::ostream & os, const Spacecraft & o) {
-  os << "in_development : " << std::boolalpha << o.in_development << std::endl;
-  os << "name           : " << o.name << std::endl;
-  os << "mass           : " << o.mass << std::endl;
-  os << "stages: " << std::endl;
-  for (auto& s : o.stages) os << " " << s.first << std::endl << s.second;
+ friend std::ostream& operator<<(std::ostream& os, const Spacecraft& o)
+ {
+  os
+   << "in_development : " << std::boolalpha << o.in_development << std::endl
+   << "name           : " << o.name << std::endl
+   << "mass           : " << o.mass << std::endl
+   << "stages: " << std::endl;
+
+  for (const auto& s : o.stages)
+  {
+   os << " " << s.first << std::endl << s.second;
+  }
+
   os << "crew: " << std::endl;
-  for (auto& p : o.crew) os << " " << p << std::endl;
+
+  for (const auto& p : o.crew)
+  {
+   os << " " << p << std::endl;
+  }
+
   os << "ids: " << std::endl;
-  for (auto& i : o.ids) os << " " << i << std::endl;
+
+  for (const auto& i : o.ids)
+  {
+   os << " " << i << std::endl;
+  }
+
   os << "tools: " << std::endl;
-  for (auto& t : o.tools) os << " " << t << std::endl;
+
+  for (const auto& t : o.tools)
+  {
+   os << " " << t << std::endl;
+  }
 
   return os;
  }
 };
 
-int main() {
+int main()
+{
  sm::reg(&Stage::engine_count, "engine_count", sm::Default{6}, sm::Bounds{1, 31});
  sm::reg(&Stage::fuel, "fuel", sm::Default{"subcooled"});
  sm::reg(&Stage::length, "length", sm::Default{50});
@@ -1103,12 +1228,19 @@ and call the function
 
 ```cpp
 template<typename T>
-void map_struct_to_json(T & source_struct, std::basic_ostream<char> & json_data, std::string indent);
+void map_struct_to_json(
+  T& source_struct,
+  std::basic_ostream<char>& json_data,
+  std::string indent = "",
+  bool hide_null = true);
 ```
 
 - `source_struct` - reference to the source structure
 - `json_data` - reference to json data output stream
 - `indent` - indentation (if set, makes the output format better readable)
+- `hide_null`:
+   * true - std::optional fields for which no value is set will be hidden
+   * false - std::optional fields for which no value is set will have the value 'null' in json
 
 [example/struct_to_json](/example/struct_to_json/struct_to_json.cpp)
 
@@ -1265,39 +1397,66 @@ In order not to take out the registration of data members from the structure, re
 ```cpp
 #include <iostream>
 #include <sstream>
+#include <string>
 #include <vector>
 
 #include "struct_mapping/struct_mapping.h"
 
-struct Planet {
- bool giant = [] {struct_mapping::reg(&Planet::giant, "giant"); return false;} ();
- long long surface_area = [] {struct_mapping::reg(&Planet::surface_area, "surface_area"); return 0;} ();
- double mass = [] {struct_mapping::reg(&Planet::mass, "mass"); return 0;} ();
- std::vector<std::string> satellites = [] {
-  struct_mapping::reg(&Planet::satellites, "satellites"); return std::vector<std::string>{};} ();
+struct Planet
+{
+ bool giant = []
+ {
+  struct_mapping::reg(&Planet::giant, "giant");
+  return false;
+ } ();
+ 
+ long long surface_area = []
+ {
+  struct_mapping::reg(&Planet::surface_area, "surface_area");
+  return 0;
+ } ();
+ 
+ double mass = []
+ {
+  struct_mapping::reg(&Planet::mass, "mass");
+  return 0;
+ } ();
+
+ std::vector<std::string> satellites = []
+ {
+  struct_mapping::reg(&Planet::satellites, "satellites");
+  return std::vector<std::string>{};
+ } ();
 };
 
-int main() {
+int main()
+{
  std::istringstream json_data(R"json(
-  {
-   "giant": false,
-   "surface_area": 510072000000000,
-   "mass": 5.97237e24,
-   "satellites": ["Moon", "R24"]
-  }
+ {
+  "giant": false,
+  "surface_area": 510072000000000,
+  "mass": 5.97237e24,
+  "satellites": ["Moon", "R24"]
+ }
  )json");
 
  Planet earth;
 
  struct_mapping::map_json_to_struct(earth, json_data);
 
- std::cout << "earth" << std::endl;
- std::cout << " giant        : " << std::boolalpha << earth.giant << std::endl;
- std::cout << " surface_area : " << earth.surface_area << std::endl;
- std::cout << " mass         : " << earth.mass << std::endl;
- std::cout << " satellite    : [ ";
- for (auto & s : earth.satellites) std::cout << s << ", ";
- std::cout << "]" << std::endl;
+ std::cout
+  << "earth" << std::endl
+  << " giant        : " << std::boolalpha << earth.giant << std::endl
+  << " surface_area : " << earth.surface_area << std::endl
+  << " mass         : " << earth.mass << std::endl
+  << " satellite    : [ ";
+
+  for (const auto& s : earth.satellites)
+  {
+   std::cout << s << ", ";
+  }
+
+  std::cout << "]" << std::endl;
 }
 ```
 

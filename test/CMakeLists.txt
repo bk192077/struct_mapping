@@ -6,10 +6,11 @@ include(ExternalProject)
 
 ExternalProject_Add(
 	googletest
-	URL https://github.com/google/googletest/archive/master.zip
+	URL https://github.com/google/googletest/archive/refs/heads/main.zip
 	PREFIX ${CMAKE_SOURCE_DIR}/thirdparty/gooletest
 	DOWNLOAD_NO_PROGRESS true
 	INSTALL_COMMAND ""
+	CMAKE_ARGS -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
 )
 
 ExternalProject_Get_property(googletest SOURCE_DIR BINARY_DIR)
@@ -34,12 +35,16 @@ set_target_properties(gmock PROPERTIES
 	"INTERFACE_LINK_LIBRARIES" "${CMAKE_THREAD_LIBS_INIT}"
 )
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isystem${GTEST_INCLUDE_DIRS} -isystem${GMOCK_INCLUDE_DIRS}")
+
 set(TEST_SOURCES
 	main.cpp
+
 	option_bounds.cpp
 	option_default.cpp
 	option_not_empty.cpp
 	option_required.cpp
+	optional.cpp
 	parser.cpp
 	map_json_to_struct.cpp
 	map_struct_to_json.cpp

@@ -15,7 +15,7 @@ enum class Color
 	green,
 };
 
-Color ColorFromString(const std::string& value)
+static Color ColorFromString(const std::string& value)
 {
 	if (value == "red")
 	{
@@ -29,7 +29,7 @@ Color ColorFromString(const std::string& value)
 	return Color::green;
 }
 
-std::string ColorToString(Color color)
+static std::string ColorToString(Color color)
 {
 	switch (color)
 	{
