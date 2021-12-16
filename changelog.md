@@ -1,6 +1,15 @@
 # Change Log
 All notable changes to this project will be documented in this file. This project adheres to [Semantic Versioning](http://semver.org/).
 
+## 0.6.0 - 2021.12.16
+
+### Added
+* as types of member-data can be used: std::set, std::unordered_set, std::multiset, std::unordered_multiset
+* structures in json can be represented as strings
+* options in macro
+* optional fields (std::optional)
+* Clang support
+
 ## 0.5.0 - 2020.07.09
 
 ### Added
