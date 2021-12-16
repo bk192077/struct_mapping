@@ -1,18 +1,18 @@
 #ifndef STRUCT_MAPPING_FUNCTIONS_H
 #define STRUCT_MAPPING_FUNCTIONS_H
 
+#include "utility.h"
+
 #include <functional>
 #include <string>
 #include <vector>
-
-#include "utility.h"
 
 namespace struct_mapping::detail
 {
 
 template<
 	typename T,
-	template<typename> typename ObjectType>
+	template<typename, bool, bool> typename ObjectType>
 class Functions
 {
 public:
@@ -27,72 +27,74 @@ public:
 	using SetString = void (T&, const std::string&, const std::string&);
 	using Use = void (T&, const std::string&);
 
+public:
 	template<typename V>
 	Index add(MemberPtr<T, V> ptr)
 	{
 		check_not_empty.emplace_back(
 			[ptr] (T& o, const std::string& name_)
 			{
-				ObjectType<V>::check_not_empty(o.*ptr, name_);
+				ObjectType<V, is_array_like_v<V>, is_map_like_v<V>>::check_not_empty(o.*ptr, name_);
 			});
 
 		init.emplace_back(
 			[ptr] (T& o)
 			{
-				ObjectType<V>::init(o.*ptr);
+				ObjectType<V, is_array_like_v<V>, is_map_like_v<V>>::init(o.*ptr);
 			});
 
 		iterate_over.emplace_back(
 			[ptr] (T& o, const std::string& name_)
 			{
-				ObjectType<V>::iterate_over(o.*ptr, name_);
+				ObjectType<V, is_array_like_v<V>, is_map_like_v<V>>::iterate_over(o.*ptr, name_);
 			});
 
 		release.emplace_back(
 			[ptr] (T& o)
 			{
-				return ObjectType<V>::release(o.*ptr);
+				return ObjectType<V, is_array_like_v<V>, is_map_like_v<V>>::release(o.*ptr);
 			});
 
 		set_bool.emplace_back(
 			[ptr] (T& o, const std::string& name_, bool value_)
 			{
-				ObjectType<V>::set_bool(o.*ptr, name_, value_);
+				ObjectType<V, is_array_like_v<V>, is_map_like_v<V>>::set_bool(o.*ptr, name_, value_);
 			});
 
 		set_default.emplace_back(
 			[ptr] (T& o, Index index_)
 			{
-				o.*ptr = ObjectType<T>::template members_default<V>[index_];
+				o.*ptr = ObjectType<T, is_array_like_v<T>, is_map_like_v<T>>::template members_default<V>[index_];
 			});
 
 		set_floating_point.emplace_back(
 			[ptr] (T& o, const std::string& name_, double value_)
 			{
-				ObjectType<V>::set_floating_point(o.*ptr, name_, value_);
+				ObjectType<V, is_array_like_v<V>, is_map_like_v<V>>::set_floating_point(o.*ptr, name_, value_);
 			});
 
 		set_integral.emplace_back(
 			[ptr] (T& o, const std::string& name_, long long value_)
 			{
-				ObjectType<V>::set_integral(o.*ptr, name_, value_);
+				ObjectType<V, is_array_like_v<V>, is_map_like_v<V>>::set_integral(o.*ptr, name_, value_);
 			});
 
 		set_string.emplace_back(
 			[ptr] (T& o, const std::string& name_, const std::string& value_)
 			{
-				ObjectType<V>::set_string(o.*ptr, name_, value_);
+				ObjectType<V, is_array_like_v<V>, is_map_like_v<V>>::set_string(o.*ptr, name_, value_);
 			});
 
 		use.emplace_back(
 			[ptr] (T& o, const std::string& name_)
 			{
-				ObjectType<V>::use(o.*ptr, name_);
+				ObjectType<V, is_array_like_v<V>, is_map_like_v<V>>::use(o.*ptr, name_);
 			});
 
 		return static_cast<Index>(use.size()) - 1;
 	}
 
+public:
 	std::vector<std::function<CheckNotEmpty>> check_not_empty;
 	std::vector<std::function<Init>> init;
 	std::vector<std::function<IterateOver>> iterate_over;
