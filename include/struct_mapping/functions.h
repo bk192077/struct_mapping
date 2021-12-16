@@ -1,5 +1,4 @@
-#ifndef STRUCT_MAPPING_FUNCTIONS_H
-#define STRUCT_MAPPING_FUNCTIONS_H
+#pragma once
 
 #include "utility.h"
 
@@ -108,5 +107,3 @@ public:
 };
 
 } // struct_mapping::detail
-
-#endif

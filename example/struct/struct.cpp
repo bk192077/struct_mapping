@@ -1,8 +1,8 @@
+#include "struct_mapping/struct_mapping.h"
+
 #include <iostream>
 #include <sstream>
 #include <string>
-
-#include "struct_mapping/struct_mapping.h"
 
 struct President
 {
@@ -35,8 +35,8 @@ int main()
 
 	struct_mapping::map_json_to_struct(earth, json_data);
 
-	std::cout
-		<< "earth.president:" << std::endl
-		<< " name : " << earth.president.name << std::endl
-		<< " mass : " << earth.president.mass << std::endl;
+	std::ostringstream out_json_data;
+	struct_mapping::map_struct_to_json(earth, out_json_data, "  ");
+
+	std::cout << out_json_data.str() << std::endl;
 }

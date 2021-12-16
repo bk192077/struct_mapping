@@ -1,11 +1,10 @@
-#ifndef STRUCT_MAPPING_OPTIONS_OPTION_BOUNDS_H
-#define STRUCT_MAPPING_OPTIONS_OPTION_BOUNDS_H
-
-#include <limits>
-#include <string>
+#pragma once
 
 #include "../utility.h"
 #include "../exception.h"
+
+#include <limits>
+#include <string>
 
 namespace struct_mapping
 {
@@ -124,9 +123,6 @@ public:
 	}
 
 private:
-	T lower;
-	T upper;
-
 	template<typename M>
 	bool in_limits(T value) const
 	{
@@ -143,8 +139,10 @@ private:
 
 		return true;
 	}
+
+private:
+	T lower;
+	T upper;
 };
 
 } // struct_mapping
-
-#endif

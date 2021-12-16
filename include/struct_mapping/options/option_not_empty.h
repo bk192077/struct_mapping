@@ -1,5 +1,4 @@
-#ifndef STRUCT_MAPPING_OPTIONS_OPTION_NOT_EMPTY_H
-#define STRUCT_MAPPING_OPTIONS_OPTION_NOT_EMPTY_H
+#pragma once
 
 #include <string>
 
@@ -46,5 +45,3 @@ public:
 };
 
 } // struct_mapping
-
-#endif

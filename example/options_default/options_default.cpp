@@ -1,10 +1,10 @@
+#include "struct_mapping/struct_mapping.h"
+
 #include <iostream>
 #include <list>
 #include <map>
 #include <sstream>
 #include <string>
-
-#include "struct_mapping/struct_mapping.h"
 
 namespace sm = struct_mapping;
 
@@ -38,31 +38,6 @@ struct Spacecraft
 	Reentry_module reentry_module;
 	std::map<std::string, Stage> stages;
 	std::list<std::string> crew;
-
-	friend std::ostream& operator<<(std::ostream& os, const Spacecraft& o)
-	{
-		os
-			<< "in_development : " << std::boolalpha << o.in_development << std::endl
-			<< "name           : " << o.name << std::endl
-			<< "mass           : " << o.mass << std::endl
-			<< "reentry_module : " << std::endl
-			<< " total_mass : " << o.reentry_module.total_mass << std::endl
-			<< "stages: " << std::endl;
-
-		for (const auto& s : o.stages)
-		{
-			os << " " << s.first << std::endl << s.second;
-		}
-
-		os << "crew: " << std::endl;
-
-		for (const auto& p : o.crew)
-		{
-			os << " " << p << std::endl;
-		}
-
-		return os;
-	}
 };
 
 int main()
@@ -98,5 +73,8 @@ int main()
 
 	sm::map_json_to_struct(starship, json_data);
 
-	std::cout << starship << std::endl;
+	std::ostringstream out_json_data;
+	struct_mapping::map_struct_to_json(starship, out_json_data, "  ");
+
+	std::cout << out_json_data.str() << std::endl;
 }

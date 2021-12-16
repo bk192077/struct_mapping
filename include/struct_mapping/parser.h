@@ -1,10 +1,9 @@
-#ifndef STRUCT_MAPPING_PARSER_H
-#define STRUCT_MAPPING_PARSER_H
+#pragma once
+
+#include "exception.h"
 
 #include <istream>
 #include <string>
-
-#include "exception.h"
 
 namespace struct_mapping::detail
 {
@@ -24,7 +23,8 @@ class Parser
 public:
 	using stream_type = std::basic_istream<char>;
 
-	Parser (
+public:
+	Parser(
 		SetBool set_bool_,
 		SetIntegral set_integral_,
 		SetFloatingPoint set_floating_point_,
@@ -34,20 +34,20 @@ public:
 		EndStruct end_struct_,
 		StartArray start_array_,
 		EndArray end_array_)
-		:	set_bool(set_bool_),
-			set_integral(set_integral_),
-			set_floating_point(set_floating_point_),
-			set_string(set_string_),
-			set_null(set_null_),
-			start_struct(start_struct_),
-			end_struct(end_struct_),
-			start_array(start_array_),
-			end_array(end_array_)
+		:	set_bool(set_bool_)
+		,	set_integral(set_integral_)
+		,	set_floating_point(set_floating_point_)
+		,	set_string(set_string_)
+		,	set_null(set_null_)
+		,	start_struct(start_struct_)
+		,	end_struct(end_struct_)
+		,	start_array(start_array_)
+		,	end_array(end_array_)
 	{}
 
-	void parse(stream_type* data_)
+	void parse(stream_type& data_)
 	{
-		data = data_;
+		data = &data_;
 
 		wait("{");
 		start_struct("");
@@ -55,20 +55,6 @@ public:
 	}
 
 private:
-	SetBool set_bool;
-	SetIntegral set_integral;
-	SetFloatingPoint set_floating_point;
-	SetString set_string;
-	SetNull set_null;
-	StartStruct start_struct;
-	EndStruct end_struct;
-	StartArray start_array;
-	EndArray end_array;
-
-	stream_type* data;
-	size_t line_number = 1;
-	char wait_char = '\0';
-
 	stream_type& get_next_char(char& ch)
 	{
 		if (wait_char != '\0')
@@ -123,7 +109,7 @@ private:
 
 		for (;;)
 		{
-			char ch = wait(expected_characters);
+			const char ch = wait(expected_characters);
 
 			if (ch == ']')
 			{
@@ -146,6 +132,7 @@ private:
 	void parse_array_value(char start_ch)
 	{
 		std::string name("");
+
 		if (start_ch == '{')
 		{
 			start_struct(name);
@@ -197,7 +184,7 @@ private:
 
 		for (;;)
 		{
-			char ch = wait(expected_characters);
+			const char ch = wait(expected_characters);
 
 			if (ch == '}')
 			{
@@ -220,9 +207,10 @@ private:
 	void parse_struct_value()
 	{
 		auto name = get_string();
+
 		wait(":");
 
-		char value_start_ch = wait("\"{[tf-0123456789n");
+		const char value_start_ch = wait("\"{[tf-0123456789n");
 
 		if (value_start_ch == '{')
 		{
@@ -269,12 +257,12 @@ private:
 	void set_number(std::string& name, char start_ch)
 	{
 		std::string value{start_ch};
-		char next_ch;
 		bool is_floating_point_number = false;
 
 		for (;;)
 		{
-			next_ch = wait("}],.0123456789eE+-");
+			const auto next_ch = wait("}],.0123456789eE+-");
+
 			if (next_ch == '.')
 			{
 				is_floating_point_number = true;
@@ -315,12 +303,13 @@ private:
 	char wait(char const* characters_)
 	{
 		char test_ch;
+
 		while (get_next_char(test_ch))
 		{
 			char const* characters = characters_;
 			while (*characters)
 			{
-				if (test_ch ==*characters)
+				if (test_ch == *characters)
 				{
 					return test_ch;
 				}
@@ -344,8 +333,21 @@ private:
 
 		throw StructMappingException("parser: unexpected end of data");
 	}
+
+private:
+	SetBool set_bool;
+	SetIntegral set_integral;
+	SetFloatingPoint set_floating_point;
+	SetString set_string;
+	SetNull set_null;
+	StartStruct start_struct;
+	EndStruct end_struct;
+	StartArray start_array;
+	EndArray end_array;
+
+	stream_type* data;
+	size_t line_number = 1;
+	char wait_char = '\0';
 };
 
 } // struct_mapping::detail
-
-#endif

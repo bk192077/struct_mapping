@@ -1,11 +1,11 @@
+#include "struct_mapping/struct_mapping.h"
+
+#include "gtest/gtest.h"
+
 #include <cstdint>
 #include <limits>
 #include <sstream>
 #include <string>
-
-#include "gtest/gtest.h"
-
-#include "struct_mapping/struct_mapping.h"
 
 namespace
 {

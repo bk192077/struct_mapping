@@ -1,10 +1,9 @@
-#ifndef STRUCT_MAPPING_MEMBER_STRING_H
-#define STRUCT_MAPPING_MEMBER_STRING_H
+#pragma once
+
+#include "exception.h"
 
 #include <functional>
 #include <string>
-
-#include "exception.h"
 
 namespace struct_mapping
 {
@@ -24,6 +23,7 @@ public:
 	using FromString = T (const std::string&);
 	using ToString = std::string (T);
 
+public:
 	template<
 		typename From,
 		typename To>
@@ -60,5 +60,3 @@ private:
 };
 
 } // struct_mapping
-
-#endif

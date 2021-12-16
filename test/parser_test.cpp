@@ -1,13 +1,13 @@
+#include "struct_mapping/parser.h"
+
+#include "gtest/gtest.h"
+
 #include <cstdint>
 #include <cstring>
 #include <sstream>
 #include <string>
 #include <vector>
 #include <utility>
-
-#include "gtest/gtest.h"
-
-#include "struct_mapping/parser.h"
 
 namespace
 {
@@ -33,7 +33,7 @@ struct TestCaseExceptionUnexpectedCharacter
 	std::string exception_message;
 };
 
-std::vector<TestCase> test_cases
+const std::vector<TestCase> test_cases
 {
 	{
 		"empty top struct",
@@ -547,7 +547,7 @@ std::vector<TestCase> test_cases
 	},
 };
 
-std::vector<TestCaseExceptionEndOfData> test_cases_exception_end_of_data
+const std::vector<TestCaseExceptionEndOfData> test_cases_exception_end_of_data
 {
 	{
 		"end of data",
@@ -569,7 +569,7 @@ std::vector<TestCaseExceptionEndOfData> test_cases_exception_end_of_data
 	},
 };
 
-std::vector<TestCaseExceptionUnexpectedCharacter> test_cases_exception_unexpected_character
+const std::vector<TestCaseExceptionUnexpectedCharacter> test_cases_exception_unexpected_character
 {
 	{
 		"unexpected character after begin of the struct",
@@ -599,7 +599,7 @@ std::vector<TestCaseExceptionUnexpectedCharacter> test_cases_exception_unexpecte
 	},
 };
 
-std::string trim_zero(std::string&& number)
+std::string trim_zero(std::string number)
 {
 	size_t length;
 	for (length = number.size() - 1; number[length] == '0'; --length);
@@ -613,7 +613,7 @@ std::string trim_zero(std::string&& number)
 		number = number.substr(0, length + 1);
 	}
 
-	return std::move(number);
+	return number;
 }
 
 TEST(parser, test_cases)
@@ -621,6 +621,7 @@ TEST(parser, test_cases)
 	for(const auto& t : test_cases)
 	{
 		std::cout << "TEST CASE [" << t.title << "] : RUN" << std::endl;
+
 		std::vector<std::string> result;
 		std::istringstream data(t.source);
 
@@ -668,7 +669,7 @@ TEST(parser, test_cases)
 			result.push_back("end_array");
 		};
 
-		struct_mapping::detail::Parser jp(
+		struct_mapping::detail::Parser parser(
 			set_bool,
 			set_integral,
 			set_floating_point,
@@ -678,7 +679,8 @@ TEST(parser, test_cases)
 			end_struct,
 			start_array,
 			end_array);
-		jp.parse(&data);
+		
+		parser.parse(data);
 
 		ASSERT_EQ(t.expected, result) << "=== [ title  : " << t.title << " ] ===";
 	}
@@ -689,6 +691,7 @@ TEST(parser, test_cases_exception_end_of_data)
 	for(const auto& t : test_cases_exception_end_of_data)
 	{
 		std::cout << "TEST CASE [" << t.title << "] : RUN" << std::endl;
+
 		std::istringstream data(t.source);
 
 		auto set_bool = [] (const std::string&, bool) {};
@@ -703,7 +706,7 @@ TEST(parser, test_cases_exception_end_of_data)
 
 		try
 		{
-			struct_mapping::detail::Parser jp(
+			struct_mapping::detail::Parser parser(
 				set_bool,
 				set_integral,
 				set_floating_point,
@@ -713,7 +716,8 @@ TEST(parser, test_cases_exception_end_of_data)
 				end_struct,
 				start_array,
 				end_array);
-			jp.parse(&data); 
+
+			parser.parse(data);
 		}
 		catch (struct_mapping::StructMappingException& e)
 		{
@@ -742,6 +746,7 @@ TEST(parser, test_cases_exception_unexpected_character)
 	for(const auto& t : test_cases_exception_unexpected_character)
 	{
 		std::cout << "TEST CASE [" << t.title << "] : RUN" << std::endl;
+
 		std::istringstream data(t.source);
 
 		auto set_bool = [] (const std::string&, bool) {};
@@ -756,7 +761,7 @@ TEST(parser, test_cases_exception_unexpected_character)
 
 		try
 		{
-			struct_mapping::detail::Parser jp(
+			struct_mapping::detail::Parser parser(
 				set_bool,
 				set_integral,
 				set_floating_point,
@@ -766,7 +771,8 @@ TEST(parser, test_cases_exception_unexpected_character)
 				end_struct,
 				start_array,
 				end_array);
-			jp.parse(&data); 
+
+			parser.parse(data);
 		}
 		catch (struct_mapping::StructMappingException& e)
 		{
@@ -816,7 +822,7 @@ TEST(parser, positive_floating_point_with_positive_exponent)
 	auto start_array = [] (const std::string&) {};
 	auto end_array = [] {};
 
-	struct_mapping::detail::Parser jp(
+	struct_mapping::detail::Parser parser(
 		set_bool,
 		set_integral,
 		set_floating_point,
@@ -826,7 +832,8 @@ TEST(parser, positive_floating_point_with_positive_exponent)
 		end_struct,
 		start_array,
 		end_array);
-	jp.parse(&data);
+
+	parser.parse(data);
 }
 
 TEST(parser, negative_floating_point_with_negative_exponent)
@@ -854,7 +861,7 @@ TEST(parser, negative_floating_point_with_negative_exponent)
 	auto start_array = [] (const std::string&) {};
 	auto end_array = [] {};
 
-	struct_mapping::detail::Parser jp(
+	struct_mapping::detail::Parser parser(
 		set_bool,
 		set_integral,
 		set_floating_point,
@@ -864,7 +871,8 @@ TEST(parser, negative_floating_point_with_negative_exponent)
 		end_struct,
 		start_array,
 		end_array);
-	jp.parse(&data);
+
+	parser.parse(data);
 }
 
 TEST(parser, exception_bad_number_invalid_argument)
@@ -889,7 +897,7 @@ TEST(parser, exception_bad_number_invalid_argument)
 
 	try
 	{
-		struct_mapping::detail::Parser jp(
+		struct_mapping::detail::Parser parser(
 			set_bool,
 			set_integral,
 			set_floating_point,
@@ -899,7 +907,8 @@ TEST(parser, exception_bad_number_invalid_argument)
 			end_struct,
 			start_array,
 			end_array);
-		jp.parse(&data); 
+
+		parser.parse(data);
 	}
 	catch (struct_mapping::StructMappingException& e)
 	{
@@ -943,7 +952,7 @@ TEST(parser, exception_bad_number_out_of_range)
 
 	try
 	{
-		struct_mapping::detail::Parser jp(
+		struct_mapping::detail::Parser parser(
 			set_bool,
 			set_integral,
 			set_floating_point,
@@ -953,7 +962,8 @@ TEST(parser, exception_bad_number_out_of_range)
 			end_struct,
 			start_array,
 			end_array);
-		jp.parse(&data); 
+
+		parser.parse(data);
 	}
 	catch (struct_mapping::StructMappingException& e)
 	{

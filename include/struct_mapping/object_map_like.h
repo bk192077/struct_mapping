@@ -1,16 +1,15 @@
-#ifndef STRUCT_MAPPING_OBJECT_MAP_LIKE_H
-#define STRUCT_MAPPING_OBJECT_MAP_LIKE_H
-
-#include <limits>
-#include <string>
-#include <type_traits>
-#include <utility>
+#pragma once
 
 #include "iterate_over.h"
 #include "member_string.h"
 #include "object.h"
 #include "options/option_not_empty.h"
 #include "utility.h"
+
+#include <limits>
+#include <string>
+#include <type_traits>
+#include <utility>
 
 namespace struct_mapping::detail
 {
@@ -24,6 +23,7 @@ public:
 	template<typename V>
 	using ValueType = typename V::mapped_type;
 
+public:
 	static void check_not_empty(T& o, const std::string& name)
 	{
 		NotEmpty<>::check_result(o, name);
@@ -87,8 +87,6 @@ public:
 				{
 					used = false;
 				}
-
-				return false;
 			}
 		}
 
@@ -252,9 +250,6 @@ public:
 	}
 
 private:
-	static inline Iterator last_inserted;
-	static inline bool used = false;
-
 	static auto& get_last_inserted()
 	{
 		return last_inserted->second;
@@ -268,16 +263,18 @@ private:
 				decltype(std::declval<T>().insert(typename T::value_type())),
 				std::pair<Iterator, bool>>)
 		{
-			auto [it, ok] = o.insert(std::make_pair(name, value));
-			return it;
+			return o.insert(std::make_pair(name, value)).first;
 		}
-		else if constexpr (std::is_same_v<decltype(std::declval<T>().insert(typename T::value_type())), Iterator>)
+		
+		if constexpr (std::is_same_v<decltype(std::declval<T>().insert(typename T::value_type())), Iterator>)
 		{
 			return o.insert(std::make_pair(name, value));
 		}
 	}
+
+private:
+	static inline Iterator last_inserted;
+	static inline bool used = false;
 };
 
 } // struct_mapping::detail
-
-#endif

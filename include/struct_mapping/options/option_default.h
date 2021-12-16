@@ -1,11 +1,10 @@
-#ifndef STRUCT_MAPPING_OPTIONS_OPTION_DEFAULT_H
-#define STRUCT_MAPPING_OPTIONS_OPTION_DEFAULT_H
-
-#include <limits>
-#include <string>
+#pragma once
 
 #include "../utility.h"
 #include "../exception.h"
+
+#include <limits>
+#include <string>
 
 namespace struct_mapping
 {
@@ -85,8 +84,6 @@ public:
 	}
 
 private:
-	T value;
-
 	template<typename M>
 	bool in_limits() const
 	{
@@ -101,8 +98,9 @@ private:
 				&& static_cast<double>(value) <= static_cast<double>(std::numeric_limits<M>::max());
 		}
 	}
+
+private:
+	T value;
 };
 
 } // struct_mapping
-
-#endif

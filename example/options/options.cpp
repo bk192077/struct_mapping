@@ -1,3 +1,5 @@
+#include "struct_mapping/struct_mapping.h"
+
 #include <iostream>
 #include <list>
 #include <map>
@@ -6,8 +8,6 @@
 #include <string>
 #include <unordered_set>
 
-#include "struct_mapping/struct_mapping.h"
-
 namespace sm = struct_mapping;
 
 struct Stage
@@ -15,16 +15,6 @@ struct Stage
 	unsigned short engine_count;
 	std::string fuel;
 	long length;
-
-	friend std::ostream& operator<<(std::ostream& os, const Stage& o)
-	{
-		os
-			<< "  engine_count : " << o.engine_count << std::endl
-			<< "  fuel         : " << o.fuel << std::endl
-			<< "  length       : " << o.length << std::endl;
-
-		return os;
-	}
 };
 
 struct Spacecraft
@@ -36,43 +26,6 @@ struct Spacecraft
 	std::list<std::string> crew;
 	std::set<int> ids;
 	std::unordered_set<std::string> tools;
-
-	friend std::ostream& operator<<(std::ostream& os, const Spacecraft& o)
-	{
-		os
-			<< "in_development : " << std::boolalpha << o.in_development << std::endl
-			<< "name           : " << o.name << std::endl
-			<< "mass           : " << o.mass << std::endl
-			<< "stages: " << std::endl;
-
-		for (const auto& s : o.stages)
-		{
-			os << " " << s.first << std::endl << s.second;
-		}
-
-		os << "crew: " << std::endl;
-
-		for (const auto& p : o.crew)
-		{
-			os << " " << p << std::endl;
-		}
-
-		os << "ids: " << std::endl;
-
-		for (const auto& i : o.ids)
-		{
-			os << " " << i << std::endl;
-		}
-
-		os << "tools: " << std::endl;
-
-		for (const auto& t : o.tools)
-		{
-			os << " " << t << std::endl;
-		}
-
-		return os;
-	}
 };
 
 int main()
@@ -113,5 +66,8 @@ int main()
 
 	sm::map_json_to_struct(starship, json_data);
 
-	std::cout << starship << std::endl;
+	std::ostringstream out_json_data;
+	struct_mapping::map_struct_to_json(starship, out_json_data, "  ");
+
+	std::cout << out_json_data.str() << std::endl;
 }

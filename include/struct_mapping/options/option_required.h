@@ -1,5 +1,4 @@
-#ifndef STRUCT_MAPPING_OPTIONS_OPTION_REQUIRED_H
-#define STRUCT_MAPPING_OPTIONS_OPTION_REQUIRED_H
+#pragma once
 
 #include <string>
 
@@ -27,5 +26,3 @@ public:
 };
 
 } // struct_mapping
-
-#endif

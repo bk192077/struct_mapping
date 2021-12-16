@@ -83,6 +83,7 @@ StructMapping пытается решить эти задачи
 Комбинации компилятор | платформа, на которых была протестирована StructMapping:
 
 * GNU C++ 10.1.0 | Linux
+* Clang 12.0.0 | Linux
 * Visual C++ 2019 and Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64 | Windows 64-bit (кроме тестов)
 
 В качестве типов полей могут быть использованы:
@@ -181,18 +182,21 @@ std::cout <<
 Полностью код выглядит так
 
 ```cpp
-#include <iostream>
-#include <sstream>
-
 #include "struct_mapping/struct_mapping.h"
 
-struct Person {
+#include <iostream>
+#include <sstream>
+#include <string>
+
+struct Person
+{
  std::string name;
  int age;
  bool student;
 };
 
-int main() {
+int main()
+{
  struct_mapping::reg(&Person::name, "name");
  struct_mapping::reg(&Person::age, "age");
  struct_mapping::reg(&Person::student, "student");
@@ -200,26 +204,30 @@ int main() {
  Person person;
 
  std::istringstream json_data(R"json(
-  {
-   "name": "Jeebs",
-   "age": 42,
-   "student": true
-  }
+ { 
+  "name": "Jeebs",
+  "age": 42,
+  "student": true
+ }
  )json");
 
  struct_mapping::map_json_to_struct(person, json_data);
 
- std::cout <<
-  person.name << " : " <<
-  person.age << " : " <<
-  std::boolalpha << person.student << std::endl;
+ std::ostringstream out_json_data;
+ struct_mapping::map_struct_to_json(person, out_json_data, "  ");
+
+ std::cout << out_json_data.str() << std::endl;
 }
 ```
 
 результат
 
 ```cpp
-Jeebs : 42 : true
+{
+ "name": "Jeebs",
+ "age": 42,
+ "student": true
+}
 ```
 
 ### Отображение json на структуру c++ <div id="mapping_json_to_c_plus_plus_structure"></div>
@@ -254,12 +262,12 @@ inline void map_json_to_struct(T & result_struct, std::basic_istream<char> & jso
 Любой из поддерживаемых типов может быть использован в сочетании с std::optional. Например:
 
 ```cpp
+#include "struct_mapping/struct_mapping.h"
+
 #include <iostream>
 #include <optional>
 #include <sstream>
 #include <string>
-
-#include "struct_mapping/struct_mapping.h"
 
 struct Engine
 {
@@ -281,7 +289,7 @@ int main()
  struct_mapping::reg(&Car::name, "name", struct_mapping::NotEmpty{});
  struct_mapping::reg(&Car::max_speed, "max_speed", struct_mapping::Bounds{0, 100});
 
-std::istringstream json_data(R"json(
+ std::istringstream json_data(R"json(
  {
   "engine": 
   {
@@ -305,11 +313,11 @@ std::istringstream json_data(R"json(
 
 ```cpp
 {
-  "engine": {
-    "age": 42
-  },
-  "name": "Mercedes",
-  "max_speed": null
+ "engine": {
+  "age": 42
+ },
+ "name": "Mercedes",
+ "max_speed": null
 }
 ```
 
@@ -396,19 +404,22 @@ struct_mapping::MemberString<Color>::set(
 [example/simple](/example/simple/simple.cpp)
 
 ```cpp
-#include <iostream>
-#include <sstream>
-
 #include "struct_mapping/struct_mapping.h"
 
-struct Planet {
+#include <iostream>
+#include <sstream>
+#include <string>
+
+struct Planet
+{
  bool giant;
  long long surface_area;
  double mass;
  std::string satellite;
 };
 
-int main() {
+int main()
+{
  struct_mapping::reg(&Planet::giant, "giant");
  struct_mapping::reg(&Planet::surface_area, "surface_area");
  struct_mapping::reg(&Planet::mass, "mass");
@@ -417,32 +428,32 @@ int main() {
  Planet earth;
 
  std::istringstream json_data(R"json(
-  {
-   "giant": false,
-   "surface_area": 510072000000000,
-   "mass": 5.97237e24,
-   "satellite": "Moon"
-  }
+ {
+  "giant": false,
+  "surface_area": 510072000000000,
+  "mass": 5.97237e24,
+  "satellite": "Moon"
+ }
  )json");
 
  struct_mapping::map_json_to_struct(earth, json_data);
 
- std::cout << "earth" << std::endl;
- std::cout << " giant        : " << std::boolalpha << earth.giant << std::endl;
- std::cout << " surface_area : " << earth.surface_area << std::endl;
- std::cout << " mass         : " << earth.mass << std::endl;
- std::cout << " satellite    : " << earth.satellite << std::endl;
+ std::ostringstream out_json_data;
+ struct_mapping::map_struct_to_json(earth, out_json_data, "  ");
+
+ std::cout << out_json_data.str() << std::endl;
 }
 ```
 
 результат
 
 ```cpp
-earth
- giant        : false
- surface_area : 510072000000000
- mass         : 5.97237e+24
- satellite    : Moon
+{
+ "giant": false,
+ "surface_area": 510072000000000,
+ "mass": 5.97237e+24,
+ "satellite": "Moon"
+}
 ```
 
 #### пример использования структур <div id="structure_example"></div>
@@ -450,21 +461,25 @@ earth
 [example/struct](/example/struct/struct.cpp)
 
 ```cpp
-#include <iostream>
-#include <sstream>
-
 #include "struct_mapping/struct_mapping.h"
 
-struct President {
+#include <iostream>
+#include <sstream>
+#include <string>
+
+struct President
+{
  std::string name;
  double mass;
 };
 
-struct Earth {
+struct Earth
+{
  President president;
 };
 
-int main() {
+int main()
+{
  struct_mapping::reg(&President::name, "name");
  struct_mapping::reg(&President::mass, "mass");
 
@@ -473,28 +488,32 @@ int main() {
  Earth earth;
 
  std::istringstream json_data(R"json(
-  {
-   "president": {
-    "name": "Agent K",
-    "mass": 75.6
-   }
+ {
+  "president": {
+   "name": "Agent K",
+   "mass": 75.6
   }
+ }
  )json");
 
  struct_mapping::map_json_to_struct(earth, json_data);
 
- std::cout << "earth.president:" << std::endl;
- std::cout << " name : " << earth.president.name << std::endl;
- std::cout << " mass : " << earth.president.mass << std::endl;
+ std::ostringstream out_json_data;
+ struct_mapping::map_struct_to_json(earth, out_json_data, "  ");
+
+ std::cout << out_json_data.str() << std::endl;
 }
 ```
 
 результат
 
 ```cpp
-earth.president:
- name : Agent K
- mass : 75.6
+{
+ "president": {
+  "name": "Agent K",
+  "mass": 75.6
+ }
+}
 ```
 
 #### пример использования структур, представленных в json в виде строк <div id="structure_example_class_to_from_string"></div>
@@ -502,14 +521,14 @@ earth.president:
 [example/struct_from_string](/example/struct_from_string/struct_from_string.cpp)
 
 ```cpp
+#include "struct_mapping/struct_mapping.h"
+
 #include <iostream>
 #include <list>
 #include <map>
 #include <set>
 #include <sstream>
 #include <string>
-
-#include "struct_mapping/struct_mapping.h"
 
 namespace sm = struct_mapping;
 
@@ -523,7 +542,7 @@ struct Color
  }
 };
 
-Color color_from_string(const std::string & value)
+static Color color_from_string(const std::string & value)
 {
  if (value == "red")
  {
@@ -537,7 +556,7 @@ Color color_from_string(const std::string & value)
  return Color{0};
 }
 
-std::string color_to_string(const Color& color)
+static std::string color_to_string(const Color& color)
 {
  switch (color.value)
  {
@@ -559,37 +578,6 @@ struct Palette
  std::list<Color> special_colors;
  std::set<Color> old_colors;
  std::map<std::string, Color> new_colors;
-
- friend std::ostream& operator<<(std::ostream& os, const Palette& o)
- {
-  os
-   << "main_color         : " << color_to_string(o.main_color) << std::endl
-   << "background.color   : " << color_to_string(o.background.color) << std::endl
-   << "special_colors     : ";
-
-  for (const auto& color : o.special_colors)
-  {
-   os << color_to_string(color) << ", ";
-  }
-
-  os << std::endl << "old_colors         : ";
-
-  for (const auto& color : o.old_colors)
-  {
-   os << color_to_string(color) << ", ";
-  }
-
-  os << std::endl << "new_colors         : ";
-
-  for (const auto& [name, color] : o.new_colors)
-  {
-   os << "[" << name << ", " << color_to_string(color) << "], ";
-  }
-
-  os << std::endl;
-
-  return os;
- }
 };
 
 int main()
@@ -623,18 +611,38 @@ int main()
 
  sm::map_json_to_struct(palette, json_data);
 
- std::cout << palette << std::endl;
+ std::ostringstream out_json_data;
+ struct_mapping::map_struct_to_json(palette, out_json_data, "  ");
+
+ std::cout << out_json_data.str() << std::endl;
 }
 ```
 
 результат
 
 ```cpp
-main_color         : red
-background.color   : blue
-special_colors     : red, green, red, blue, 
-old_colors         : green, red, blue, 
-new_colors         : [dark, green], [light, red], [neutral, blue],
+{
+ "main_color": "red",
+ "background": {
+  "color": "blue"
+ },
+ "special_colors": [
+  "red",
+  "green",
+  "red",
+  "blue"
+ ],
+ "old_colors": [
+  "green",
+  "red",
+  "blue"
+ ],
+ "new_colors": {
+  "dark": "green",
+  "light": "red",
+  "neutral": "blue"
+ }
+}
 ```
 
 #### пример использования перечислений <div id="enumeration_example"></div>
@@ -642,58 +650,58 @@ new_colors         : [dark, green], [light, red], [neutral, blue],
 [example/enumeration](/example/enumeration/enumeration.cpp)
 
 ```cpp
+#include "struct_mapping/struct_mapping.h"
+
 #include <iostream>
 #include <list>
 #include <map>
 #include <sstream>
 #include <string>
 
-#include "struct_mapping/struct_mapping.h"
-
 namespace sm = struct_mapping;
 
-enum class Color {
+enum class Color
+{
  red,
  blue,
  green,
 };
 
-Color color_from_string(const std::string & value) {
- if (value == "red") return Color::red;
- if (value == "blue") return Color::blue;
+static Color ColorFromString(const std::string& value)
+{
+ if (value == "red")
+ {
+  return Color::red;
+ }
+ else if (value == "blue")
+ {
+  return Color::blue;
+ }
 
  return Color::green;
 }
 
-std::string color_to_string(Color color) {
- switch (color) {
+static std::string ColorToString(Color color)
+{
+ switch (color)
+ {
  case Color::red: return "red";
  case Color::green: return "green";
  default: return "blue";
  }
 }
 
-struct Palette {
+struct Palette
+{
  Color main_color;
  Color background_color;
  std::list<Color> special_colors;
  std::map<std::string, Color> colors;
-
- friend std::ostream & operator<<(std::ostream & os, const Palette & o) {
-  os << "main_color       : " << color_to_string(o.main_color) << std::endl;
-  os << "background_color : " << color_to_string(o.background_color) << std::endl;
-  os << "special_colors   : ";
-  for (auto color : o.special_colors) os << color_to_string(color) << ", ";
-  os << std::endl << "colors           : ";
-  for (auto [name, color] : o.colors) os << "[" << name << ", " << color_to_string(color) << "], ";
-  os << std::endl;
-
-  return os;
- }
 };
 
-int main() {
- sm::MemberString<Color>::set(color_from_string, color_to_string);
+int main()
+{
+ sm::MemberString<Color>::set(ColorFromString, ColorToString);
 
  sm::reg(&Palette::main_color, "main_color", sm::Required{});
  sm::reg(&Palette::background_color, "background_color", sm::Default{Color::blue});
@@ -716,17 +724,30 @@ int main() {
 
  sm::map_json_to_struct(palette, json_data);
 
- std::cout << palette << std::endl;
+ std::ostringstream out_json_data;
+ struct_mapping::map_struct_to_json(palette, out_json_data, "  ");
+
+ std::cout << out_json_data.str() << std::endl;
 }
 ```
 
 результат
 
 ```cpp
-main_color       : green
-background_color : blue
-special_colors   : green, green, red, 
-colors           : [dark, green], [light, red], [neutral, blue],
+{
+ "main_color": "green",
+ "background_color": "blue",
+ "special_colors": [
+  "green",
+  "green",
+  "red"
+ ],
+ "colors": {
+  "dark": "green",
+  "light": "red",
+  "neutral": "blue"
+ }
+}
 ```
 
 #### пример использования последовательных контейнеров <div id="sequence_container_example"></div>
@@ -734,6 +755,8 @@ colors           : [dark, green], [light, red], [neutral, blue],
 [example/array_like](/example/array_like/array_like.cpp)
 
 ```cpp
+#include "struct_mapping/struct_mapping.h"
+
 #include <iostream>
 #include <list>
 #include <set>
@@ -742,30 +765,34 @@ colors           : [dark, green], [light, red], [neutral, blue],
 #include <unordered_set>
 #include <vector>
 
-#include "struct_mapping/struct_mapping.h"
-
-struct Friend {
+struct Friend
+{
  std::string name;
  std::set<int> counters;
 
- bool operator==(const Friend & o) const {
+ bool operator==(const Friend& o) const
+ {
   return name == o.name;
  }
 };
 
-struct Friend_hash {
- size_t operator()(const Friend & o) const {
+struct FriendHash
+{
+ size_t operator()(const Friend& o) const
+ {
   return static_cast<size_t>(o.name.size());
  }
 };
 
-struct MiB {
- std::unordered_set<Friend, Friend_hash> friends;
+struct MiB
+{
+ std::unordered_set<Friend, FriendHash> friends;
  std::vector<std::list<std::string>> alien_groups;
  std::vector<std::list<std::vector<std::string>>> planet_groups;
 };
 
-int main() {
+int main()
+{
  struct_mapping::reg(&Friend::name, "name");
  struct_mapping::reg(&Friend::counters, "counters");
 
@@ -774,138 +801,144 @@ int main() {
  struct_mapping::reg(&MiB::planet_groups, "planet_groups");
 
  std::istringstream json_data(R"json(
-  {
-   "friends": [
-    {
-     "name": "Griffin",
-     "counters": [1,3,4]
-    },
-    {
-     "name": "Boris",
-     "counters": []
-    },
-    {
-     "name": "Agent K",
-     "counters": [42, 128]
-    }
+ {
+  "friends": [
+   {
+    "name": "Griffin",
+    "counters": [1,3,4]
+   },
+   {
+    "name": "Boris",
+    "counters": []
+   },
+   {
+    "name": "Agent K",
+    "counters": [42, 128]
+   }
+  ],
+  "alien_groups": [
+   [
+    "Edgar the Bug",
+    "Boris the Animal",
+    "Charlie",
+    "Serleena"
    ],
-   "alien_groups": [
+   [
+    "Agent J",
+    "Agent K",
+    "Zed",
+    "Griffin",
+    "Roman the Fabulist"
+   ]
+  ],
+  "planet_groups": [
+   [
     [
-     "Edgar the Bug",
-     "Boris the Animal",
-     "Charlie",
-     "Serleena"
+     "Mercury",
+     "Venus",
+     "Earth",
+     "Mars"
     ],
     [
-     "Agent J",
-     "Agent K",
-     "Zed",
-     "Griffin",
-     "Roman the Fabulist"
+     "Jupiter",
+     "Saturn",
+     "Uranus",
+     "Neptune"
     ]
    ],
-   "planet_groups": [
+   [
     [
-     [
-      "Mercury",
-      "Venus",
-      "Earth",
-      "Mars"
-     ],
-     [
-      "Jupiter",
-      "Saturn",
-      "Uranus",
-      "Neptune"
-     ]
+     "Titan",
+     "Ganymede"
     ],
     [
-     [
-      "Titan",
-      "Ganymede"
-     ],
-     [
-      "Eris",
-      "Titania"
-     ]
+     "Eris",
+     "Titania"
     ]
    ]
-  }
+  ]
+ }
  )json");
 
  MiB mib;
 
  struct_mapping::map_json_to_struct(mib, json_data);
 
- std::cout << "mib:" << std::endl;
+ std::ostringstream out_json_data;
+ struct_mapping::map_struct_to_json(mib, out_json_data, "  ");
 
- std::cout << " friends :" << std::endl;
- for (auto& f : mib.friends) {
-  std::cout << "  name: [ " << f.name << " ], counters: [";
-  for (auto& c : f.counters) {
-   std::cout << c << ", ";
-  }
-  std::cout << "]" << std::endl;
- }
-
- std::cout << std::endl << " aliens_groups :" << std::endl;
- for (auto& alien : mib.alien_groups) {
-  for (auto& name : alien) {
-   std::cout << "  " << name << std::endl;
-  }
-  std::cout << std::endl;
- }
-
- std::cout << " planets_groups :" << std::endl;
- for (auto& group : mib.planet_groups) {
-  std::cout << "  ---" << std::endl;
-  for (auto& category : group) {
-   for (auto& planet : category) {
-    std::cout << "   " << planet << std::endl;
-   }
-   std::cout << std::endl;
-  }
-  std::cout << std::endl;
- }
-
- std::cout << std::endl;
+ std::cout << out_json_data.str() << std::endl;
 }
 ```
 
 результат
 
 ```cpp
-mib:
- friends :
-  name: [ Griffin ], counters: [1, 3, 4, ]
-  name: [ Boris ], counters: []
-  name: [ Agent K ], counters: [42, 128, ]
-
-  Agent J
-  Agent K
-  Zed
-  Griffin
-  Roman the Fabulist
-
- planets_groups :
-  ---
-   Mercury
-   Venus
-   Earth
-   Mars
-
-   Jupiter
-   Saturn
-   Uranus
-   Neptune
-
-
-  ---
-   Titan
-   Ganymede
-
-   Eris
-   Titania
+{
+ "friends": [
+  {
+   "name": "Boris",
+   "counters": [
+   ]
+  },
+  {
+   "name": "Agent K",
+   "counters": [
+    42,
+    128
+   ]
+  },
+  {
+   "name": "Griffin",
+   "counters": [
+    1,
+    3,
+    4
+   ]
+  }
+ ],
+ "alien_groups": [
+  [
+   "Edgar the Bug",
+   "Boris the Animal",
+   "Charlie",
+   "Serleena"
+  ],
+  [
+   "Agent J",
+   "Agent K",
+   "Zed",
+   "Griffin",
+   "Roman the Fabulist"
+  ]
+ ],
+ "planet_groups": [
+  [
+   [
+    "Mercury",
+    "Venus",
+    "Earth",
+    "Mars"
+   ],
+   [
+    "Jupiter",
+    "Saturn",
+    "Uranus",
+    "Neptune"
+   ]
+  ],
+  [
+   [
+    "Titan",
+    "Ganymede"
+   ],
+   [
+    "Eris",
+    "Titania"
+   ]
+  ]
+ ]
+}
 ```
 
 #### пример использования ассоциативных контейнеров <div id="associative_container_example"></div>
@@ -913,90 +946,99 @@ mib:
 [example/map_like](/example/map_like/map_like.cpp)
 
 ```cpp
+#include "struct_mapping/struct_mapping.h"
+
 #include <iostream>
 #include <map>
 #include <sstream>
+#include <string>
 #include <unordered_map>
 
-#include "struct_mapping/struct_mapping.h"
+struct Library
+{
+ std::unordered_map<
+ std::string,
+ std::multimap<std::string, int>> counters;
 
-struct Library {
- std::unordered_map<std::string, std::multimap<std::string, int>> counters;
- std::multimap<std::string, std::unordered_multimap<std::string, std::string>> books;
+ std::multimap<
+ std::string,
+ std::unordered_multimap<std::string, std::string>> books;
 };
 
-int main() {
+int main()
+{
  struct_mapping::reg(&Library::counters, "counters");
  struct_mapping::reg(&Library::books, "books");
 
  Library library;
 
  std::istringstream json_data(R"json(
-  {
-   "counters": {
-    "first": {
-     "112": 13,
-     "142": 560,
-     "112": 0
-    },
-    "second": {
-     "2": 28,
-     "20": 411
-    },
-    "third": {
-    }
+ {
+  "counters": {
+   "first": {
+    "112": 13,
+    "142": 560,
+    "112": 0
    },
-   "books": {
-    "asd": {
-     "Leo": "aaa",
-     "Leo": "bbb",
-     "Mark": "ccc"
-    },
-    "wwert": {
-     "Gogol": "ddd",
-     "Tom": "eee"
-    }
+   "second": {
+    "2": 28,
+    "20": 411
+   },
+   "third": {
+   }
+  },
+  "books": {
+   "asd": {
+    "Leo": "aaa",
+    "Leo": "bbb",
+    "Mark": "ccc"
+   },
+   "wwert": {
+    "Gogol": "ddd",
+    "Tom": "eee"
    }
   }
+ }
  )json");
 
  struct_mapping::map_json_to_struct(library, json_data);
 
- std::cout << "library:" << std::endl;
+ std::ostringstream out_json_data;
+ struct_mapping::map_struct_to_json(library, out_json_data, "  ");
 
- std::cout << " counters :" << std::endl;
- for (auto [n1, v] : library.counters) {
-  std::cout << "  " << n1 << " : ";
-  for (auto [n2, c] : v) {
-   std::cout << "[" << n2 << ", " << c << "], ";
-  }
-  std::cout << std::endl;
- }
-
- std::cout << " books :" << std::endl;
- for (auto [n1, v] : library.books) {
-  std::cout << "  " << n1 << " : ";
-  for (auto [n2, b] : v) {
-   std::cout << "[" << n2 << ", " << b << "], ";
-  }
-  std::cout << std::endl;
- }
-
- std::cout << std::endl;
+ std::cout << out_json_data.str() << std::endl;
 }
 ```
 
 результат
 
 ```cpp
-library:
- counters :
-  third : 
-  second : [2, 28], [20, 411], 
-  first : [112, 13], [112, 0], [142, 560], 
- books :
-  asd : [Mark, ccc], [Leo, bbb], [Leo, aaa], 
-  wwert : [Tom, eee], [Gogol, ddd],
+{
+ "counters": {
+  "third": {
+  },
+  "second": {
+   "2": 28,
+   "20": 411
+  },
+  "first": {
+   "112": 13,
+   "112": 0,
+   "142": 560
+  }
+ },
+ "books": {
+  "asd": {
+   "Mark": "ccc",
+   "Leo": "bbb",
+   "Leo": "aaa"
+  },
+  "wwert": {
+   "Tom": "eee",
+   "Gogol": "ddd"
+  }
+ }
+}
 ```
 
 #### Опции отображения <div id="options"></div>
@@ -1062,6 +1104,8 @@ reg(&Spacecraft::name, "name", Required{}));
 [example/options](/example/options/options.cpp)
 
 ```cpp
+#include "struct_mapping/struct_mapping.h"
+
 #include <iostream>
 #include <list>
 #include <map>
@@ -1070,8 +1114,6 @@ reg(&Spacecraft::name, "name", Required{}));
 #include <string>
 #include <unordered_set>
 
-#include "struct_mapping/struct_mapping.h"
-
 namespace sm = struct_mapping;
 
 struct Stage
@@ -1079,16 +1121,6 @@ struct Stage
  unsigned short engine_count;
  std::string fuel;
  long length;
-
- friend std::ostream& operator<<(std::ostream& os, const Stage& o)
- {
-  os
-   << "  engine_count : " << o.engine_count << std::endl
-   << "  fuel         : " << o.fuel << std::endl
-   << "  length       : " << o.length << std::endl;
-
-  return os;
- }
 };
 
 struct Spacecraft
@@ -1100,43 +1132,6 @@ struct Spacecraft
  std::list<std::string> crew;
  std::set<int> ids;
  std::unordered_set<std::string> tools;
-
- friend std::ostream& operator<<(std::ostream& os, const Spacecraft& o)
- {
-  os
-   << "in_development : " << std::boolalpha << o.in_development << std::endl
-   << "name           : " << o.name << std::endl
-   << "mass           : " << o.mass << std::endl
-   << "stages: " << std::endl;
-
-  for (const auto& s : o.stages)
-  {
-   os << " " << s.first << std::endl << s.second;
-  }
-
-  os << "crew: " << std::endl;
-
-  for (const auto& p : o.crew)
-  {
-   os << " " << p << std::endl;
-  }
-
-  os << "ids: " << std::endl;
-
-  for (const auto& i : o.ids)
-  {
-   os << " " << i << std::endl;
-  }
-
-  os << "tools: " << std::endl;
-
-  for (const auto& t : o.tools)
-  {
-   os << " " << t << std::endl;
-  }
-
-  return os;
- }
 };
 
 int main()
@@ -1177,36 +1172,47 @@ int main()
 
  sm::map_json_to_struct(starship, json_data);
 
- std::cout << starship << std::endl;
+ std::ostringstream out_json_data;
+ struct_mapping::map_struct_to_json(starship, out_json_data, "  ");
+
+ std::cout << out_json_data.str() << std::endl;
 }
 ```
 
 результат
 
 ```cpp
-in_development : false
-name           : Vostok
-mass           : 5000000
-stages: 
- first
-  engine_count : 31
-  fuel         : compressed gas
-  length       : 70
- second
-  engine_count : 6
-  fuel         : subcooled
-  length       : 50
-crew: 
- Arthur
- Ford
- Marvin
-ids: 
- 14
- 159
-tools: 
- The Series 4 De-Atomizer
- Noisy Cricket
- Reverberating Carbonizer With Mutate Capacit
+{
+ "in_development": false,
+ "name": "Vostok",
+ "mass": 5000000,
+ "stages": {
+  "first": {
+   "engine_count": 31,
+   "fuel": "compressed gas",
+   "length": 70
+  },
+  "second": {
+   "engine_count": 6,
+   "fuel": "subcooled",
+   "length": 50
+  }
+ },
+ "crew": [
+  "Arthur",
+  "Ford",
+  "Marvin"
+ ],
+ "ids": [
+  14,
+  159
+ ],
+ "tools": [
+  "The Series 4 De-Atomizer",
+  "Noisy Cricket",
+  "Reverberating Carbonizer With Mutate Capacity"
+ ]
+}
 ```
 
 ### Обратное отображение структуры c++ на json <div id="reverse_mapping_of_c_plus_plus_structure_to_json"></div>
@@ -1243,22 +1249,27 @@ void map_struct_to_json(
 [example/struct_to_json](/example/struct_to_json/struct_to_json.cpp)
 
 ```cpp
-#include <iostream>
-#include <sstream>
-
 #include "struct_mapping/struct_mapping.h"
 
-struct OceanPart {
+#include <iostream>
+#include <sstream>
+#include <string>
+#include <vector>
+
+struct OceanPart
+{
  std::string name;
  double average_depth;
  std::vector<int> temperature;
 };
 
-struct OceanColor {
+struct OceanColor
+{
  std::string name;
 };
 
-struct Ocean {
+struct Ocean
+{
  double water_volume;
  long long surface_area;
  bool liquid;
@@ -1269,7 +1280,8 @@ struct Ocean {
  std::vector<OceanPart> parts;
 };
 
-struct Planet {
+struct Planet
+{
  bool giant;
  long long surface_area;
  double mass;
@@ -1282,7 +1294,8 @@ struct Planet {
  Ocean ocean;
 };
 
-int main() {
+int main()
+{
  struct_mapping::reg(&OceanPart::name, "name");
  struct_mapping::reg(&OceanPart::average_depth, "average_depth");
  struct_mapping::reg(&OceanPart::temperature, "temperature");
@@ -1347,42 +1360,42 @@ int main() {
 
 ```cpp
 {
-  "giant": false,
-  "surface_area": 510072000,
-  "mass": 5.97237e+24,
-  "volume": 1.08321e+12,
-  "orbital_period": 31536000,
-  "name": "Terra",
-  "terrestrial": true,
-  "shape": "nearly spherical",
-  "ocean": {
-    "water_volume": 1.332e+09,
-    "surface_area": 361132000,
-    "liquid": true,
-    "name": "World Ocean",
-    "color": {
-      "name": "blue"
-    },
-    "parts": [
-      {
-        "name": "Pacific Ocean",
-        "average_depth": 4.28011,
-        "temperature": [
-          -3,
-          5,
-          12
-        ]
-      },
-      {
-        "name": "Atlantic Ocean",
-        "average_depth": 3.646,
-        "temperature": [
-          -3,
-          0
-        ]
-      }
+ "giant": false,
+ "surface_area": 510072000,
+ "mass": 5.97237e+24,
+ "volume": 1.08321e+12,
+ "orbital_period": 31536000,
+ "name": "Terra",
+ "terrestrial": true,
+ "shape": "nearly spherical",
+ "ocean": {
+  "water_volume": 1.332e+09,
+  "surface_area": 361132000,
+  "liquid": true,
+  "name": "World Ocean",
+  "color": {
+   "name": "blue"
+  },
+  "parts": [
+   {
+    "name": "Pacific Ocean",
+    "average_depth": 4.28011,
+    "temperature": [
+     -3,
+     5,
+     12
     ]
-  }
+   },
+   {
+    "name": "Atlantic Ocean",
+    "average_depth": 3.646,
+    "temperature": [
+     -3,
+     0
+    ]
+   }
+  ]
+ }
 }
 ```
 
@@ -1393,38 +1406,35 @@ int main() {
 [example/in_struct_reg](/example/in_struct_reg/in_struct_reg.cpp)
 
 ```cpp
+#include "struct_mapping/struct_mapping.h"
+
 #include <iostream>
 #include <sstream>
 #include <string>
 #include <vector>
 
-#include "struct_mapping/struct_mapping.h"
-
 struct Planet
 {
  bool giant = []
- {
-  struct_mapping::reg(&Planet::giant, "giant");
-  return false;
- } ();
- 
+  {
+   struct_mapping::reg(&Planet::giant, "giant");
+   return false;
+  } ();
  long long surface_area = []
- {
-  struct_mapping::reg(&Planet::surface_area, "surface_area");
-  return 0;
- } ();
- 
+  {
+   struct_mapping::reg(&Planet::surface_area, "surface_area");
+   return 0;
+  } ();
  double mass = []
- {
-  struct_mapping::reg(&Planet::mass, "mass");
-  return 0;
- } ();
-
+  {
+   struct_mapping::reg(&Planet::mass, "mass");
+   return 0;
+  } ();
  std::vector<std::string> satellites = []
- {
-  struct_mapping::reg(&Planet::satellites, "satellites");
-  return std::vector<std::string>{};
- } ();
+  {
+   struct_mapping::reg(&Planet::satellites, "satellites");
+   return std::vector<std::string>{};
+  } ();
 };
 
 int main()
@@ -1442,19 +1452,10 @@ int main()
 
  struct_mapping::map_json_to_struct(earth, json_data);
 
- std::cout
-  << "earth" << std::endl
-  << " giant        : " << std::boolalpha << earth.giant << std::endl
-  << " surface_area : " << earth.surface_area << std::endl
-  << " mass         : " << earth.mass << std::endl
-  << " satellite    : [ ";
+ std::ostringstream out_json_data;
+ struct_mapping::map_struct_to_json(earth, out_json_data, "  ");
 
-  for (const auto& s : earth.satellites)
-  {
-   std::cout << s << ", ";
-  }
-
-  std::cout << "]" << std::endl;
+ std::cout << out_json_data.str() << std::endl;
 }
 ```
 
@@ -1511,12 +1512,12 @@ END_STRUCT
 [example/macro_reg](/example/macro_reg/macro_reg.cpp)
 
 ```cpp
+#include "struct_mapping/struct_mapping.h"
+
 #include <iostream>
 #include <sstream>
 #include <string>
 #include <vector>
-
-#include "struct_mapping/struct_mapping.h"
 
 BEGIN_STRUCT(Planet)
 
@@ -1531,7 +1532,8 @@ MEMBER(std::vector<std::string>, satellites)
 
 END_STRUCT
 
-int main() {
+int main()
+{
  std::istringstream json_data(R"json(
  {
   "giant": false,
@@ -1544,13 +1546,10 @@ int main() {
 
  struct_mapping::map_json_to_struct(earth, json_data);
 
- std::cout << "earth" << std::endl;
- std::cout << " giant        : " << std::boolalpha << earth.giant << std::endl;
- std::cout << " surface_area : " << earth.surface_area << std::endl;
- std::cout << " mass         : " << earth.mass << std::endl;
- std::cout << " satellite    : [ ";
- for (auto & s : earth.satellites) std::cout << s << ", ";
- std::cout << "]" << std::endl;
+ std::ostringstream out_json_data;
+ struct_mapping::map_struct_to_json(earth, out_json_data, "  ");
+
+ std::cout << out_json_data.str() << std::endl;
 }
 ```
 ## Генерируемые исключения <div id="exceptions"></div>

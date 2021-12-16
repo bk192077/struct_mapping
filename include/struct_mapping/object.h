@@ -1,5 +1,10 @@
-#ifndef STRUCT_MAPPING_OBJECT_H
-#define STRUCT_MAPPING_OBJECT_H
+#pragma once
+
+#include "functions.h"
+#include "iterate_over.h"
+#include "member.h"
+#include "reset.h"
+#include "utility.h"
 
 #include <functional>
 #include <limits>
@@ -8,12 +13,6 @@
 #include <unordered_map>
 #include <utility>
 #include <vector>
-
-#include "functions.h"
-#include "iterate_over.h"
-#include "member.h"
-#include "reset.h"
-#include "utility.h"
 
 namespace struct_mapping::detail
 {
@@ -31,13 +30,14 @@ public:
 	friend FunctionsType;
 	friend MemberType;
 
+public:
 	template<
 		typename V,
 		typename ... U,
 		template<typename> typename ... Options>
 	static void reg(MemberPtr<T, V> ptr, const std::string& name, Options<U>&& ... options)
 	{
-		if (members_name_index.find(name) == members_name_index.end())
+		if (members_name_index.find(name) == std::cend(members_name_index))
 		{
 			reg_reset<V>();			
 
@@ -142,17 +142,22 @@ public:
 		{
 			if (member_deep_index == NO_INDEX)
 			{
-				if (auto it = members_name_index.find(name); it == members_name_index.end())
+				const auto member_name_index_it = members_name_index.find(name);
+
+				if (member_name_index_it == std::cend(members_name_index))
 				{
 					throw StructMappingException("bad member: " + name);
 				}
-				else if (members[it->second].type != MemberType::Type::Bool)
+
+				const auto member_name_index = member_name_index_it->second;
+
+				if (members[member_name_index].type != MemberType::Type::Bool)
 				{
 					throw StructMappingException("bad type (bool) for member: " + name);
 				}
 				else
 				{
-					set<bool>(o, value, it->second);
+					set<bool>(o, value, member_name_index);
 				}
 			}
 			else
@@ -177,23 +182,25 @@ public:
 		{
 			if (member_deep_index == NO_INDEX)
 			{
-				if (auto it = members_name_index.find(name); it == members_name_index.end())
+				const auto member_name_index_it = members_name_index.find(name);
+
+				if (member_name_index_it == std::cend(members_name_index))
 				{
 					throw StructMappingException("bad member: " + name);
 				}
-				else
+
+				const auto member_name_index = member_name_index_it->second;
+
+				switch (members[member_name_index].type)
 				{
-					switch (members[it->second].type)
-					{
-					case MemberType::Type::Float:
-						set<float>(o, value, it->second);
-						break;
-					case MemberType::Type::Double:
-						set<double>(o, value, it->second);
-						break;
-					default:
-						throw StructMappingException("bad set type (floating point) for member: " + name);
-					}
+				case MemberType::Type::Float:
+					set<float>(o, value, member_name_index);
+					break;
+				case MemberType::Type::Double:
+					set<double>(o, value, member_name_index);
+					break;
+				default:
+					throw StructMappingException("bad set type (floating point) for member: " + name);
 				}
 			}
 			else
@@ -218,47 +225,49 @@ public:
 		{
 			if (member_deep_index == NO_INDEX)
 			{
-				if (auto it = members_name_index.find(name); it == members_name_index.end())
+				const auto member_name_index_it = members_name_index.find(name);
+
+				if (member_name_index_it == std::cend(members_name_index))
 				{
 					throw StructMappingException("bad member: " + name);
 				}
-				else
+
+				const auto member_name_index = member_name_index_it->second;
+
+				switch (members[member_name_index].type)
 				{
-					switch (members[it->second].type)
-					{
-					case MemberType::Type::Char:
-						set<char>(o, value, it->second);
-						break;
-					case MemberType::Type::UnsignedChar:
-						set<unsigned char>(o, value, it->second);
-						break;
-					case MemberType::Type::Short:
-						set<short>(o, value, it->second);
-						break;
-					case MemberType::Type::UnsignedShort:
-						set<unsigned short>(o, value, it->second);
-						break;
-					case MemberType::Type::Int:
-						set<int>(o, value, it->second);
-						break;
-					case MemberType::Type::UnsignedInt:
-						set<unsigned int>(o, value, it->second);
-						break;
-					case MemberType::Type::Long:
-						set<long>(o, value, it->second);
-						break;
-					case MemberType::Type::LongLong:
-						set<long long>(o, value, it->second);
-						break;
-					case MemberType::Type::Float:
-						set<float>(o, value, it->second);
-						break;
-					case MemberType::Type::Double:
-						set<double>(o, value, it->second);
-						break;
-					default:
-						throw StructMappingException("bad type (integral) for member: " + name);
-					}
+				case MemberType::Type::Char:
+					set<char>(o, value, member_name_index);
+					break;
+				case MemberType::Type::UnsignedChar:
+					set<unsigned char>(o, value, member_name_index);
+					break;
+				case MemberType::Type::Short:
+					set<short>(o, value, member_name_index);
+					break;
+				case MemberType::Type::UnsignedShort:
+					set<unsigned short>(o, value, member_name_index);
+					break;
+				case MemberType::Type::Int:
+					set<int>(o, value, member_name_index);
+					break;
+				case MemberType::Type::UnsignedInt:
+					set<unsigned int>(o, value, member_name_index);
+					break;
+				case MemberType::Type::Long:
+					set<long>(o, value, member_name_index);
+					break;
+				case MemberType::Type::LongLong:
+					set<long long>(o, value, member_name_index);
+					break;
+				case MemberType::Type::Float:
+					set<float>(o, value, member_name_index);
+					break;
+				case MemberType::Type::Double:
+					set<double>(o, value, member_name_index);
+					break;
+				default:
+					throw StructMappingException("bad type (integral) for member: " + name);
 				}
 			}
 			else
@@ -283,24 +292,29 @@ public:
 		{
 			if (member_deep_index == NO_INDEX)
 			{
-				if (auto it = members_name_index.find(name); it == members_name_index.end())
+				const auto member_name_index_it = members_name_index.find(name);
+
+				if (member_name_index_it == std::cend(members_name_index))
 				{
 					throw StructMappingException("bad member: " + name);
 				}
-				else if (members[it->second].type == MemberType::Type::Enum
-					|| (members[it->second].type == MemberType::Type::Complex
-							&& members[it->second].member_string_index != NO_INDEX))
+
+				const auto member_name_index = member_name_index_it->second;
+
+				if (members[member_name_index].type == MemberType::Type::Enum
+						|| (members[member_name_index].type == MemberType::Type::Complex
+							&& members[member_name_index].member_string_index != NO_INDEX))
 				{
-					members[it->second].changed = true;
-					member_string_from_string[members[it->second].member_string_index](o, value);
+					members[member_name_index].changed = true;
+					member_string_from_string[members[member_name_index].member_string_index](o, value);
 				}
-				else if (members[it->second].type != MemberType::Type::String)
+				else if (members[member_name_index].type != MemberType::Type::String)
 				{
 					throw StructMappingException("bad type (string) for member: " + name);
 				}
 				else
 				{
-					set<std::string>(o, value, it->second);
+					set<std::string>(o, value, member_name_index);
 				}
 			}
 			else
@@ -320,16 +334,18 @@ public:
 		{
 			if (member_deep_index == NO_INDEX)
 			{
-				if (auto it = members_name_index.find(name); it == members_name_index.end())
+				const auto member_name_index_it = members_name_index.find(name);
+
+				if (member_name_index_it == std::cend(members_name_index))
 				{
 					throw StructMappingException("bad member: " + name);
 				}
-				else
-				{
-					member_deep_index = members[it->second].deep_index;
-					functions.init[member_deep_index](o);
-					members[it->second].changed = true;
-				}
+
+				const auto member_name_index = member_name_index_it->second;
+
+				member_deep_index = members[member_name_index].deep_index;
+				functions.init[member_deep_index](o);
+				members[member_name_index].changed = true;
 			}
 			else
 			{
@@ -339,28 +355,11 @@ public:
 	}
 
 private:
-	static inline FunctionsType functions;
-
-	static inline std::vector<std::function<void(T&, const std::string&)>> member_string_from_string{};
-	static inline std::vector<std::function<std::optional<std::string> (T&)>> member_string_to_string{};
-	static inline Index member_deep_index = NO_INDEX;
-	static inline std::vector<MemberType> members;
-	
-	template<typename V>
-	static inline std::vector<std::function<void(V, const std::string&)>> members_bounds{};
-	
-	template<typename V>
-	static inline std::vector<V> members_default{};
-	
-	static inline std::unordered_map<typename MemberType::Name, Index> members_name_index;
-	
-	template<typename V>
-	static inline std::vector<MemberPtr<T, V>> members_ptr{};
-
 	template<typename V>
 	static void reg_reset()
 	{
 		Reset::reg(reset);
+
 		if constexpr (is_array_like_v<V> || is_map_like_v<V>)
 		{
 			reg_reset_array_map_like<V>();
@@ -371,6 +370,7 @@ private:
 	static void reg_reset_array_map_like()
 	{
 		Reset::reg(Object<V>::reset);
+
 		if constexpr (is_array_like_v<typename Object<V>::template ValueType<V>>
 			|| is_map_like_v<typename Object<V>::template ValueType<V>>)
 		{
@@ -428,8 +428,25 @@ private:
 			o.*members_ptr<U>[members[index].ptr_index] = static_cast<U>(value);
 		}
 	}
+
+private:
+	static inline FunctionsType functions;
+
+	static inline std::vector<std::function<void(T&, const std::string&)>> member_string_from_string{};
+	static inline std::vector<std::function<std::optional<std::string> (T&)>> member_string_to_string{};
+	static inline Index member_deep_index = NO_INDEX;
+	static inline std::vector<MemberType> members;
+	
+	template<typename V>
+	static inline std::vector<std::function<void(V, const std::string&)>> members_bounds{};
+	
+	template<typename V>
+	static inline std::vector<V> members_default{};
+	
+	static inline std::unordered_map<std::string, Index> members_name_index;
+	
+	template<typename V>
+	static inline std::vector<MemberPtr<T, V>> members_ptr{};
 };
 
 } // struct_mapping::detail
-
-#endif

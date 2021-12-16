@@ -1,16 +1,15 @@
-#ifndef STRUCT_MAPPING_OBJECT_ARRAY_LIKE_H
-#define STRUCT_MAPPING_OBJECT_ARRAY_LIKE_H
-
-#include <limits>
-#include <string>
-#include <type_traits>
-#include <utility>
+#pragma once
 
 #include "iterate_over.h"
 #include "member_string.h"
 #include "object.h"
 #include "options/option_not_empty.h"
 #include "utility.h"
+
+#include <limits>
+#include <string>
+#include <type_traits>
+#include <utility>
 
 namespace struct_mapping::detail
 {
@@ -24,6 +23,7 @@ public:
 
 	using LastInserted = std::conditional_t<has_key_type_v<T>, ValueType<T>, typename T::iterator>;
 
+public:
 	static void check_not_empty(T& o, const std::string& name)
 	{
 		NotEmpty<>::check_result(o, name);
@@ -98,8 +98,6 @@ public:
 						insert(o, std::move(last_inserted));
 					}
 				}
-
-				return false;
 			}
 		}
 
@@ -275,9 +273,6 @@ public:
 	}
 
 private:
-	static inline LastInserted last_inserted;
-	static inline bool used = false;
-
 	static auto& get_last_inserted()
 	{
 		if constexpr (has_key_type_v<T>)
@@ -302,8 +297,10 @@ private:
 			o.insert(o.end(), value);
 		}
 	}
+
+private:
+	static inline LastInserted last_inserted;
+	static inline bool used = false;
 };
 
 } // struct_mapping::detail
-
-#endif

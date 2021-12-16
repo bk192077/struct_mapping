@@ -1,8 +1,4 @@
-#ifndef STRUCT_MAPPING_STRUCT_MAPPING_H
-#define STRUCT_MAPPING_STRUCT_MAPPING_H
-
-#include <string>
-#include <utility>
+#pragma once
 
 #include "exception.h"
 #include "object.h"
@@ -12,6 +8,9 @@
 #include "options/option_default.h"
 #include "options/option_not_empty.h"
 #include "options/option_required.h"
+
+#include <string>
+#include <utility>
 
 namespace struct_mapping
 {
@@ -43,5 +42,3 @@ inline void reg(V T::* ptr, const std::string& name, Options<U>&& ... options)
 } ();
 
 #define END_STRUCT };
-
-#endif

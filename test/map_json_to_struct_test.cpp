@@ -1,3 +1,8 @@
+#include "struct_mapping/struct_mapping.h"
+
+#include "gmock/gmock.h"
+#include "gtest/gtest.h"
+
 #include <cstdint>
 #include <list>
 #include <map>
@@ -7,11 +12,6 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
-
-#include "gmock/gmock.h"
-#include "gtest/gtest.h"
-
-#include "struct_mapping/struct_mapping.h"
 
 using ::testing::ElementsAre;
 using ::testing::Pair;

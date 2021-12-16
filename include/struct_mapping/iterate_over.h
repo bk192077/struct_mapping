@@ -1,5 +1,4 @@
-#ifndef STRUCT_MAPPING_ITERATE_OVER_H
-#define STRUCT_MAPPING_ITERATE_OVER_H
+#pragma once
 
 #include <functional>
 #include <string>
@@ -19,6 +18,7 @@ public:
 	using StartArray = void(const std::string&);
 	using EndArray = void();
 
+public:
 	template<typename T>
 	static inline std::function<Set<T>> set;
 	
@@ -30,5 +30,3 @@ public:
 };
 
 } // struct_mapping::detail
-
-#endif

@@ -1,10 +1,10 @@
+#include "struct_mapping/struct_mapping.h"
+
 #include <iostream>
 #include <list>
 #include <map>
 #include <sstream>
 #include <string>
-
-#include "struct_mapping/struct_mapping.h"
 
 struct Student
 {
@@ -89,24 +89,8 @@ int main()
 
 	struct_mapping::map_json_to_struct(city, json_data);
 
-	std::cout << "name :" << city.name << std::endl;
+	std::ostringstream out_json_data;
+	struct_mapping::map_struct_to_json(city, out_json_data, "  ");
 
-	std::cout << "schools :" << std::endl;
-
-	for (const auto& [ name, school ] : city.schools)
-	{
-		std::cout << std::endl
-			<< " name    : " << name << std::endl
-			<< " college : " << std::boolalpha << school.college << std::endl
-			<< " library : " << std::endl
-			<< "  book_count : " << school.library.book_count << std::endl
-			<< " students : " << std::endl;
-
-		for (const auto& student : school.students)
-		{
-			std::cout << "  [ " << student.name << ", " << student.age << " ]" << std::endl;
-		}
-	}
-
-	std::cout << std::endl;
+	std::cout << out_json_data.str() << std::endl;
 }

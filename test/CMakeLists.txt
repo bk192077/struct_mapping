@@ -25,6 +25,13 @@ set_target_properties(gtest PROPERTIES
 	"INTERFACE_LINK_LIBRARIES" "${CMAKE_THREAD_LIBS_INIT}"
 )
 
+add_library(gtest_main IMPORTED STATIC)
+add_dependencies(gtest_main googletest)
+set_target_properties(gtest_main PROPERTIES
+	"IMPORTED_LOCATION" "${GTEST_LIBRARY_DIRS}/libgtest_main.a"
+	"INTERFACE_LINK_LIBRARIES" "${CMAKE_THREAD_LIBS_INIT}"
+)
+
 set(GMOCK_INCLUDE_DIRS "${SOURCE_DIR}/googlemock/include")
 set(GMOCK_LIBRARY_DIRS "${BINARY_DIR}/lib")
 
@@ -38,16 +45,14 @@ set_target_properties(gmock PROPERTIES
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isystem${GTEST_INCLUDE_DIRS} -isystem${GMOCK_INCLUDE_DIRS}")
 
 set(TEST_SOURCES
-	main.cpp
-
-	option_bounds.cpp
-	option_default.cpp
-	option_not_empty.cpp
-	option_required.cpp
-	optional.cpp
-	parser.cpp
-	map_json_to_struct.cpp
-	map_struct_to_json.cpp
+	option_bounds_test.cpp
+	option_default_test.cpp
+	option_not_empty_test.cpp
+	option_required_test.cpp
+	optional_test.cpp
+	parser_test.cpp
+	map_json_to_struct_test.cpp
+	map_struct_to_json_test.cpp
 )
 
 add_executable(${TARGET} ${TEST_SOURCES})
@@ -67,6 +72,7 @@ target_include_directories(${TARGET} PRIVATE SYSTEM
 target_link_libraries(${TARGET}
 	gmock
 	gtest
+	gtest_main
 )
 
 add_test(

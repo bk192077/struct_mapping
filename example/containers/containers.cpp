@@ -1,11 +1,11 @@
+#include "struct_mapping/struct_mapping.h"
+
 #include <iostream>
 #include <list>
 #include <map>
 #include <sstream>
 #include <string>
 #include <vector>
-
-#include "struct_mapping/struct_mapping.h"
 
 struct Satellite
 {
@@ -54,8 +54,42 @@ struct PlanetSystem
 	std::map<std::string, std::list<std::string>> missions;
 };
 
-static void load(PlanetSystem& planet_system)
+int main()
 {
+	struct_mapping::reg(&Satellite::name, "name");
+	struct_mapping::reg(&Satellite::radius, "radius");
+
+	struct_mapping::reg(&Planet::name, "name");
+	struct_mapping::reg(&Planet::populated, "populated");
+	struct_mapping::reg(&Planet::radius, "radius");
+	struct_mapping::reg(&Planet::satellites, "satellites");
+
+	struct_mapping::reg(&PhotosphericComposition::Hydrogen, "Hydrogen");
+	struct_mapping::reg(&PhotosphericComposition::Helium, "Helium");
+	struct_mapping::reg(&PhotosphericComposition::Oxygen, "Oxygen");
+	struct_mapping::reg(&PhotosphericComposition::Carbon, "Carbon");
+	struct_mapping::reg(&PhotosphericComposition::Iron, "Iron");
+	struct_mapping::reg(&PhotosphericComposition::Neon, "Neon");
+	struct_mapping::reg(&PhotosphericComposition::Nitrogen, "Nitrogen");
+	struct_mapping::reg(&PhotosphericComposition::Silicon, "Silicon");
+	struct_mapping::reg(&PhotosphericComposition::Magnesium, "Magnesium");
+	struct_mapping::reg(&PhotosphericComposition::Sulphur, "Sulphur");
+
+	struct_mapping::reg(&Star::name, "name");
+	struct_mapping::reg(&Star::age, "age");
+	struct_mapping::reg(&Star::radius, "radius");
+	struct_mapping::reg(&Star::photospheric_composition, "photospheric_composition");
+
+	struct_mapping::reg(&PlanetSystem::name, "name");
+	struct_mapping::reg(&PlanetSystem::age, "age");
+	struct_mapping::reg(&PlanetSystem::major_axis, "major_axis");
+	struct_mapping::reg(&PlanetSystem::populated, "populated");
+	struct_mapping::reg(&PlanetSystem::star, "star");
+	struct_mapping::reg(&PlanetSystem::planets, "planets");
+	struct_mapping::reg(&PlanetSystem::missions, "missions");
+
+	PlanetSystem planet_system;
+
 	std::istringstream json_data(R"json(
 	{
 		"name": "solar system",
@@ -219,101 +253,9 @@ static void load(PlanetSystem& planet_system)
 	)json");
 
 	struct_mapping::map_json_to_struct(planet_system, json_data);
-}
 
-static void print(PlanetSystem& planet_system)
-{
-	std::cout
-		<< "PlanetSystem:" << std::endl
-		<< " name       : " << planet_system.name << std::endl
-		<< " age        : " << planet_system.age << std::endl
-		<< " major_axis : " << planet_system.major_axis << std::endl
-		<< " populated  : " << std::boolalpha << planet_system.populated << std::endl
-		<< " star:" << std::endl
-		<< "  name   : " << planet_system.star.name << std::endl
-		<< "  age    : " << planet_system.star.age << std::endl
-		<< "  radius : " << planet_system.star.radius << std::endl
-		<< "  photospheric_composition:" << std::endl
-		<< "   Hydrogen  : " << planet_system.star.photospheric_composition.Hydrogen << std::endl
-		<< "   Helium    : " << planet_system.star.photospheric_composition.Helium << std::endl
-		<< "   Oxygen    : " << planet_system.star.photospheric_composition.Oxygen << std::endl
-		<< "   Carbon    : " << planet_system.star.photospheric_composition.Carbon << std::endl
-		<< "   Iron      : " << planet_system.star.photospheric_composition.Iron << std::endl
-		<< "   Neon      : " << planet_system.star.photospheric_composition.Neon << std::endl
-		<< "   Nitrogen  : " << planet_system.star.photospheric_composition.Nitrogen << std::endl
-		<< "   Silicon   : " << planet_system.star.photospheric_composition.Silicon << std::endl
-		<< "   Magnesium : " << planet_system.star.photospheric_composition.Magnesium << std::endl
-		<< "   Sulphur   : " << planet_system.star.photospheric_composition.Sulphur << std::endl
-		<< " planets:" << std::endl;
+	std::ostringstream out_json_data;
+	struct_mapping::map_struct_to_json(planet_system, out_json_data, "  ");
 
-	for (const auto& planet : planet_system.planets)
-	{
-		std::cout
-			<< "  [" << std::endl
-			<< "   name      : " << planet.name << std::endl
-			<< "   populated : " << planet.populated << std::endl
-			<< "   radius    : " << planet.radius << std::endl
-			<< "   satellites:" << std::endl;
-
-		for (const auto& satellite : planet.satellites)
-		{
-			std::cout
-				<< "    {" << std::endl
-				<< "     name   : " << satellite.name << std::endl
-				<< "     radius : " << satellite.radius << std::endl
-				<< "    }" << std::endl;
-		}
-		std::cout << "  ]" << std::endl;
-	}
-
-	std::cout << " missions:" << std::endl;
-	for (const auto& [name, missions] : planet_system.missions)
-	{
-		std::cout << "  " << name << " : [ ";
-		for (const auto& mission : missions)
-		{
-			std::cout << mission << ", ";
-		}
-		std::cout << "]" << std::endl;
-	}
-}
-
-int main()
-{
-	struct_mapping::reg(&Satellite::name, "name");
-	struct_mapping::reg(&Satellite::radius, "radius");
-
-	struct_mapping::reg(&Planet::name, "name");
-	struct_mapping::reg(&Planet::populated, "populated");
-	struct_mapping::reg(&Planet::radius, "radius");
-	struct_mapping::reg(&Planet::satellites, "satellites");
-
-	struct_mapping::reg(&PhotosphericComposition::Hydrogen, "Hydrogen");
-	struct_mapping::reg(&PhotosphericComposition::Helium, "Helium");
-	struct_mapping::reg(&PhotosphericComposition::Oxygen, "Oxygen");
-	struct_mapping::reg(&PhotosphericComposition::Carbon, "Carbon");
-	struct_mapping::reg(&PhotosphericComposition::Iron, "Iron");
-	struct_mapping::reg(&PhotosphericComposition::Neon, "Neon");
-	struct_mapping::reg(&PhotosphericComposition::Nitrogen, "Nitrogen");
-	struct_mapping::reg(&PhotosphericComposition::Silicon, "Silicon");
-	struct_mapping::reg(&PhotosphericComposition::Magnesium, "Magnesium");
-	struct_mapping::reg(&PhotosphericComposition::Sulphur, "Sulphur");
-
-	struct_mapping::reg(&Star::name, "name");
-	struct_mapping::reg(&Star::age, "age");
-	struct_mapping::reg(&Star::radius, "radius");
-	struct_mapping::reg(&Star::photospheric_composition, "photospheric_composition");
-
-	struct_mapping::reg(&PlanetSystem::name, "name");
-	struct_mapping::reg(&PlanetSystem::age, "age");
-	struct_mapping::reg(&PlanetSystem::major_axis, "major_axis");
-	struct_mapping::reg(&PlanetSystem::populated, "populated");
-	struct_mapping::reg(&PlanetSystem::star, "star");
-	struct_mapping::reg(&PlanetSystem::planets, "planets");
-	struct_mapping::reg(&PlanetSystem::missions, "missions");
-
-	PlanetSystem planet_system;
-
-	load(planet_system);
-	print(planet_system);
+	std::cout << out_json_data.str() << std::endl;
 }

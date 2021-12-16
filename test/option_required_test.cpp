@@ -1,14 +1,14 @@
+#include "struct_mapping/struct_mapping.h"
+
+#include "gmock/gmock.h"
+#include "gtest/gtest.h"
+
 #include <cstdint>
 #include <limits>
 #include <list>
 #include <map>
 #include <sstream>
 #include <string>
-
-#include "gmock/gmock.h"
-#include "gtest/gtest.h"
-
-#include "struct_mapping/struct_mapping.h"
 
 namespace
 {

@@ -1,8 +1,8 @@
+#include "struct_mapping/struct_mapping.h"
+
 #include <iostream>
 #include <sstream>
 #include <string>
-
-#include "struct_mapping/struct_mapping.h"
 
 struct Person
 {
@@ -29,5 +29,8 @@ int main()
 
  struct_mapping::map_json_to_struct(person, json_data);
 
- std::cout << person.name << " : " << person.age << " : " << std::boolalpha << person.student << std::endl;
+	std::ostringstream out_json_data;
+	struct_mapping::map_struct_to_json(person, out_json_data, "  ");
+
+	std::cout << out_json_data.str() << std::endl;
 }

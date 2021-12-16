@@ -1,8 +1,8 @@
-#ifndef STRUCT_MAPPING_DEBUG_H
-#define STRUCT_MAPPING_DEBUG_H
+#pragma once
 
 #include "utility.h"
 
+#include <iostream>
 #include <optional>
 #include <string>
 #include <vector>
@@ -176,6 +176,3 @@ void print_info(
 } // nsdebug
 
 } // struct_mapping
-
-#endif
-

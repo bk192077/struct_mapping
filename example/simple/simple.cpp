@@ -1,8 +1,8 @@
+#include "struct_mapping/struct_mapping.h"
+
 #include <iostream>
 #include <sstream>
 #include <string>
-
-#include "struct_mapping/struct_mapping.h"
 
 struct Planet
 {
@@ -32,10 +32,8 @@ int main()
 
 	struct_mapping::map_json_to_struct(earth, json_data);
 
-	std::cout
-		<< "earth" << std::endl
-		<< " giant        : " << std::boolalpha << earth.giant << std::endl
-		<< " surface_area : " << earth.surface_area << std::endl
-		<< " mass         : " << earth.mass << std::endl
-		<< " satellite    : " << earth.satellite << std::endl;
+	std::ostringstream out_json_data;
+	struct_mapping::map_struct_to_json(earth, out_json_data, "  ");
+
+	std::cout << out_json_data.str() << std::endl;
 }

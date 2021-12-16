@@ -1,11 +1,11 @@
+#include "struct_mapping/struct_mapping.h"
+
 #include <iostream>
 #include <list>
 #include <map>
 #include <set>
 #include <sstream>
 #include <string>
-
-#include "struct_mapping/struct_mapping.h"
 
 namespace sm = struct_mapping;
 
@@ -55,37 +55,6 @@ struct Palette
 	std::list<Color> special_colors;
 	std::set<Color> old_colors;
 	std::map<std::string, Color> new_colors;
-
-	friend std::ostream& operator<<(std::ostream& os, const Palette& o)
-	{
-		os
-			<< "main_color         : " << color_to_string(o.main_color) << std::endl
-			<< "background.color   : " << color_to_string(o.background.color) << std::endl
-			<< "special_colors     : ";
-
-		for (const auto& color : o.special_colors)
-		{
-			os << color_to_string(color) << ", ";
-		}
-
-		os << std::endl << "old_colors         : ";
-
-		for (const auto& color : o.old_colors)
-		{
-			os << color_to_string(color) << ", ";
-		}
-
-		os << std::endl << "new_colors         : ";
-
-		for (const auto& [name, color] : o.new_colors)
-		{
-			os << "[" << name << ", " << color_to_string(color) << "], ";
-		}
-
-		os << std::endl;
-
-		return os;
-	}
 };
 
 int main()
@@ -119,5 +88,8 @@ int main()
 
 	sm::map_json_to_struct(palette, json_data);
 
-	std::cout << palette << std::endl;
+	std::ostringstream out_json_data;
+	struct_mapping::map_struct_to_json(palette, out_json_data, "  ");
+
+	std::cout << out_json_data.str() << std::endl;
 }

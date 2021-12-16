@@ -1,3 +1,5 @@
+#include "struct_mapping/struct_mapping.h"
+
 #include <iostream>
 #include <list>
 #include <set>
@@ -5,8 +7,6 @@
 #include <string>
 #include <unordered_set>
 #include <vector>
-
-#include "struct_mapping/struct_mapping.h"
 
 struct Friend
 {
@@ -107,43 +107,8 @@ int main()
 
 	struct_mapping::map_json_to_struct(mib, json_data);
 
-	std::cout << "mib:" << std::endl;
+	std::ostringstream out_json_data;
+	struct_mapping::map_struct_to_json(mib, out_json_data, "  ");
 
-	std::cout << " friends :" << std::endl;
-	for (const auto& f : mib.friends)
-	{
-		std::cout << "  name: [ " << f.name << " ], counters: [";
-		for (const auto& c : f.counters)
-		{
-			std::cout << c << ", ";
-		}
-		std::cout << "]" << std::endl;
-	}
-
-	std::cout << std::endl << " aliens_groups :" << std::endl;
-	for (const auto& alien : mib.alien_groups)
-	{
-		for (const auto& name : alien)
-		{
-			std::cout << "  " << name << std::endl;
-		}
-		std::cout << std::endl;
-	}
-
-	std::cout << " planets_groups :" << std::endl;
-	for (const auto& group : mib.planet_groups)
-	{
-		std::cout << "  ---" << std::endl;
-		for (const auto& category : group)
-		{
-			for (const auto& planet : category)
-			{
-				std::cout << "   " << planet << std::endl;
-			}
-			std::cout << std::endl;
-		}
-		std::cout << std::endl;
-	}
-
-	std::cout << std::endl;
+	std::cout << out_json_data.str() << std::endl;
 }

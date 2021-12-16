@@ -1,10 +1,10 @@
+#include "struct_mapping/struct_mapping.h"
+
 #include <iostream>
 #include <map>
 #include <sstream>
 #include <string>
 #include <unordered_map>
-
-#include "struct_mapping/struct_mapping.h"
 
 struct Library
 {
@@ -55,30 +55,8 @@ int main()
 
 	struct_mapping::map_json_to_struct(library, json_data);
 
-	std::cout << "library:" << std::endl;
+	std::ostringstream out_json_data;
+	struct_mapping::map_struct_to_json(library, out_json_data, "  ");
 
-	std::cout << " counters :" << std::endl;
-
-	for (const auto& [n1, v] : library.counters)
-	{
-		std::cout << "  " << n1 << " : ";
-		for (const auto& [n2, c] : v)
-		{
-			std::cout << "[" << n2 << ", " << c << "], ";
-		}
-		std::cout << std::endl;
-	}
-
-	std::cout << " books :" << std::endl;
-	for (const auto& [n1, v] : library.books)
-	{
-		std::cout << "  " << n1 << " : ";
-		for (const auto& [n2, b] : v)
-		{
-			std::cout << "[" << n2 << ", " << b << "], ";
-		}
-		std::cout << std::endl;
-	}
-
-	std::cout << std::endl;
+	std::cout << out_json_data.str() << std::endl;
 }

@@ -1,5 +1,4 @@
-#ifndef STRUCT_MAPPING_UTILITY_H
-#define STRUCT_MAPPING_UTILITY_H
+#pragma once
 
 #include <limits>
 #include <optional>
@@ -37,7 +36,7 @@ using remove_optional_t = typename remove_optional<T>::Type;
 
 
 template<typename T>
-static constexpr bool is_integer_v = !std::is_same_v<T, bool>&& std::is_integral_v<T>;
+static constexpr bool is_integer_v = !std::is_same_v<T, bool> && std::is_integral_v<T>;
 
 template<typename T>
 static constexpr bool is_integer_or_floating_point_v = !std::is_same_v<T, bool>
@@ -49,7 +48,7 @@ static constexpr bool is_integral_or_floating_point_or_string_v = std::is_integr
 	|| std::is_same_v<T, std::string>;
 
 template<typename T>
-static constexpr bool is_complex_v = !is_integral_or_floating_point_or_string_v<T>&& !std::is_enum_v<T>;
+static constexpr bool is_complex_v = !is_integral_or_floating_point_or_string_v<T> && !std::is_enum_v<T>;
 
 
 template<
@@ -95,10 +94,10 @@ constexpr bool is_container_like_v = is_container_like<T>::value;
 
 
 template<typename T>
-constexpr bool is_array_like_v = is_container_like_v<T>&& !has_mapped_type_v<T>;
+constexpr bool is_array_like_v = is_container_like_v<T> && !has_mapped_type_v<T>;
 
 template<typename T>
-constexpr bool is_map_like_v = is_container_like_v<T>&& has_mapped_type_v<T>;
+constexpr bool is_map_like_v = is_container_like_v<T> && has_mapped_type_v<T>;
 
 
 using Index = unsigned int;
@@ -116,7 +115,7 @@ inline bool in_limits(V value)
 {
 	if constexpr (std::is_integral_v<U>)
 	{
-		return (value >= std::numeric_limits<U>::lowest()&& value <= std::numeric_limits<U>::max());
+		return (value >= std::numeric_limits<U>::lowest() && value <= std::numeric_limits<U>::max());
 	}
 	else
 	{
@@ -126,5 +125,3 @@ inline bool in_limits(V value)
 }
 
 } // struct_mapping::detail
-
-#endif

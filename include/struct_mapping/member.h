@@ -1,10 +1,4 @@
-#ifndef STRUCT_MAPPING_MEMBER_H
-#define STRUCT_MAPPING_MEMBER_H
-
-#include <functional>
-#include <string>
-#include <type_traits>
-#include <utility>
+#pragma once
 
 #include "iterate_over.h"
 #include "member_string.h"
@@ -13,6 +7,11 @@
 #include "options/option_not_empty.h"
 #include "options/option_required.h"
 #include "utility.h"
+
+#include <functional>
+#include <string>
+#include <type_traits>
+#include <utility>
 
 namespace struct_mapping::detail
 {
@@ -23,8 +22,6 @@ template<
 class Member
 {
 public:
-	using Name = std::string;
-
 	enum class Type
 	{
 		Bool,
@@ -43,11 +40,12 @@ public:
 		Complex,
 	};
 
+public:
 	template<
 		typename V,
 		typename ... U,
 		template<typename> typename ... Options>
-	Member(Name name_, MemberPtr<T, V> ptr_, Options<U>&& ... options)
+	Member(const std::string& name_, MemberPtr<T, V> ptr_, Options<U>&& ... options)
 		:	name(name_), type(get_member_type<remove_optional_t<V>>())
 	{
 		is_optional = is_optional_v<V>;
@@ -167,7 +165,7 @@ public:
 			iterate_over_impl<std::string, std::string>(o);
 			break;
 		case Type::Enum:
-			if (const auto& value_string = ObjectType::member_string_to_string[member_string_index](o))
+			if (const auto& value_string = ObjectType::member_string_to_string[member_string_index](o); value_string)
 			{
 				IterateOver::set<std::string>(name, value_string.value());
 			}
@@ -179,7 +177,7 @@ public:
 		case Type::Complex:
 			if (member_string_index != NO_INDEX)
 			{
-				if (const auto& value_string = ObjectType::member_string_to_string[member_string_index](o))
+				if (const auto& value_string = ObjectType::member_string_to_string[member_string_index](o); value_string)
 				{
 					IterateOver::set<std::string>(name, value_string.value());
 				}
@@ -204,13 +202,14 @@ public:
 		changed = false;
 	}
 
+public:
 	Index bounds_index = NO_INDEX;
 	bool changed = false;
 	Index default_index = NO_INDEX;
 	Index deep_index;
 	bool is_optional;
 	Index member_string_index = NO_INDEX;
-	Name name;
+	std::string name;
 	Index ptr_index;
 	bool option_not_empty = false;
 	bool option_required = false;
@@ -221,7 +220,7 @@ private:
 		typename V,
 		typename U,
 		template<typename> typename Op>
-	void add_option(Op<U> && op)
+	void add_option(Op<U>&& op)
 	{
 		if constexpr (std::is_same_v<Bounds<U>, std::decay_t<Op<U>>>)
 		{
@@ -248,7 +247,7 @@ private:
 	template<
 		typename V,
 		typename U>
-	void add_option_bounds(Bounds<U>& op)
+	void add_option_bounds(const Bounds<U>& op)
 	{
 		bounds_index = static_cast<Index>(ObjectType::template members_bounds<V>.size());
 		ObjectType::template members_bounds<V>.push_back(op);
@@ -257,7 +256,7 @@ private:
 	template<
 		typename V,
 		typename U>
-	void add_option_default(Default<U>& op)
+	void add_option_default(const Default<U>& op)
 	{
 		if constexpr (std::is_same_v<remove_optional_t<V>, std::string> && std::is_same_v<U, const char*>)
 		{
@@ -318,7 +317,8 @@ private:
 		}
 		else
 		{
-			if (const auto& member_value = o.*ObjectType::template members_ptr<std::optional<MemberType>>[ptr_index])
+			if (const auto& member_value = o.*ObjectType::template members_ptr<std::optional<MemberType>>[ptr_index];
+				member_value)
 			{
 				IterateOver::set<ValueType>(name, member_value.value());
 			}
@@ -426,5 +426,3 @@ private:
 };
 
 } // struct_mapping::detail
-
-#endif

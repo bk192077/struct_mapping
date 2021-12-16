@@ -1,5 +1,4 @@
-#ifndef STRUCT_MAPPING_EXCEPTION_H
-#define STRUCT_MAPPING_EXCEPTION_H
+#pragma once
 
 #include <stdexcept>
 
@@ -14,5 +13,3 @@ public:
 };
 
 } // struct_mapping
-
-#endif

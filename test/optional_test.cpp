@@ -1,11 +1,11 @@
-#include <map>
-#include <string>
-#include <vector>
+#include "struct_mapping/struct_mapping.h"
 
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
-#include "struct_mapping/struct_mapping.h"
+#include <map>
+#include <string>
+#include <vector>
 
 using ::testing::ElementsAre;
 using ::testing::Pair;
