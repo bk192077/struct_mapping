@@ -146,7 +146,7 @@ public:
 
 				if (member_name_index_it == std::cend(members_name_index))
 				{
-					throw StructMappingException("bad member: " + name);
+					return;
 				}
 
 				const auto member_name_index = member_name_index_it->second;
@@ -186,7 +186,7 @@ public:
 
 				if (member_name_index_it == std::cend(members_name_index))
 				{
-					throw StructMappingException("bad member: " + name);
+					return;
 				}
 
 				const auto member_name_index = member_name_index_it->second;
@@ -229,7 +229,7 @@ public:
 
 				if (member_name_index_it == std::cend(members_name_index))
 				{
-					throw StructMappingException("bad member: " + name);
+					return;
 				}
 
 				const auto member_name_index = member_name_index_it->second;
@@ -296,7 +296,7 @@ public:
 
 				if (member_name_index_it == std::cend(members_name_index))
 				{
-					throw StructMappingException("bad member: " + name);
+					return;
 				}
 
 				const auto member_name_index = member_name_index_it->second;
@@ -338,7 +338,7 @@ public:
 
 				if (member_name_index_it == std::cend(members_name_index))
 				{
-					throw StructMappingException("bad member: " + name);
+					return;
 				}
 
 				const auto member_name_index = member_name_index_it->second;

@@ -1559,7 +1559,6 @@ int main()
 
 StructMapping throws a `StructMappingException` exception during the mapping process
 
-* when setting a value for an unregistered field (in json, the name of the value in the object does not correspond to any of the registered fields in the c++ structure)
 * when setting a value whose type does not match the type of field (for enumerations when setting values other than a string)
 * (for numerical fields) when setting a value that is outside the range of the field type
 * when using an enumeration, if functions for converting to / from a string were not specified for it
