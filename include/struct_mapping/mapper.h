@@ -191,9 +191,8 @@ inline void map_struct_to_json(
 
  					json_data << "null";
 				}
-			}
-
-			first_element = false;
+				first_element = false;
+			}			
 		};
 
 	detail::IterateOver::set<bool> = [&] (const std::string& name, bool value)
